@@ -176,7 +176,7 @@ else
 fi
 
 if [[ ${BOOTMODE} == true ]]; then
-  [[ "$(pm path org.meowcat.edxposed.manager)" == "" && "$(pm path de.robv.android.xposed.installer)" == "" ]] && NO_MANAGER=true
+  [[ "$(pm path org.edxp.manager)" == "" && "$(pm path de.robv.android.xposed.installer)" == "" ]] && NO_MANAGER=true
 fi
 
 if [[ ${BOOTMODE} == true && ${NO_MANAGER} == true ]]; then
@@ -201,9 +201,9 @@ else
   ui_print "  - ${LANG_CUST_INST_CONF_NEW} ${MISC_RAND}"
   mkdir -p /data/adb/edxp || abortC "! ${LANG_CUST_ERR_CONF_CREATE}"
   echo "$MISC_PATH" > /data/adb/edxp/misc_path || abortC "! ${LANG_CUST_ERR_CONF_STORE}"
-  if [[ -d /data/user_de/0/org.meowcat.edxposed.manager/conf/ ]]; then
+  if [[ -d /data/user_de/0/org.edxp.manager/conf/ ]]; then
     mkdir -p /data/misc/$MISC_PATH/0/conf
-    cp -r /data/user_de/0/org.meowcat.edxposed.manager/conf/* /data/misc/$MISC_PATH/0/conf/
+    cp -r /data/user_de/0/org.edxp.manager/conf/* /data/misc/$MISC_PATH/0/conf/
     set_perm_recursive /data/misc/$MISC_PATH root root 0771 0660 "u:object_r:magisk_file:s0" || abortC "! ${LANG_CUST_ERR_PERM}"
   fi
 fi
