@@ -17,7 +17,7 @@ namespace edxp {
 
     class ConfigManager {
     private:
-        inline static const auto kPrimaryInstallerPkgName = "org.meowcat.edxposed.manager"s;
+        inline static const auto kPrimaryInstallerPkgName = "org.edxp.manager"s;
         inline static const auto kXposedPropName = "edconfig.jar"s;
         inline static const std::vector<std::string> kXposedInjectDexPath = {
                 "edxp.dex",
