@@ -132,7 +132,7 @@ start_log_cather () {
 }
 
 # install stub if manager not installed
-if [[ "$(pm path org.meowcat.edxposed.manager 2>&1)" == "" && "$(pm path de.robv.android.xposed.installer 2>&1)" == "" ]]; then
+if [[ "$(pm path org.edxp.manager 2>&1)" == "" && "$(pm path de.robv.android.xposed.installer 2>&1)" == "" ]]; then
     NO_MANAGER=true
 fi
 if [[ ${NO_MANAGER} == true ]]; then
