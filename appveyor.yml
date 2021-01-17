@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-version: '0.5.1.4_{build}-WuYang'
-=======
-version: '0.5.2.0_{build}-{branch}'
->>>>>>> 1b86412069ce6d44a36670c5661c90c58bc8d98c
+version: '0.5.2.0_{build}-WuYang'
 
 environment:
   ANDROID_HOME: C:\android-sdk-windows
@@ -22,12 +18,7 @@ install:
   - set PATH=%PATH%;C:\android-sdk-windows\ndk-bundle;C:\android-sdk-windows\build-tools\28.0.3
 
 build_script:
-<<<<<<< HEAD
-  - gradlew.bat :edxp-core:zipSandhookRelease
-=======
   - gradlew.bat :edxp-core:zipRelease
-  - gradlew.bat :edxp-core:zipDebug
->>>>>>> 1b86412069ce6d44a36670c5661c90c58bc8d98c
 
 artifacts:
   - path: 'edxp-core\release\**\*.zip'
