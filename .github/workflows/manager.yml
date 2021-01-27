@@ -23,7 +23,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Get version code
-        run: echo APPVEYOR_BUILD_NUMBER=$(expr $GITHUB_RUN_NUMBER + 4999) >> $GITHUB_ENV
+        run: echo APPVEYOR_BUILD_NUMBER=$(expr $GITHUB_RUN_NUMBER + 1999) >> $GITHUB_ENV
       - name: Build with Gradle
         run:  bash ./gradlew :app:assembleRelease
       - name: Sign Manager Release
