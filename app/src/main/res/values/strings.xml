@@ -253,7 +253,7 @@
     <string name="white_list_mode_summary">White List mode: Only selected app load LSPosed modules\nApp list mode is required to enable</string>
 
     <string name="support_faq_url" translatable="false">https://github.com/LSPosed/LSPosed/wiki</string>
-    <string name="about_source" translatable="false">https://github.com/LSPosed/LSPosed/</string>
+    <string name="about_source" translatable="false">https://github.com/naicfeng/EdXposed/tree/LSPosed</string>
 
     <string name="solohsu" translatable="false">givein2u</string>
     <string name="mlgmxyysd" translatable="false">MlgmXyysd</string>
