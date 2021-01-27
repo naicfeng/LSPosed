@@ -1,0 +1,75 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion androidCompileSdkVersion.toInteger()
+
+    ndkVersion androidCompileNdkVersion
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    defaultConfig {
+        applicationId "org.meowcat.edxposed.manager"
+        minSdkVersion androidMinSdkVersion.toInteger()
+        targetSdkVersion androidTargetSdkVersion.toInteger()
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+    }
+
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        disable 'MissingTranslation'
+        disable 'ExtraTranslation'
+        abortOnError true
+        checkReleaseBuilds true
+    }
+
+    packagingOptions {
+        exclude 'META-INF/**'
+        exclude 'org/**'
+        exclude '**.properties'
+        exclude '**.bin'
+    }
+
+    dependenciesInfo.includeInApk false
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "EdXposedManagerR-${defaultConfig.versionName}-${defaultConfig.versionCode}-${buildType.name}.apk"
+        }
+    }
+}
+
+dependencies {
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.browser:browser:1.3.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation "com.github.topjohnwu.libsu:core:2.5.1"
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'com.takisoft.preferencex:preferencex:1.1.0'
+    implementation 'com.takisoft.preferencex:preferencex-colorpicker:1.1.0'
+    implementation 'tech.rectifier.preferencex-android:preferencex-simplemenu:88f93154b2'
+    implementation 'me.zhanghai.android.appiconloader:appiconloader-glide:1.2.0'
+    implementation 'me.zhanghai.android.fastscroll:library:1.1.5'
+}
