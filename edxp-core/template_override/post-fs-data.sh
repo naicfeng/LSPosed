@@ -36,7 +36,7 @@ RIRU_APICODE=$(cat "${RIRU_PATH}/api_version")
 MAGISK_VERSION=$(magisk -v)
 MAGISK_VERCODE=$(magisk -V)
 
-#EDXP_MANAGER="org.meowcat.edxposed.manager"
+#EDXP_MANAGER="org.lsposed.manager"
 #XP_INSTALLER="de.robv.android.xposed.installer"
 #PATH_PREFIX="/data/user_de/0/"
 #PATH_PREFIX_LEGACY="/data/user/0/"
@@ -128,7 +128,7 @@ start_log_cather () {
 }
 
 # install stub if manager not installed
-if [[ "$(pm path org.meowcat.edxposed.manager 2>&1)" == "" && "$(pm path de.robv.android.xposed.installer 2>&1)" == "" ]]; then
+if [[ "$(pm path org.lsposed.manager 2>&1)" == "" && "$(pm path de.robv.android.xposed.installer 2>&1)" == "" ]]; then
     NO_MANAGER=true
 fi
 if [[ ${NO_MANAGER} == true ]]; then

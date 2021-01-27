@@ -44,37 +44,37 @@ public class XposedInstallerHooker {
 
         // EdXposed Manager R
         try {
-            XposedHelpers.findAndHookMethod("org.meowcat.edxposed.manager.Constants", classLoader, "getXposedApiVersion", new XC_MethodReplacement() {
+            XposedHelpers.findAndHookMethod("org.lsposed.manager.Constants", classLoader, "getXposedApiVersion", new XC_MethodReplacement() {
                 @Override
                 protected Object replaceHookedMethod(MethodHookParam param) {
                     return XposedBridge.getXposedVersion();
                 }
             });
-            XposedHelpers.findAndHookMethod("org.meowcat.edxposed.manager.Constants", classLoader, "getXposedVersion", new XC_MethodReplacement() {
+            XposedHelpers.findAndHookMethod("org.lsposed.manager.Constants", classLoader, "getXposedVersion", new XC_MethodReplacement() {
                 @Override
                 protected Object replaceHookedMethod(MethodHookParam param) {
                     return BuildConfig.VERSION_NAME;
                 }
             });
-            XposedHelpers.findAndHookMethod("org.meowcat.edxposed.manager.Constants", classLoader, "getXposedVersionCode", new XC_MethodReplacement() {
+            XposedHelpers.findAndHookMethod("org.lsposed.manager.Constants", classLoader, "getXposedVersionCode", new XC_MethodReplacement() {
                 @Override
                 protected Object replaceHookedMethod(MethodHookParam param) {
                     return BuildConfig.VERSION_CODE;
                 }
             });
-            XposedHelpers.findAndHookMethod("org.meowcat.edxposed.manager.Constants", classLoader, "getXposedApiVersion", new XC_MethodReplacement() {
+            XposedHelpers.findAndHookMethod("org.lsposed.manager.Constants", classLoader, "getXposedApiVersion", new XC_MethodReplacement() {
                 @Override
                 protected Object replaceHookedMethod(MethodHookParam param) {
                     return XposedBridge.getXposedVersion();
                 }
             });
-            XposedHelpers.findAndHookMethod("org.meowcat.edxposed.manager.Constants", classLoader, "getXposedVariant", new XC_MethodReplacement() {
+            XposedHelpers.findAndHookMethod("org.lsposed.manager.Constants", classLoader, "getXposedVariant", new XC_MethodReplacement() {
                 @Override
                 protected Object replaceHookedMethod(MethodHookParam param) {
                     return variant;
                 }
             });
-            XposedHelpers.findAndHookMethod("org.meowcat.edxposed.manager.Constants", classLoader, "getBaseDir", new XC_MethodReplacement() {
+            XposedHelpers.findAndHookMethod("org.lsposed.manager.Constants", classLoader, "getBaseDir", new XC_MethodReplacement() {
                 @Override
                 protected Object replaceHookedMethod(MethodHookParam param) {
                     return ConfigManager.getBaseConfigPath() + "/";
@@ -137,19 +137,19 @@ public class XposedInstallerHooker {
         }
 
         // EdXposed Manager
-        deoptMethod(classLoader, "org.meowcat.edxposed.manager.ModulesFragment", "onActivityCreated", Bundle.class);
-        deoptMethod(classLoader, "org.meowcat.edxposed.manager.ModulesFragment", "showMenu", Context.class, View.class, ApplicationInfo.class);
-        deoptMethod(classLoader, "org.meowcat.edxposed.manager.StatusInstallerFragment", "onCreateView", LayoutInflater.class, ViewGroup.class, Bundle.class);
-        deoptMethod(classLoader, "org.meowcat.edxposed.manager.util.ModuleUtil", "updateModulesList", boolean.class, View.class);
+        deoptMethod(classLoader, "org.lsposed.manager.ModulesFragment", "onActivityCreated", Bundle.class);
+        deoptMethod(classLoader, "org.lsposed.manager.ModulesFragment", "showMenu", Context.class, View.class, ApplicationInfo.class);
+        deoptMethod(classLoader, "org.lsposed.manager.StatusInstallerFragment", "onCreateView", LayoutInflater.class, ViewGroup.class, Bundle.class);
+        deoptMethod(classLoader, "org.lsposed.manager.util.ModuleUtil", "updateModulesList", boolean.class, View.class);
         try {
-            XposedHelpers.findAndHookMethod("org.meowcat.edxposed.manager.XposedApp", classLoader, "onCreate", new XC_MethodHook() {
+            XposedHelpers.findAndHookMethod("org.lsposed.manager.XposedApp", classLoader, "onCreate", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     XposedHelpers.setStaticObjectField(param.thisObject.getClass(), "BASE_DIR", ConfigManager.getBaseConfigPath() + "/");
                     XposedHelpers.setStaticObjectField(param.thisObject.getClass(), "ENABLED_MODULES_LIST_FILE", ConfigManager.getConfigPath("enabled_modules.list"));
                 }
             });
-            XposedHelpers.findAndHookMethod("org.meowcat.edxposed.manager.util.ModuleUtil", classLoader, "updateModulesList", boolean.class, View.class, new XC_MethodHook() {
+            XposedHelpers.findAndHookMethod("org.lsposed.manager.util.ModuleUtil", classLoader, "updateModulesList", boolean.class, View.class, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     final Object thisObject = param.thisObject;
@@ -159,7 +159,7 @@ public class XposedInstallerHooker {
                 }
             });
 
-            XposedHelpers.findAndHookMethod("org.meowcat.edxposed.manager.StatusInstallerFragment", classLoader, "getCanonicalFile", File.class, new XC_MethodHook() {
+            XposedHelpers.findAndHookMethod("org.lsposed.manager.StatusInstallerFragment", classLoader, "getCanonicalFile", File.class, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     File arg = (File) param.args[0];
