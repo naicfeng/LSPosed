@@ -36,7 +36,7 @@ jobs:
     - name: Upload release
       uses: actions/upload-artifact@v2
       with:
-        name: LSPosed-v0.5.2.0-$(expr $GITHUB_RUN_NUMBER + 1999)-release
+        name: LSPosed-v0.5.2.0-release
         path: './LSPosed-release/*'
 #    - name: Upload debug
 #      if: ${{ github.event_name == 'pull_request' && success() }}
