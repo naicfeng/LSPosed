@@ -9,14 +9,6 @@ import com.elderdrivers.riru.edxp._hooker.impl.HandleBindApp;
 import com.elderdrivers.riru.edxp._hooker.impl.LoadedApkCstr;
 import com.elderdrivers.riru.edxp._hooker.impl.StartBootstrapServices;
 import com.elderdrivers.riru.edxp._hooker.impl.SystemMain;
-import com.elderdrivers.riru.edxp._hooker.yahfa.HandleBindAppHooker;
-import com.elderdrivers.riru.edxp._hooker.yahfa.LoadedApkConstructorHooker;
-import com.elderdrivers.riru.edxp._hooker.yahfa.StartBootstrapServicesHooker;
-import com.elderdrivers.riru.edxp._hooker.yahfa.SystemMainHooker;
-import com.elderdrivers.riru.edxp.core.yahfa.HookMain;
-import com.elderdrivers.riru.edxp.entry.yahfa.AppBootstrapHookInfo;
-import com.elderdrivers.riru.edxp.entry.yahfa.SysBootstrapHookInfo;
-import com.elderdrivers.riru.edxp.entry.yahfa.SysInnerHookInfo;
 import com.elderdrivers.riru.edxp.util.Utils;
 import com.elderdrivers.riru.edxp.util.Versions;
 
@@ -31,8 +23,6 @@ import de.robv.android.xposed.annotation.Level;
 public abstract class BaseRouter implements Router {
 
     protected volatile AtomicBoolean bootstrapHooked = new AtomicBoolean(false);
-
-    protected static boolean useXposedApi = false;
 
     public void initResourcesHook() {
         XposedBridge.initXResources();
@@ -81,49 +71,27 @@ public abstract class BaseRouter implements Router {
     public void startBootstrapHook(boolean isSystem) {
         Utils.logD("startBootstrapHook starts: isSystem = " + isSystem);
         ClassLoader classLoader = BaseRouter.class.getClassLoader();
-        if (useXposedApi) {
-            if (isSystem) {
-                XposedHelpers.findAndHookMethod(SystemMainHooker.className, classLoader,
-                        SystemMainHooker.methodName, new SystemMain());
-            }
-            XposedHelpers.findAndHookMethod(HandleBindAppHooker.className, classLoader,
-                    HandleBindAppHooker.methodName,
-                    "android.app.ActivityThread$AppBindData",
-                    new HandleBindApp());
-            XposedHelpers.findAndHookConstructor(LoadedApkConstructorHooker.className, classLoader,
-                    ActivityThread.class, ApplicationInfo.class, CompatibilityInfo.class,
-                    ClassLoader.class, boolean.class, boolean.class, boolean.class,
-                    new LoadedApkCstr());
-        } else {
-            if (isSystem) {
-                HookMain.doHookDefault(
-                        BaseRouter.class.getClassLoader(),
-                        classLoader,
-                        SysBootstrapHookInfo.class.getName());
-            } else {
-                HookMain.doHookDefault(
-                        BaseRouter.class.getClassLoader(),
-                        classLoader,
-                        AppBootstrapHookInfo.class.getName());
-            }
+        if (isSystem) {
+            XposedHelpers.findAndHookMethod("android.app.ActivityThread", classLoader,
+                    "systemMain", new SystemMain());
         }
+        XposedHelpers.findAndHookMethod("android.app.ActivityThread", classLoader,
+                "handleBindApplication",
+                "android.app.ActivityThread$AppBindData",
+                new HandleBindApp());
+        XposedHelpers.findAndHookConstructor("android.app.LoadedApk", classLoader,
+                ActivityThread.class, ApplicationInfo.class, CompatibilityInfo.class,
+                ClassLoader.class, boolean.class, boolean.class, boolean.class,
+                new LoadedApkCstr());
     }
 
     public void startSystemServerHook() {
-        ClassLoader classLoader = BaseRouter.class.getClassLoader();
-        if (useXposedApi) {
-            StartBootstrapServices sbsHooker = new StartBootstrapServices();
-            Object[] paramTypesAndCallback = Versions.hasR() ?
-                    new Object[]{"com.android.server.utils.TimingsTraceAndSlog", sbsHooker} :
-                    new Object[]{sbsHooker};
-            XposedHelpers.findAndHookMethod(StartBootstrapServicesHooker.className,
-                    SystemMain.systemServerCL,
-                    StartBootstrapServicesHooker.methodName, paramTypesAndCallback);
-        } else {
-            HookMain.doHookDefault(
-                    classLoader,
-                    SystemMain.systemServerCL,
-                    SysInnerHookInfo.class.getName());
-        }
+        StartBootstrapServices sbsHooker = new StartBootstrapServices();
+        Object[] paramTypesAndCallback = Versions.hasR() ?
+                new Object[]{"com.android.server.utils.TimingsTraceAndSlog", sbsHooker} :
+                new Object[]{sbsHooker};
+        XposedHelpers.findAndHookMethod("com.android.server.SystemServer",
+                SystemMain.systemServerCL,
+                "startBootstrapServices", paramTypesAndCallback);
     }
 }

@@ -1,45 +1,67 @@
 package org.lsposed.manager;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Application;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
-import org.lsposed.manager.adapters.AppHelper;
-import org.lsposed.manager.receivers.PackageChangeReceiver;
 import org.lsposed.manager.ui.activity.CrashReportActivity;
-import org.lsposed.manager.util.ModuleUtil;
+import org.lsposed.manager.util.CompileUtil;
 import org.lsposed.manager.util.NotificationUtil;
+import org.lsposed.manager.util.RebootUtil;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Objects;
 
-public class App extends Application implements Application.ActivityLifecycleCallbacks {
+import rikka.shizuku.Shizuku;
+import rikka.sui.Sui;
+
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
+public class App extends Application {
     public static final String TAG = "EdXposedManager";
     @SuppressLint("StaticFieldLeak")
     private static App instance = null;
     private static Thread uiThread;
     private static Handler mainHandler;
     private SharedPreferences pref;
-    //private AppCompatActivity currentActivity = null;
-    private boolean isUiLoaded = false;
+
+    private final Shizuku.OnRequestPermissionResultListener REQUEST_PERMISSION_RESULT_LISTENER = this::onRequestPermissionsResult;
+
+    static {
+        Sui.init(BuildConfig.APPLICATION_ID);
+    }
+
+    private void onRequestPermissionsResult(int requestCode, int grantResult) {
+        if (requestCode < 10) {
+            RebootUtil.onRequestPermissionsResult(requestCode, grantResult);
+        } else {
+            CompileUtil.onRequestPermissionsResult(requestCode, grantResult);
+        }
+    }
+
+    public static int checkPermission(int code) {
+        try {
+            if (!Shizuku.isPreV11() && Shizuku.getVersion() >= 11) {
+                if (Shizuku.checkSelfPermission() == PERMISSION_GRANTED) {
+                    return 0;
+                } else if (Shizuku.shouldShowRequestPermissionRationale()) {
+                    return -1;
+                } else {
+                    Shizuku.requestPermission(code);
+                    return -1;
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return -2;
+    }
 
     public static App getInstance() {
         return instance;
@@ -58,9 +80,8 @@ public class App extends Application implements Application.ActivityLifecycleCal
     }
 
     public static void mkdir(String dir) {
-        dir = Constants.getBaseDir() + dir;
         //noinspection ResultOfMethodCallIgnored
-        new File(dir).mkdir();
+        new File(Constants.getBaseDir() + dir).mkdir();
     }
 
     public static boolean supportScope() {
@@ -106,88 +127,13 @@ public class App extends Application implements Application.ActivityLifecycleCal
 
         createDirectories();
         NotificationUtil.init();
-        registerReceivers();
 
-        registerActivityLifecycleCallbacks(this);
-
-        @SuppressLint("SimpleDateFormat") DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        Date date = new Date();
-
-        if (!Objects.requireNonNull(pref.getString("date", "")).equals(dateFormat.format(date))) {
-            pref.edit().putString("date", dateFormat.format(date)).apply();
-
-            try {
-                Log.i(TAG, String.format("EdXposedManager - %s - %s", BuildConfig.VERSION_CODE, getPackageManager().getPackageInfo(getPackageName(), 0).versionName));
-            } catch (PackageManager.NameNotFoundException ignored) {
-            }
-        }
+        Shizuku.addRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
     }
 
-    private void registerReceivers() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        filter.addDataScheme("package");
-        registerReceiver(new PackageChangeReceiver(), filter);
-
-        PendingIntent.getBroadcast(this, 0,
-                new Intent(this, PackageChangeReceiver.class), 0);
-    }
-
-    @SuppressLint({"PrivateApi", "NewApi"})
     private void createDirectories() {
         mkdir("conf");
         mkdir("log");
     }
 
-    @Override
-    public synchronized void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
-        if (isUiLoaded) {
-            return;
-        }
-
-        //RepoLoader.getInstance().triggerFirstLoadIfNecessary();
-        isUiLoaded = true;
-
-        if (pref.getBoolean("hook_modules", true)) {
-            Collection<ModuleUtil.InstalledModule> installedModules = ModuleUtil.getInstance().getModules().values();
-            for (ModuleUtil.InstalledModule info : installedModules) {
-                if (!AppHelper.forceWhiteList.contains(info.packageName)) {
-                    AppHelper.forceWhiteList.add(info.packageName);
-                }
-            }
-            Log.d(TAG, "ApplicationList: Force add modules to list");
-        }
-    }
-
-    @Override
-    public void onActivityStarted(@NonNull Activity activity) {
-
-    }
-
-    @Override
-    public synchronized void onActivityResumed(@NonNull Activity activity) {
-
-    }
-
-    @Override
-    public synchronized void onActivityPaused(@NonNull Activity activity) {
-
-    }
-
-    @Override
-    public void onActivityStopped(@NonNull Activity activity) {
-
-    }
-
-    @Override
-    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-
-    }
-
-    @Override
-    public void onActivityDestroyed(@NonNull Activity activity) {
-
-    }
 }

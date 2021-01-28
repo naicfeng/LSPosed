@@ -6,13 +6,8 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
-import android.os.PowerManager;
-import android.text.TextUtils;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,16 +17,14 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.topjohnwu.superuser.Shell;
 
 import org.lsposed.manager.App;
 import org.lsposed.manager.R;
+import org.lsposed.manager.util.CompileUtil;
 import org.lsposed.manager.util.CustomThemeColor;
 import org.lsposed.manager.util.CustomThemeColors;
-import org.lsposed.manager.util.NavUtil;
+import org.lsposed.manager.util.RebootUtil;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 public class BaseActivity extends AppCompatActivity {
@@ -157,126 +150,25 @@ public class BaseActivity extends AppCompatActivity {
                 .show();
     }
 
-    void softReboot() {
-        if (!Shell.rootAccess()) {
-            showAlert(getString(R.string.root_failed));
-            return;
-        }
-
-        String command;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && ((PowerManager) getSystemService(Context.POWER_SERVICE)).isRebootingUserspaceSupported()) {
-            command = "/system/bin/svc power reboot userspace";
-        } else {
-            command = "setprop ctl.restart surfaceflinger; setprop ctl.restart zygote";
-        }
-
-        List<String> messages = new LinkedList<>();
-        Shell.Result result = Shell.su(command).exec();
-        if (result.getCode() != 0) {
-            messages.add(result.getOut().toString());
-            messages.add("");
-            messages.add(getString(R.string.reboot_failed));
-            showAlert(TextUtils.join("\n", messages).trim());
-        }
-    }
-
-    void showAlert(final String result) {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            runOnUiThread(() -> showAlert(result));
-            return;
-        }
-
-        new MaterialAlertDialogBuilder(this)
-                .setMessage(result)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
-    }
-
-    void reboot(String mode) {
-        if (!Shell.rootAccess()) {
-            showAlert(getString(R.string.root_failed));
-            return;
-        }
-
-        List<String> messages = new LinkedList<>();
-
-        String command = "/system/bin/svc power reboot";
-        if (mode != null) {
-            command += " " + mode;
-            if (mode.equals("recovery"))
-                // create a flag used by some kernels to boot into recovery
-                Shell.su("touch /cache/recovery/boot").exec();
-        }
-        Shell.Result result = Shell.su(command).exec();
-        if (result.getCode() != 0) {
-            messages.add(result.getOut().toString());
-            messages.add("");
-            messages.add(getString(R.string.reboot_failed));
-            showAlert(TextUtils.join("\n", messages).trim());
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.dexopt_all) {
-            areYouSure(R.string.take_while_cannot_resore, (dialog, which) -> {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.dexopt_now)
-                        .setMessage(R.string.this_may_take_a_while)
-                        .setCancelable(false)
-                        .show();
-                new Thread("dexopt") {
-                    @Override
-                    public void run() {
-                        if (!Shell.rootAccess()) {
-                            dialog.dismiss();
-                            NavUtil.showMessage(BaseActivity.this, getString(R.string.root_failed));
-                            return;
-                        }
-
-                        Shell.su("cmd package bg-dexopt-job").exec();
-
-                        dialog.dismiss();
-                        App.runOnUiThread(() -> Toast.makeText(BaseActivity.this, R.string.done, Toast.LENGTH_LONG).show());
-                    }
-                }.start();
-            });
+            CompileUtil.compileAllDexopt(this);
         } else if (itemId == R.id.speed_all) {
-            areYouSure(R.string.take_while_cannot_resore, (dialog, which) -> {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.speed_now)
-                        .setMessage(R.string.this_may_take_a_while)
-                        .setCancelable(false)
-                        .show();
-                new Thread("dex2oat") {
-                    @Override
-                    public void run() {
-                        if (!Shell.rootAccess()) {
-                            dialog.dismiss();
-                            NavUtil.showMessage(BaseActivity.this, getString(R.string.root_failed));
-                            return;
-                        }
-
-                        Shell.su("cmd package compile -m speed -a").exec();
-
-                        dialog.dismiss();
-                        App.runOnUiThread(() -> Toast.makeText(BaseActivity.this, R.string.done, Toast.LENGTH_LONG).show());
-                    }
-                };
-            });
+            CompileUtil.compileAllSpeed(this);
         } else if (itemId == R.id.reboot) {
-            areYouSure(R.string.reboot, (dialog, which) -> reboot(null));
+            areYouSure(R.string.reboot, (dialog, which) -> RebootUtil.reboot(RebootUtil.RebootType.NORMAL));
         } else if (itemId == R.id.soft_reboot) {
-            areYouSure(R.string.soft_reboot, (dialog, which) -> softReboot());
+            areYouSure(R.string.soft_reboot, (dialog, which) -> RebootUtil.reboot(RebootUtil.RebootType.USERSPACE));
         } else if (itemId == R.id.reboot_recovery) {
-            areYouSure(R.string.reboot_recovery, (dialog, which) -> reboot("recovery"));
+            areYouSure(R.string.reboot_recovery, (dialog, which) -> RebootUtil.reboot(RebootUtil.RebootType.RECOVERY));
         } else if (itemId == R.id.reboot_bootloader) {
-            areYouSure(R.string.reboot_bootloader, (dialog, which) -> reboot("bootloader"));
+            areYouSure(R.string.reboot_bootloader, (dialog, which) -> RebootUtil.reboot(RebootUtil.RebootType.BOOTLOADER));
         } else if (itemId == R.id.reboot_download) {
-            areYouSure(R.string.reboot_download, (dialog, which) -> reboot("download"));
+            areYouSure(R.string.reboot_download, (dialog, which) -> RebootUtil.reboot(RebootUtil.RebootType.DOWNLOAD));
         } else if (itemId == R.id.reboot_edl) {
-            areYouSure(R.string.reboot_edl, (dialog, which) -> reboot("edl"));
+            areYouSure(R.string.reboot_edl, (dialog, which) -> RebootUtil.reboot(RebootUtil.RebootType.EDL));
         }
 
         return super.onOptionsItemSelected(item);
