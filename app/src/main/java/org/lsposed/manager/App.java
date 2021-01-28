@@ -24,7 +24,7 @@ import rikka.sui.Sui;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class App extends Application {
-    public static final String TAG = "EdXposedManager";
+    public static final String TAG = "LSPosedManager";
     @SuppressLint("StaticFieldLeak")
     private static App instance = null;
     private static Thread uiThread;
