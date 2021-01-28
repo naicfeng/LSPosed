@@ -199,17 +199,17 @@ if [[ ${BOOTMODE} == true ]]; then
   [[ "$(pm path org.lsposed.manager)" == "" && "$(pm path de.robv.android.xposed.installer)" == "" ]] && NO_MANAGER=true
 fi
 
-if [[ ${BOOTMODE} == true && ${NO_MANAGER} == true ]]; then
-    ui_print "- ${LANG_CUST_INST_STUB}"
-    cp "${MODPATH}/EdXposed.apk" "/data/local/tmp/EdXposed.apk"
-    LOCAL_PATH_INFO=$(ls -ldZ "/data/local/tmp")
-    LOCAL_PATH_OWNER=$(echo "${LOCAL_PATH_INFO}" | awk -F " " '{print $3":"$4}')
-    LOCAL_PATH_CONTEXT=$(echo "${LOCAL_PATH_INFO}" | awk -F " " '{print $5}')
-    chcon ${LOCAL_PATH_CONTEXT} "/data/local/tmp/EdXposed.apk"
-    chown ${LOCAL_PATH_OWNER} "/data/local/tmp/EdXposed.apk"
-    (pm install "/data/local/tmp/EdXposed.apk" >/dev/null 2>&2) || ui_print "  ! ${LANG_CUST_ERR_STUB}"
-    rm -f "/data/local/tmp/EdXposed.apk"
-fi
+#if [[ ${BOOTMODE} == true && ${NO_MANAGER} == true ]]; then
+#    ui_print "- ${LANG_CUST_INST_STUB}"
+#    cp "${MODPATH}/EdXposed.apk" "/data/local/tmp/EdXposed.apk"
+#    LOCAL_PATH_INFO=$(ls -ldZ "/data/local/tmp")
+#    LOCAL_PATH_OWNER=$(echo "${LOCAL_PATH_INFO}" | awk -F " " '{print $3":"$4}')
+#    LOCAL_PATH_CONTEXT=$(echo "${LOCAL_PATH_INFO}" | awk -F " " '{print $5}')
+#    chcon ${LOCAL_PATH_CONTEXT} "/data/local/tmp/EdXposed.apk"
+#    chown ${LOCAL_PATH_OWNER} "/data/local/tmp/EdXposed.apk"
+#    (pm install "/data/local/tmp/EdXposed.apk" >/dev/null 2>&2) || ui_print "  ! ${LANG_CUST_ERR_STUB}"
+#    rm -f "/data/local/tmp/EdXposed.apk"
+#fi
 
 ui_print "- ${LANG_CUST_INST_CONF_CREATE}"
 if [[ -f /data/adb/edxp/misc_path ]]; then

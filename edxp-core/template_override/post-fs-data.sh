@@ -131,16 +131,16 @@ start_log_cather () {
 if [[ "$(pm path org.lsposed.manager 2>&1)" == "" && "$(pm path de.robv.android.xposed.installer 2>&1)" == "" ]]; then
     NO_MANAGER=true
 fi
-if [[ ${NO_MANAGER} == true ]]; then
-    cp "${MODDIR}/EdXposed.apk" "/data/local/tmp/EdXposed.apk"
-    LOCAL_PATH_INFO=$(ls -ldZ "/data/local/tmp")
-    LOCAL_PATH_OWNER=$(echo "${LOCAL_PATH_INFO}" | awk -F " " '{print $3":"$4}')
-    LOCAL_PATH_CONTEXT=$(echo "${LOCAL_PATH_INFO}" | awk -F " " '{print $5}')
-    chcon "${LOCAL_PATH_CONTEXT}" "/data/local/tmp/EdXposed.apk"
-    chown "${LOCAL_PATH_OWNER}" "/data/local/tmp/EdXposed.apk"
-    pm install "/data/local/tmp/EdXposed.apk"
-    rm -f "/data/local/tmp/EdXposed.apk"
-fi
+#if [[ ${NO_MANAGER} == true ]]; then
+#    cp "${MODDIR}/EdXposed.apk" "/data/local/tmp/EdXposed.apk"
+#    LOCAL_PATH_INFO=$(ls -ldZ "/data/local/tmp")
+#    LOCAL_PATH_OWNER=$(echo "${LOCAL_PATH_INFO}" | awk -F " " '{print $3":"$4}')
+#    LOCAL_PATH_CONTEXT=$(echo "${LOCAL_PATH_INFO}" | awk -F " " '{print $5}')
+#    chcon "${LOCAL_PATH_CONTEXT}" "/data/local/tmp/EdXposed.apk"
+#    chown "${LOCAL_PATH_OWNER}" "/data/local/tmp/EdXposed.apk"
+#    pm install "/data/local/tmp/EdXposed.apk"
+#    rm -f "/data/local/tmp/EdXposed.apk"
+#fi
 
 # execute live patch if rule not found
 [[ -f "${MODDIR}/sepolicy.rule" ]] || livePatch
