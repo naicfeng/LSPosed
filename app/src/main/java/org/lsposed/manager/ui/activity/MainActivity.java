@@ -3,6 +3,7 @@ package org.lsposed.manager.ui.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.TooltipCompat;
@@ -12,6 +13,7 @@ import com.bumptech.glide.Glide;
 
 import org.lsposed.manager.Constants;
 import org.lsposed.manager.R;
+import org.lsposed.manager.adapters.AppHelper;
 import org.lsposed.manager.databinding.ActivityMainBinding;
 import org.lsposed.manager.ui.fragment.StatusDialogBuilder;
 import org.lsposed.manager.util.GlideHelper;
@@ -19,10 +21,12 @@ import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.NavUtil;
 import org.lsposed.manager.util.light.Light;
 
-public class MainActivity extends BaseActivity implements ModuleUtil.ModuleListener {
+import java.util.Locale;
+
+public class MainActivity extends BaseActivity {
     ActivityMainBinding binding;
 
-    @SuppressLint("PrivateResource")
+    @SuppressLint({"PrivateResource", "ClickableViewAccessibility"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,9 +36,9 @@ public class MainActivity extends BaseActivity implements ModuleUtil.ModuleListe
             if (Light.setLightSourceAlpha(getWindow().getDecorView(), 0.01f, 0.029f)) {
                 binding.status.setElevation(24);
                 binding.modules.setElevation(12);
+                binding.apps.setElevation(12);
             }
         });
-        ModuleUtil.getInstance().addListener(this);
         binding.modules.setOnClickListener(v -> {
             Intent intent = new Intent();
             intent.setClass(getApplicationContext(), ModulesActivity.class);
@@ -71,19 +75,18 @@ public class MainActivity extends BaseActivity implements ModuleUtil.ModuleListe
             startActivity(intent);
         });
         TooltipCompat.setTooltipText(binding.menuMore, getString(androidx.appcompat.R.string.abc_action_menu_overflow_description));
-        binding.menuMore.setOnClickListener(v -> {
-            PopupMenu appMenu = new PopupMenu(MainActivity.this, binding.menuMore);
-            appMenu.inflate(R.menu.menu_installer);
-            appMenu.setOnMenuItemClickListener(this::onOptionsItemSelected);
-            appMenu.show();
-        });
+        PopupMenu appMenu = new PopupMenu(MainActivity.this, binding.menuMore);
+        appMenu.inflate(R.menu.menu_installer);
+        appMenu.setOnMenuItemClickListener(this::onOptionsItemSelected);
+        binding.menuMore.setOnTouchListener(appMenu.getDragToOpenListener());
+        binding.menuMore.setOnClickListener(v -> appMenu.show());
         Glide.with(binding.appIcon)
                 .load(GlideHelper.wrapApplicationInfoForIconLoader(getApplicationInfo()))
                 .into(binding.appIcon);
         String installedXposedVersion = Constants.getXposedVersion();
         if (installedXposedVersion != null) {
             binding.statusTitle.setText(R.string.Activated);
-            binding.statusSummary.setText(installedXposedVersion + " (" + Constants.getXposedVariant() + ")");
+            binding.statusSummary.setText(String.format(Locale.US, "%s (%s)", installedXposedVersion, Constants.getXposedVariant()));
             binding.status.setCardBackgroundColor(ContextCompat.getColor(this, R.color.download_status_update_available));
             binding.statusIcon.setImageResource(R.drawable.ic_check_circle);
         } else {
@@ -92,28 +95,14 @@ public class MainActivity extends BaseActivity implements ModuleUtil.ModuleListe
             binding.status.setCardBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
             binding.statusIcon.setImageResource(R.drawable.ic_error);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         binding.modulesSummary.setText(String.format(getString(R.string.ModulesDetail), ModuleUtil.getInstance().getEnabledModules().size()));
+        binding.appsTitle.setText(AppHelper.isWhiteListMode() ? R.string.title_white_list : R.string.title_black_list);
+        int count = AppHelper.getAppList(AppHelper.isWhiteListMode()).size();
+        binding.appsSummary.setText(getString(AppHelper.isWhiteListMode() ? R.string.whitelist_summary : R.string.blacklist_summary, count));
     }
-
-    @Override
-    public void onInstalledModulesReloaded(ModuleUtil moduleUtil) {
-
-    }
-
-    @Override
-    public void onModuleEnableChange(ModuleUtil moduleUtil) {
-        binding.modulesSummary.setText(String.format(getString(R.string.ModulesDetail), moduleUtil.getEnabledModules().size()));
-    }
-
-    @Override
-    public void onSingleInstalledModuleReloaded(ModuleUtil moduleUtil, String packageName, ModuleUtil.InstalledModule module) {
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ModuleUtil.getInstance().removeListener(this);
-    }
-
 }

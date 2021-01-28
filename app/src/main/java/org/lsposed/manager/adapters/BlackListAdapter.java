@@ -5,12 +5,9 @@ import android.widget.CompoundButton;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import org.lsposed.manager.App;
 import org.lsposed.manager.R;
 import org.lsposed.manager.ui.activity.AppListActivity;
-import org.lsposed.manager.util.ModuleUtil;
 
-import java.util.Collection;
 import java.util.List;
 
 
@@ -25,8 +22,7 @@ public class BlackListAdapter extends AppAdapter {
     @Override
     public List<String> generateCheckedList() {
         AppHelper.makeSurePath();
-        checkedList = AppHelper.getAppList(AppHelper.isWhiteListMode());
-        return checkedList;
+        return checkedList = AppHelper.getAppList(AppHelper.isWhiteListMode());
     }
 
     @Override
