@@ -164,7 +164,7 @@ fi
 ui_print "- ${LANG_CUST_INST_EXT_FILES}"
 
 # extract module files
-extract "${ZIPFILE}" 'EdXposed.apk' "${MODPATH}"
+#extract "${ZIPFILE}" 'EdXposed.apk' "${MODPATH}"
 extract "${ZIPFILE}" 'module.prop' "${MODPATH}"
 extract "${ZIPFILE}" 'system.prop' "${MODPATH}"
 extract "${ZIPFILE}" 'sepolicy.rule' "${MODPATH}"
