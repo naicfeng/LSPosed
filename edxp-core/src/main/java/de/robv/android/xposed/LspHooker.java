@@ -18,36 +18,12 @@ public class LspHooker {
         this.backup = backup;
     }
 
-    public Object callBackup(Object thisObject, Object[] args) throws Throwable {
-        try {
-            if (args == null) {
-                args = new Object[0];
-            }
-            if (Modifier.isStatic(method.getModifiers())) {
-                return backup.invoke(null, args);
-            } else {
-                Object[] newArgs = new Object[args.length + 1];
-                newArgs[0] = thisObject;
-                System.arraycopy(args, 0, newArgs, 1, args.length);
-                return backup.invoke(null, newArgs);
-            }
-        } catch (InvocationTargetException ite) {
-            throw ite.getCause();
-        }
+    public Method getBackup() {
+        return backup;
     }
 
     @SuppressWarnings({"unused", "RedundantSuppression"})
     public Object handleHookedMethod(Object[] args) throws Throwable {
-        Object[] callbacksSnapshot = additionalInfo.callbacks.getSnapshot();
-        final int callbacksLength = callbacksSnapshot.length;
-        if (disableHooks || callbacksLength == 0) {
-            try {
-                return backup.invoke(null, args);
-            } catch (InvocationTargetException ite) {
-                throw ite.getCause();
-            }
-        }
-
         XC_MethodHook.MethodHookParam param = new XC_MethodHook.MethodHookParam();
 
         param.method = method;
@@ -59,6 +35,23 @@ public class LspHooker {
             param.thisObject = args[0];
             param.args = new Object[args.length - 1];
             System.arraycopy(args, 1, param.args, 0, args.length - 1);
+        }
+
+        if (disableHooks) {
+            try {
+                return backup.invoke(param.thisObject, param.args);
+            } catch (InvocationTargetException ite) {
+                throw ite.getCause();
+            }
+        }
+        Object[] callbacksSnapshot = additionalInfo.callbacks.getSnapshot();
+        final int callbacksLength = callbacksSnapshot.length;
+        if (callbacksLength == 0) {
+            try {
+                return backup.invoke(param.thisObject, param.args);
+            } catch (InvocationTargetException ite) {
+                throw ite.getCause();
+            }
         }
 
         // call "before method" callbacks
@@ -84,7 +77,11 @@ public class LspHooker {
 
         // call original method if not requested otherwise
         if (!param.returnEarly) {
-            param.setResult(callBackup(param.thisObject, param.args));
+            try {
+                param.setResult(backup.invoke(param.thisObject, param.args));
+            } catch (InvocationTargetException e) {
+                param.setThrowable(e.getCause());
+            }
         }
 
         // call "after method" callbacks
