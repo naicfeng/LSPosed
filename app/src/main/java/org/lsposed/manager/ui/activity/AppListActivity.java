@@ -20,9 +20,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.lsposed.manager.R;
 import org.lsposed.manager.adapters.AppAdapter;
-import org.lsposed.manager.adapters.AppHelper;
-import org.lsposed.manager.adapters.BlackListAdapter;
 import org.lsposed.manager.adapters.ScopeAdapter;
+import org.lsposed.manager.adapters.WhiteListAdapter;
 import org.lsposed.manager.databinding.ActivityScopeListBinding;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
 import me.zhanghai.android.fastscroll.FastScrollerBuilder;
@@ -58,9 +57,9 @@ public class AppListActivity extends BaseActivity {
             bar.setSubtitle(moduleName);
             appAdapter = new ScopeAdapter(this, modulePackageName, binding.masterSwitch);
         } else {
-            bar.setTitle(AppHelper.isWhiteListMode() ? R.string.title_white_list : R.string.title_black_list);
+            bar.setTitle(R.string.title_white_list);
             binding.masterSwitch.setVisibility(View.GONE);
-            appAdapter = new BlackListAdapter(this);
+            appAdapter = new WhiteListAdapter(this);
         }
         appAdapter.setHasStableIds(true);
         binding.recyclerView.setAdapter(appAdapter);

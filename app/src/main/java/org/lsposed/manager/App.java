@@ -9,16 +9,15 @@ import android.os.Looper;
 
 import androidx.preference.PreferenceManager;
 
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.lsposed.manager.ui.activity.CrashReportActivity;
 import org.lsposed.manager.util.CompileUtil;
 import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.NotificationUtil;
 import org.lsposed.manager.util.RebootUtil;
-
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import rikka.shizuku.Shizuku;
 import rikka.sui.Sui;
 
@@ -42,11 +41,12 @@ public class App extends Application {
         if (requestCode < 10) {
             RebootUtil.onRequestPermissionsResult(requestCode, grantResult);
         } else {
-            CompileUtil.onRequestPermissionsResult(requestCode, grantResult);
+            CompileUtil.onRequestPermissionsResult(requestCode - 10, grantResult);
         }
     }
 
-    public static int checkPermission(int code) {
+    public static int checkPermission(int code, int from) {
+        int requestCode = code + from * 10;
         try {
             if (!Shizuku.isPreV11() && Shizuku.getVersion() >= 11) {
                 if (Shizuku.checkSelfPermission() == PERMISSION_GRANTED) {
@@ -54,7 +54,7 @@ public class App extends Application {
                 } else if (Shizuku.shouldShowRequestPermissionRationale()) {
                     return -1;
                 } else {
-                    Shizuku.requestPermission(code);
+                    Shizuku.requestPermission(requestCode);
                     return -1;
                 }
             }
