@@ -12,12 +12,6 @@
             android:title="@string/skip_xposedminversion_check"
             app:iconSpaceReserved="false" />
 
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:key="hook_modules"
-            android:summary="@string/hook_modules_summary"
-            android:title="@string/hook_modules"
-            app:iconSpaceReserved="false" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/settings_group_theme"
@@ -78,25 +72,9 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="white_list_switch"
-            android:summary="@string/white_list_mode_summary"
-            android:title="@string/white_list_mode_title"
-            android:persistent="false"
-            app:iconSpaceReserved="false" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
             android:key="enable_boot_image_deopt"
             android:summary="@string/pref_enable_boot_image_deopt_summary"
             android:title="@string/pref_title_enable_boot_image_deopt"
-            android:persistent="false"
-            app:iconSpaceReserved="false" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="enable_resources"
-            android:summary="@string/settings_enable_resources_summary"
-            android:title="@string/settings_enable_resources"
             android:persistent="false"
             app:iconSpaceReserved="false" />
 
