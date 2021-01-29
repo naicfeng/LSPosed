@@ -197,7 +197,7 @@ else
 fi
 
 if [[ ${BOOTMODE} == true ]]; then
-  [[ "$(pm path io.github.lsposed.manager)" == "" && "$(pm path de.robv.android.xposed.installer)" == "" ]] && NO_MANAGER=true
+  [[ "$(pm path org.lsposed.manager)" == "" && "$(pm path de.robv.android.xposed.installer)" == "" ]] && NO_MANAGER=true
 fi
 
 #if [[ ${BOOTMODE} == true && ${NO_MANAGER} == true ]]; then

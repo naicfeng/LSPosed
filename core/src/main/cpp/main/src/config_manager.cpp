@@ -38,7 +38,7 @@
  * Permission:
  * /data/adb/lspd should be accessible by zygote by sepolicy
  * /data/misc/$misc_path is random path, and mounted by magisk
- * it should have context `u:object_r:shell_data_file:s0`, which should be readable by normal app
+ * it should have context `u:object_r:magisk_file:s0`, which should be readable by normal app
  * and zygote
  *
  * /data/misc/$misc_path's owner should be root:root, with permission 771
@@ -139,15 +139,9 @@ namespace lspd {
             return true;
         }
 
-        if (white_list_enable_) {
-            auto res = white_list_.count(package_name);
-            LOGD("using whitelist, %s -> %s", package_name.c_str(), BoolToString(res));
-            return res;
-        } else {
-            auto res = !black_list_.count(package_name);
-            LOGD("using blacklist, %s -> %s", package_name.c_str(), BoolToString(res));
-            return res;
-        }
+        auto res = white_list_.count(package_name);
+        LOGD("should hook %s -> %s", package_name.c_str(), BoolToString(res));
+        return res;
     }
 
     ConfigManager::ConfigManager(uid_t user, bool initialized) :
@@ -157,31 +151,22 @@ namespace lspd {
             base_config_path_(RetrieveBaseConfigPath()),
             initialized_(initialized || InitConfigPath()),
             installer_pkg_name_(RetrieveInstallerPkgName()),
-            white_list_enable_(path_exists(GetConfigPath("usewhitelist"))),
             deopt_boot_image_enabled_(path_exists(GetConfigPath("deoptbootimage"))),
             no_module_log_enabled_(path_exists(GetConfigPath("disable_modules_log"))),
             resources_hook_enabled_(path_exists(GetConfigPath("enable_resources"))),
             white_list_(GetAppList(GetConfigPath("whitelist/"))),
-            black_list_(GetAppList(GetConfigPath("blacklist/"))),
             modules_list_(GetModuleList()),
             last_write_time_(GetLastWriteTime()),
             variant_(GetVariant(GetMiscPath() / "variant")) {
         // use_white_list snapshot
         LOGI("base config path: %s", base_config_path_.c_str());
         LOGI("  using installer package name: %s", installer_pkg_name_.c_str());
-        LOGI("  using whitelist: %s", BoolToString(white_list_enable_));
         LOGI("  deopt boot image: %s", BoolToString(deopt_boot_image_enabled_));
         LOGI("  no module log: %s", BoolToString(no_module_log_enabled_));
         LOGI("  resources hook: %s", BoolToString(resources_hook_enabled_));
         LOGI("  white list: \n %s", ([this]() {
             std::ostringstream join;
             std::copy(white_list_.begin(), white_list_.end(),
-                      std::ostream_iterator<std::string>(join, "\n"));
-            return join.str();
-        })().c_str());
-        LOGI("  black list: \n %s", ([this]() {
-            std::ostringstream join;
-            std::copy(black_list_.begin(), black_list_.end(),
                       std::ostream_iterator<std::string>(join, "\n"));
             return join.str();
         })().c_str());
@@ -223,6 +208,7 @@ namespace lspd {
         while (std::getline(ifs, module)) {
             const auto &module_pkg_name = GetPackageNameFromBaseApkPath(module);
             auto &[module_path, scope] = modules_list[module_pkg_name];
+            scope.insert(module_pkg_name); // Always add module itself
             module_path.assign(std::move(module));
             const auto &module_scope_conf = GetConfigPath(module_pkg_name + ".conf");
             if (!path_exists<true>(module_scope_conf)) {
@@ -239,8 +225,6 @@ namespace lspd {
                 if (!app_pkg_name.empty())
                     scope.emplace(std::move(app_pkg_name));
             }
-            if (!scope.empty())
-                scope.insert(module_pkg_name); // Always add module itself
             if (IsInstaller(module_pkg_name)) scope.erase("android");
             LOGI("scope of %s is:\n%s", module_pkg_name.c_str(), ([&scope = scope]() {
                 std::ostringstream join;
@@ -255,7 +239,7 @@ namespace lspd {
     std::vector<std::string> ConfigManager::GetAppModuleList(const std::string &pkg_name) const {
         std::vector<std::string> app_modules_list;
         for (const auto&[module, scope]: modules_list_) {
-            if (scope.second.empty() || scope.second.count(pkg_name))
+            if (scope.second.count(pkg_name))
                 app_modules_list.push_back(scope.first);
         }
         return app_modules_list;

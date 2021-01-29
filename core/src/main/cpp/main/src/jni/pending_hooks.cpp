@@ -10,20 +10,33 @@
 #include "art/runtime/mirror/class.h"
 
 namespace lspd {
+    namespace {
+        std::unordered_set<const void *> pending_classes_;
+        std::unordered_set<const void *> pending_methods_;
 
-    static std::unordered_set<const void *> pending_classes_;
-
-    static std::unordered_set<const void *> hooked_methods_;
+        std::unordered_set<const void *> hooked_methods_;
+    }
 
     bool IsClassPending(void *clazz) {
         return pending_classes_.count(clazz);
     }
 
-    static void PendingHooks_recordPendingMethodNative(JNI_START, jclass class_ref) {
+    bool IsMethodPending(void* art_method) {
+        return pending_methods_.erase(art_method) > 0;
+    }
+
+    void DonePendingHook(void *clazz) {
+        pending_classes_.erase(clazz);
+    }
+
+    static void PendingHooks_recordPendingMethodNative(JNI_START, jobject method_ref, jclass class_ref) {
         auto *class_ptr = art::Thread::Current().DecodeJObject(class_ref);
+        auto *method = getArtMethod(env, method_ref);
         art::mirror::Class mirror_class(class_ptr);
         if (auto def = mirror_class.GetClassDef(); LIKELY(def)) {
-            LOGD("record pending: %p (%s)", class_ptr, mirror_class.GetDescriptor().c_str());
+            LOGD("record pending: %p (%s) with %p", class_ptr, mirror_class.GetDescriptor().c_str(), method);
+            // Add it for ShouldUseInterpreterEntrypoint
+            pending_methods_.insert(method);
             pending_classes_.insert(def);
         } else {
             LOGW("fail to record pending for : %p (%s)", class_ptr,
@@ -32,7 +45,7 @@ namespace lspd {
     }
 
     static JNINativeMethod gMethods[] = {
-            NATIVE_METHOD(PendingHooks, recordPendingMethodNative, "(Ljava/lang/Class;)V"),
+            NATIVE_METHOD(PendingHooks, recordPendingMethodNative, "(Ljava/lang/reflect/Method;Ljava/lang/Class;)V"),
     };
 
     void RegisterPendingHooks(JNIEnv *env) {

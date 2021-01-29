@@ -25,7 +25,6 @@ import org.lsposed.manager.adapters.BlackListAdapter;
 import org.lsposed.manager.adapters.ScopeAdapter;
 import org.lsposed.manager.databinding.ActivityScopeListBinding;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
-
 import me.zhanghai.android.fastscroll.FastScrollerBuilder;
 
 public class AppListActivity extends BaseActivity {
@@ -67,7 +66,7 @@ public class AppListActivity extends BaseActivity {
         binding.recyclerView.setAdapter(appAdapter);
         binding.recyclerView.setLayoutManager(new LinearLayoutManagerFix(this));
         FastScrollerBuilder fastScrollerBuilder = new FastScrollerBuilder(binding.recyclerView);
-        if (!preferences.getBoolean("md2", false)) {
+        if (!preferences.getBoolean("md2", true)) {
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this,
                     DividerItemDecoration.VERTICAL);
             binding.recyclerView.addItemDecoration(dividerItemDecoration);
