@@ -40,7 +40,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v2
         with:
-          name: manager
+          name: LSPosedManager-v0.5.2.0-${{ env.APPVEYOR_BUILD_NUMBER }}-release
           path: ${{ steps.sign.outputs.signedReleaseFile }}
       - name: Upload unsigned apk
         if: ${{ github.event_name == 'pull_request' || failure() }}
