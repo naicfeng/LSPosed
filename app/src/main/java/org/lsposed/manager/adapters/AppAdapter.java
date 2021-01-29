@@ -47,7 +47,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> impl
     protected AppListActivity activity;
     protected List<PackageInfo> fullList, showList;
     private final DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    public List<String> checkedList;
+    private List<String> checkedList;
     private final PackageManager pm;
     private final ApplicationFilter filter;
     private final SharedPreferences preferences;
@@ -82,11 +82,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> impl
                 rmList.add(info);
                 continue;
             }
-            if ((info.applicationInfo.flags & ApplicationInfo.FLAG_HAS_CODE) == 0) {
-                rmList.add(info);
-                continue;
-            }
-            if (AppHelper.forceWhiteList.contains(info.packageName)) {
+            if ((info.applicationInfo.flags & ApplicationInfo.FLAG_HAS_CODE) == 0 && !info.packageName.equals("android")) {
                 rmList.add(info);
                 continue;
             }
@@ -101,6 +97,10 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> impl
                 }
                 List<String> list = AppHelper.getAppList();
                 if (!list.contains(info.packageName)) {
+                    rmList.add(info);
+                }
+            } else {
+                if (AppHelper.forceWhiteList.contains(info.packageName)) {
                     rmList.add(info);
                 }
             }
