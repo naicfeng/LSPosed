@@ -23,7 +23,7 @@ public:
 class LanguageChinese: public Languages {
 public:
     const std::string desc_line_1() override {
-        return "请选择变种。使用音量减切换，音量加确定。";
+        return "请选择框架类型。使用音量减切换，音量加确定。";
     }
     const std::string desc_line_2(uint16_t seconds) override {
         const char base[] = "如果您的设备没有音量键，本程序将会在 %hu 秒后自动选择 YAHFA 。";
