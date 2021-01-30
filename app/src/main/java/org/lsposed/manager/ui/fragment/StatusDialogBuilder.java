@@ -11,12 +11,6 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import org.lsposed.manager.App;
-import org.lsposed.manager.BuildConfig;
-import org.lsposed.manager.Constants;
-import org.lsposed.manager.R;
-import org.lsposed.manager.databinding.StatusInstallerBinding;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -25,14 +19,18 @@ import java.lang.reflect.Method;
 import java.util.Locale;
 
 import dalvik.system.VMRuntime;
+import org.lsposed.manager.App;
+import org.lsposed.manager.BuildConfig;
+import org.lsposed.manager.Constants;
+import org.lsposed.manager.R;
+import org.lsposed.manager.databinding.StatusInstallerBinding;
 
 @SuppressLint("StaticFieldLeak")
 public class StatusDialogBuilder extends MaterialAlertDialogBuilder {
-    private static String CPU_ABI;
-    private static String CPU_ABI2;
+    private static final String CPU_ABI;
+    private static final String CPU_ABI2;
 
-    public StatusDialogBuilder(@NonNull Context context) {
-        super(context);
+    static {
         final String[] abiList;
         if (VMRuntime.getRuntime().is64Bit()) {
             abiList = Build.SUPPORTED_64_BIT_ABIS;
@@ -45,6 +43,10 @@ public class StatusDialogBuilder extends MaterialAlertDialogBuilder {
         } else {
             CPU_ABI2 = "";
         }
+    }
+
+    public StatusDialogBuilder(@NonNull Context context) {
+        super(context);
         StatusInstallerBinding binding = StatusInstallerBinding.inflate(LayoutInflater.from(context), null, false);
 
         String installedXposedVersion = Constants.getXposedVersion();
