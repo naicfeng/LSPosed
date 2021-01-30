@@ -72,7 +72,7 @@
     <string name="about_version_label">版本</string>
     <string name="about_source_label">源代码</string>
 	<string name="about_cuojue">浅秋枫影</string>
-	<string name="about_cuojue_summary">修改了管理器图标和包名，其他部分随官方同步更新，仅接受官方版正常修改版有问题的反馈</string>
+	<string name="about_cuojue_summary">仅修改了管理器图标和包名</string>
     <!-- DownloadView -->
 
     <!-- DownloadUtils -->
