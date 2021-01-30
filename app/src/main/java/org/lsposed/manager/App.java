@@ -9,13 +9,11 @@ import android.os.Looper;
 
 import androidx.preference.PreferenceManager;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.lsposed.manager.ui.activity.CrashReportActivity;
 import org.lsposed.manager.util.CompileUtil;
-import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.NotificationUtil;
 import org.lsposed.manager.util.RebootUtil;
 import rikka.shizuku.Shizuku;
@@ -80,15 +78,6 @@ public class App extends Application {
         return instance.pref;
     }
 
-    public static void mkdir(String dir) {
-        //noinspection ResultOfMethodCallIgnored
-        new File(Constants.getBaseDir() + dir).mkdir();
-    }
-
-    public static boolean supportScope() {
-        return Constants.getXposedApiVersion() >= 92;
-    }
-
     public void onCreate() {
         super.onCreate();
         if (!BuildConfig.DEBUG) {
@@ -127,7 +116,6 @@ public class App extends Application {
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
         NotificationUtil.init();
-        ModuleUtil.getInstance();
 
         Shizuku.addRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
     }
