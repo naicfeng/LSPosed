@@ -123,7 +123,7 @@
 
     <string name="support_faq_url" translatable="false">https://github.com/LSPosed/LSPosed/wiki</string>
     <string name="about_source" translatable="false">https://github.com/naicfeng/EdXposed/tree/LSPosed</string>
-	<string name="about_cuojue_link" translatable="false">https://github.com/naicfeng/EdXposed/tree/LSPosed</string>
+	<string name="about_cuojue_link" translatable="false">https://cuojue.org</string>
     <string name="group_telegram_channel_link" translatable="false">http://t.me/LSPosed</string>
     <string name="notinstalled">The LSPosed framework is not installed.</string>
 
@@ -134,7 +134,7 @@
     <string name="compile_failed">Optimization failed or return value is empty</string>
     <string name="compile_failed_with_info">Optimization failed: </string>
     <string name="not_installed">Not installed</string>
-	<string name="support_group_telegram_channel">Telegram Channel: @LSPosed</string>
+	<string name="support_group_telegram_channel">Telegram Channel</string>
     <string name="reboot_system">Reboot to System</string>
     <string name="pref_title_disable_modules_log">Disable modules logs</string>
     <string name="pref_disable_modules_log_summary">Exception stack thrown by the module will still be catched normally</string>

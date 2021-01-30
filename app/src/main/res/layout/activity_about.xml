@@ -96,7 +96,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    app:srcCompat="@drawable/ic_modules" />
+                    app:srcCompat="@drawable/ic_telegram_2019_logo" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -155,43 +155,6 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/installerSupportView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?roundBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    app:srcCompat="@drawable/ic_help" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginLeft="32dp"
-                    android:orientation="vertical"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    tools:ignore="RtlHardcoded">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/support_framework_label"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -204,29 +167,45 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="?android:textColorSecondary" />
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="vertical">
-                            <LinearLayout
-                                android:id="@+id/modifySupportView"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:paddingHorizontal="16dp">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/about_cuojue"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/about_cuojue_summary"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
-                            </LinearLayout>
-                        </LinearLayout>
+					<LinearLayout
+						android:id="@+id/modifySupportView"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="?roundBackground"
+						android:clickable="true"
+						android:focusable="true"
+						android:gravity="center_vertical"
+						android:minHeight="48dp"
+						android:orientation="horizontal"
+						android:paddingHorizontal="16dp">
+
+						<ImageView
+							android:layout_width="24dp"
+							android:layout_height="24dp"
+							app:srcCompat="@drawable/ic_info" />
+
+						<LinearLayout
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:layout_marginStart="32dp"
+							android:orientation="vertical"
+							android:paddingTop="8dp"
+							android:paddingBottom="8dp"
+							tools:ignore="RtlHardcoded">
+
+							<TextView
+								android:layout_width="wrap_content"
+								android:layout_height="wrap_content"
+								android:text="@string/about_cuojue"
+								android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+							<TextView
+								android:layout_width="wrap_content"
+								android:layout_height="wrap_content"
+								android:text="@string/about_cuojue_summary"
+								android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+						</LinearLayout>
+					</LinearLayout>
             <!--            TODO:
                             <LinearLayout
                                 android:layout_width="match_parent"

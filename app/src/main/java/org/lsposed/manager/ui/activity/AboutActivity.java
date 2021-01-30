@@ -30,7 +30,6 @@ public class AboutActivity extends BaseActivity {
 
         binding.appVersion.setText(BuildConfig.VERSION_NAME);
 
-        setupView(binding.installerSupportView, R.string.group_telegram_channel_link);
         setupView(binding.sourceCodeView, R.string.about_source);
         setupView(binding.tgChannelView, R.string.group_telegram_channel_link);
 		setupView(binding.modifySupportView, R.string.about_cuojue_link);
