@@ -56,9 +56,9 @@ public class BaseActivity extends AppCompatActivity {
 
     @StyleRes
     public int getThemeStyleRes(Context context) {
-        if (this instanceof AboutActivity) {
-            return R.style.ThemeOverlay_Black;
-        }
+//        if (this instanceof AboutActivity) {
+//            return R.style.ThemeOverlay_Black;
+//        }
         switch (getTheme(context)) {
             case THEME_BLACK:
                 return R.style.ThemeOverlay_Black;
