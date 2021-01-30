@@ -3,10 +3,8 @@ package org.lsposed.manager.ui.activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,10 +18,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.lsposed.manager.R;
-import org.lsposed.manager.adapters.AppAdapter;
 import org.lsposed.manager.adapters.AppHelper;
 import org.lsposed.manager.adapters.ScopeAdapter;
-import org.lsposed.manager.adapters.WhiteListAdapter;
 import org.lsposed.manager.databinding.ActivityAppListBinding;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
 import org.lsposed.manager.util.ModuleUtil;
@@ -31,7 +27,7 @@ import me.zhanghai.android.fastscroll.FastScrollerBuilder;
 
 public class AppListActivity extends BaseActivity {
     private SearchView searchView;
-    private AppAdapter appAdapter;
+    private ScopeAdapter scopeAdapter;
 
     private SearchView.OnQueryTextListener searchListener;
     private ActivityAppListBinding binding;
@@ -56,17 +52,11 @@ public class AppListActivity extends BaseActivity {
         ActionBar bar = getSupportActionBar();
         assert bar != null;
         bar.setDisplayHomeAsUpEnabled(true);
-        if (!TextUtils.isEmpty(modulePackageName)) {
-            bar.setTitle(R.string.menu_scope);
-            bar.setSubtitle(moduleName);
-            appAdapter = new ScopeAdapter(this, modulePackageName, binding.masterSwitch);
-        } else {
-            bar.setTitle(R.string.title_white_list);
-            binding.masterSwitch.setVisibility(View.GONE);
-            appAdapter = new WhiteListAdapter(this);
-        }
-        appAdapter.setHasStableIds(true);
-        binding.recyclerView.setAdapter(appAdapter);
+        bar.setTitle(R.string.menu_scope);
+        bar.setSubtitle(moduleName);
+        scopeAdapter = new ScopeAdapter(this, modulePackageName, binding.masterSwitch);
+        scopeAdapter.setHasStableIds(true);
+        binding.recyclerView.setAdapter(scopeAdapter);
         binding.recyclerView.setLayoutManager(new LinearLayoutManagerFix(this));
         FastScrollerBuilder fastScrollerBuilder = new FastScrollerBuilder(binding.recyclerView);
         if (!preferences.getBoolean("md2", true)) {
@@ -78,18 +68,18 @@ public class AppListActivity extends BaseActivity {
         }
         fastScrollerBuilder.build();
         handler.postDelayed(runnable, 300);
-        binding.swipeRefreshLayout.setOnRefreshListener(appAdapter::refresh);
+        binding.swipeRefreshLayout.setOnRefreshListener(scopeAdapter::refresh);
 
         searchListener = new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                appAdapter.filter(query);
+                scopeAdapter.filter(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                appAdapter.filter(newText);
+                scopeAdapter.filter(newText);
                 return false;
             }
         };
@@ -97,7 +87,7 @@ public class AppListActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (!appAdapter.onOptionsItemSelected(item)) {
+        if (!scopeAdapter.onOptionsItemSelected(item)) {
             return super.onOptionsItemSelected(item);
         }
         return true;
@@ -105,7 +95,7 @@ public class AppListActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        appAdapter.onCreateOptionsMenu(menu, getMenuInflater());
+        scopeAdapter.onCreateOptionsMenu(menu, getMenuInflater());
         searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
         searchView.setOnQueryTextListener(searchListener);
         return super.onCreateOptionsMenu(menu);
@@ -115,7 +105,7 @@ public class AppListActivity extends BaseActivity {
         handler.removeCallbacks(runnable);
         binding.swipeRefreshLayout.setRefreshing(false);
         String queryStr = searchView != null ? searchView.getQuery().toString() : "";
-        runOnUiThread(() -> appAdapter.getFilter().filter(queryStr));
+        runOnUiThread(() -> scopeAdapter.getFilter().filter(queryStr));
     }
 
     @Override

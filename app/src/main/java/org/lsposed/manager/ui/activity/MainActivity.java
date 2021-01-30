@@ -14,7 +14,6 @@ import java.util.Locale;
 
 import org.lsposed.manager.Constants;
 import org.lsposed.manager.R;
-import org.lsposed.manager.adapters.AppHelper;
 import org.lsposed.manager.databinding.ActivityMainBinding;
 import org.lsposed.manager.ui.fragment.StatusDialogBuilder;
 import org.lsposed.manager.util.GlideHelper;
@@ -35,17 +34,11 @@ public class MainActivity extends BaseActivity {
             if (Light.setLightSourceAlpha(getWindow().getDecorView(), 0.01f, 0.029f)) {
                 binding.status.setElevation(24);
                 binding.modules.setElevation(12);
-                binding.apps.setElevation(12);
             }
         });
         binding.modules.setOnClickListener(v -> {
             Intent intent = new Intent();
             intent.setClass(getApplicationContext(), ModulesActivity.class);
-            startActivity(intent);
-        });
-        binding.apps.setOnClickListener(v -> {
-            Intent intent = new Intent();
-            intent.setClass(getApplicationContext(), AppListActivity.class);
             startActivity(intent);
         });
         binding.status.setOnClickListener(v -> {
@@ -100,8 +93,5 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         binding.modulesSummary.setText(String.format(getString(R.string.ModulesDetail), ModuleUtil.getInstance().getEnabledModules().size()));
-        binding.appsTitle.setText(R.string.Apps);
-        int count = AppHelper.getAppList().size();
-        binding.appsSummary.setText(getString(R.string.whitelist_summary, count));
     }
 }

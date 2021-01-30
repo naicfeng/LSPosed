@@ -26,14 +26,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
-import org.lsposed.manager.BuildConfig;
-import org.lsposed.manager.Constants;
-import org.lsposed.manager.R;
-import org.lsposed.manager.databinding.ActivityLogsBinding;
-import org.lsposed.manager.databinding.DialogInstallWarningBinding;
-import org.lsposed.manager.databinding.ItemLogBinding;
-import org.lsposed.manager.util.LinearLayoutManagerFix;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -45,6 +37,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Scanner;
+
+import org.lsposed.manager.BuildConfig;
+import org.lsposed.manager.Constants;
+import org.lsposed.manager.R;
+import org.lsposed.manager.databinding.ActivityLogsBinding;
+import org.lsposed.manager.databinding.DialogInstallWarningBinding;
+import org.lsposed.manager.databinding.ItemLogBinding;
+import org.lsposed.manager.util.LinearLayoutManagerFix;
 
 public class LogsActivity extends BaseActivity {
     private boolean allLog = false;

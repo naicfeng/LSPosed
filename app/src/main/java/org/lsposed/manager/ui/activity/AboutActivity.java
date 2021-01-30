@@ -6,7 +6,6 @@ import android.view.View;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import org.lsposed.manager.BuildConfig;
 import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.ActivityAboutBinding;
 import org.lsposed.manager.util.NavUtil;
