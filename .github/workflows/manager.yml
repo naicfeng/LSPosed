@@ -37,7 +37,7 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
       - name: Upload signed apk
-        if: success()
+        if: ${{ github.event_name == 'push' && success() }}
         uses: actions/upload-artifact@v2
         with:
           name: LSPosedManager-v0.5.2.0-${{ env.APPVEYOR_BUILD_NUMBER }}-release
@@ -49,7 +49,7 @@ jobs:
           name: manager-unsigned
           path: "app/build/outputs/apk/release/*.apk"
 #      - name: Post to channel
-#        if: ${{ github.event_name != 'pull_request' && success() }}
+#        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
 #        env:
 #          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 #          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -58,4 +58,3 @@ jobs:
 #        run: |
 #          ESCAPED=`echo $COMMIT_MESSAGE | python3 -c 'import json,sys,urllib.parse; print(urllib.parse.quote(json.dumps(sys.stdin.read())))'`
 #          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22:%22document%22,%20%22media%22:%22attach://release%22,%22caption%22:${ESCAPED}%7D%5D"  -F release="@$FILE"
-
