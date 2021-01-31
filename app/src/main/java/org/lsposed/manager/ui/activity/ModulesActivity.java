@@ -32,7 +32,7 @@ import org.lsposed.manager.Constants;
 import org.lsposed.manager.R;
 import org.lsposed.manager.adapters.AppHelper;
 import org.lsposed.manager.adapters.ScopeAdapter;
-import org.lsposed.manager.databinding.ActivityModulesBinding;
+import org.lsposed.manager.databinding.ActivityAppListBinding;
 import org.lsposed.manager.util.GlideApp;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
 import org.lsposed.manager.util.ModuleUtil;
@@ -42,7 +42,7 @@ import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleListener {
 
-    ActivityModulesBinding binding;
+    ActivityAppListBinding binding;
     private int installedXposedVersion;
     private ApplicationFilter filter;
     private SearchView searchView;
@@ -94,10 +94,11 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityModulesBinding.inflate(getLayoutInflater());
+        binding = ActivityAppListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
-        binding.toolbar.setNavigationOnClickListener(view -> finish());
+        binding.toolbar.setNavigationOnClickListener(view -> onBackPressed());
+        binding.masterSwitch.setVisibility(View.GONE);
         ActionBar bar = getSupportActionBar();
         if (bar != null) {
             bar.setDisplayHomeAsUpEnabled(true);
@@ -118,6 +119,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         moduleUtil.addListener(this);
         binding.recyclerView.setAdapter(adapter);
         binding.recyclerView.setLayoutManager(new LinearLayoutManagerFix(this));
+        setupRecyclerViewInsets(binding.recyclerView, binding.getRoot());
         FastScrollerBuilder fastScrollerBuilder = new FastScrollerBuilder(binding.recyclerView);
         if (!preferences.getBoolean("md2", true)) {
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this,
