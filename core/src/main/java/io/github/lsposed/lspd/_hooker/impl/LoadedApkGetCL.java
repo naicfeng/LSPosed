@@ -9,7 +9,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import io.github.lsposed.lspd.hooker.XposedInstallerHooker;
 import io.github.lsposed.lspd.nativebridge.ConfigManager;
 import io.github.lsposed.lspd.util.Hookers;
-import io.github.lsposed.lspd.util.InstallerVerifier;
+//import io.github.lsposed.lspd.util.InstallerVerifier;
 
 public class LoadedApkGetCL extends XC_MethodHook {
 
@@ -58,11 +58,11 @@ public class LoadedApkGetCL extends XC_MethodHook {
             XC_LoadPackage.callAll(lpparam);
 
             if (packageName.equals(ConfigManager.getInstallerPackageName())) {
-                if (InstallerVerifier.verifyInstallerSignature(loadedApk.getApplicationInfo())) {
+//                if (InstallerVerifier.verifyInstallerSignature(loadedApk.getApplicationInfo())) {
                     XposedInstallerHooker.hookXposedInstaller(lpparam.classLoader);
-                } else {
-                    InstallerVerifier.hookXposedInstaller(classLoader);
-                }
+//                } else {
+//                    InstallerVerifier.hookXposedInstaller(classLoader);
+//                }
             }
 
         } catch (Throwable t) {
