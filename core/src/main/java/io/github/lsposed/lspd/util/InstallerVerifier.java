@@ -38,7 +38,7 @@ public class InstallerVerifier {
 
     public static void hookXposedInstaller(final ClassLoader classLoader) {
         try {
-            Class<?> ConstantsClass = XposedHelpers.findClass("io.github.lsposed.manager.Constants", classLoader);
+            Class<?> ConstantsClass = XposedHelpers.findClass("org.lsposed.manager.Constants", classLoader);
             XposedHelpers.findAndHookMethod(android.app.Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
