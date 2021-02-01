@@ -2,6 +2,7 @@ name: Core
 
 on:
   push:
+    branches: [ LSPosed ]
     paths-ignore:
     - 'app/**'
     - '**.md'
@@ -30,7 +31,7 @@ jobs:
         KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
         ALIAS_NAME: ${{ secrets.ALIAS_NAME }}
         ALIAS_PASS: ${{ secrets.ALIAS_PASS }}
-      run:  bash ./gradlew zipRelease :app:assembleRelease
+      run:  bash ./gradlew zipRelease zipDebug
     - name: Prepare artifact
       if: success()
       run: unzip core/release/LSPosed-v*-release.zip -d LSPosed-release;
@@ -47,7 +48,7 @@ jobs:
 #        name: LSPosed-debug
 #        path: './LSPosed-debug/*'
 #    - name: Post to channel
-#      if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
+#      if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
 #      env:
 #        CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 #        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}

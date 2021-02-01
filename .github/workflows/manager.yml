@@ -2,6 +2,7 @@ name: Manager
 
 on:
   push:
+    branches: [ LSPosed ]
     paths:
     - 'app/**'
     - '.github/workflows/manager.yml'
@@ -27,17 +28,19 @@ jobs:
       - name: Build with Gradle
         run:  bash ./gradlew :app:assembleRelease
       - name: Sign Manager Release
-        if: ${{ github.event_name == 'push' && success() }}
+        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
         id: sign
-        uses: tehcneko/sign-android-release@v1.0.0
+        uses: LSPosed/sign-android-release@v1.0.0
         with:
           releaseDirectory: app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "30.0.3"
       - name: Upload signed apk
-        if: ${{ github.event_name == 'push' && success() }}
+        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
         uses: actions/upload-artifact@v2
         with:
           name: LSPosedManager-v0.5.2.0-${{ env.APPVEYOR_BUILD_NUMBER }}-release
@@ -49,7 +52,7 @@ jobs:
           name: manager-unsigned
           path: "app/build/outputs/apk/release/*.apk"
 #      - name: Post to channel
-#        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
+#        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
 #        env:
 #          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 #          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
