@@ -1,4 +1,4 @@
-package io.github.lsposed.manager.util;
+package org.lsposed.manager.util;
 
 // https://stackoverflow.com/a/11024200
 public class Version implements Comparable<Version> {
