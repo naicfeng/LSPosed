@@ -90,7 +90,7 @@ public class MainActivity extends BaseActivity {
             if (!Constants.isPermissive()) {
                 binding.status.setCardBackgroundColor(ContextCompat.getColor(this, R.color.colorNormal));
                 binding.statusIcon.setImageResource(R.drawable.ic_check_circle);
-                binding.statusSummary.setText(String.format(Locale.US, "%s (%d)", installedXposedVersion, Constants.getXposedVersionCode()));
+                binding.statusSummary.setText(String.format(Locale.US, "%s (%d) WuYang", installedXposedVersion, Constants.getXposedVersionCode()));
             } else {
                 binding.status.setCardBackgroundColor(ContextCompat.getColor(this, R.color.colorError));
                 binding.statusIcon.setImageResource(R.drawable.ic_warning);
