@@ -47,8 +47,8 @@ import java.util.List;
 import org.lsposed.manager.App;
 import org.lsposed.manager.R;
 import org.lsposed.manager.ui.activity.AppListActivity;
+import org.lsposed.manager.ui.fragment.CompileDialogFragment;
 import org.lsposed.manager.ui.widget.MasterSwitch;
-import org.lsposed.manager.util.CompileUtil;
 import org.lsposed.manager.util.GlideApp;
 import org.lsposed.manager.util.ModuleUtil;
 
@@ -247,8 +247,8 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
             if (launchIntent != null) {
                 activity.startActivity(launchIntent);
             }
-        } else if (itemId == R.id.app_menu_compile_reset) {
-            CompileUtil.reset(activity, activity.getSupportFragmentManager(), info);
+        } else if (itemId == R.id.app_menu_compile_speed) {
+            CompileDialogFragment.speed(activity, activity.getSupportFragmentManager(), info);
         } else if (itemId == R.id.app_menu_store) {
             Uri uri = Uri.parse("market://details?id=" + info.packageName);
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -352,7 +352,7 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
                 menu.removeItem(R.id.app_menu_launch);
             }
             if (android) {
-                menu.removeItem(R.id.app_menu_compile_reset);
+                menu.removeItem(R.id.app_menu_compile_speed);
                 menu.removeItem(R.id.app_menu_store);
             }
         });
