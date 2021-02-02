@@ -31,7 +31,7 @@ jobs:
         KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
         ALIAS_NAME: ${{ secrets.ALIAS_NAME }}
         ALIAS_PASS: ${{ secrets.ALIAS_PASS }}
-      run:  bash ./gradlew zipRelease zipDebug
+      run:  bash ./gradlew zipRelease
     - name: Prepare artifact
       if: success()
       run: unzip core/release/LSPosed-v*-release.zip -d LSPosed-release;
@@ -39,7 +39,7 @@ jobs:
     - name: Upload release
       uses: actions/upload-artifact@v2
       with:
-        name: LSPosed-v0.5.2.0-${{ env.APPVEYOR_BUILD_NUMBER }}-release
+        name: LSPosed-v0.5.3.0-${{ env.APPVEYOR_BUILD_NUMBER }}-release
         path: './LSPosed-release/*'
 #    - name: Upload debug
 #      if: ${{ github.event_name == 'pull_request' && success() }}
