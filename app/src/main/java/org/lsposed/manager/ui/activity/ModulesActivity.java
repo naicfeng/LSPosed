@@ -67,7 +67,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
                     }
                 }
             }
-            Comparator<PackageInfo> cmp = AppHelper.getAppListComparator(preferences.getInt("list_sort", 0), pm);
+            Comparator<PackageInfo> cmp = AppHelper.getAppListComparator(0, pm);
             fullList.sort((a, b) -> {
                 boolean aChecked = moduleUtil.isModuleEnabled(a.packageName);
                 boolean bChecked = moduleUtil.isModuleEnabled(b.packageName);
@@ -81,7 +81,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
             });
             adapter.addAll(showList);
             adapter.notifyDataSetChanged();
-            moduleUtil.updateModulesList(false);
+            moduleUtil.updateModulesList();
             binding.swipeRefreshLayout.setRefreshing(false);
         }
     };
@@ -161,15 +161,6 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (AppHelper.onOptionsItemSelected(item, preferences)) {
-            moduleUtil.updateModulesList(false, null);
-            reloadModules.run();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         moduleUtil.removeListener(this);
@@ -179,13 +170,6 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
 
     @Override
     public void onSingleInstalledModuleReloaded(ModuleUtil moduleUtil, String packageName, ModuleUtil.InstalledModule module) {
-        moduleUtil.updateModulesList(false);
-        runOnUiThread(reloadModules);
-    }
-
-    @Override
-    public void onInstalledModulesReloaded(ModuleUtil moduleUtil) {
-        moduleUtil.updateModulesList(false);
         runOnUiThread(reloadModules);
     }
 

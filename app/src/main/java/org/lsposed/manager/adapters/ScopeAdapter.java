@@ -147,40 +147,44 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
         if (rmList.size() > 0) {
             fullList.removeAll(rmList);
         }
-        sortApps();
-        showList = fullList;
+        showList = sortApps(fullList);
         activity.onDataReady();
     }
 
-    private void sortApps() {
-        Comparator<PackageInfo> cmp = AppHelper.getAppListComparator(preferences.getInt("list_sort", 0), pm);
-        fullList.sort((a, b) -> {
+    private List<PackageInfo> sortApps(List<PackageInfo> list) {
+        Comparator<PackageInfo> comparator = AppHelper.getAppListComparator(preferences.getInt("list_sort", 0), pm);
+        Comparator<PackageInfo> frameworkComparator = (a, b) -> {
+            if (a.packageName.equals("android") == b.packageName.equals("android")) {
+                return comparator.compare(a, b);
+            } else if (a.packageName.equals("android")) {
+                return -1;
+            } else {
+                return 1;
+            }
+        };
+        Comparator<PackageInfo> recommendedComparator = (a, b) -> {
+            boolean aRecommended = hasRecommended() && recommendedList.contains(a.packageName);
+            boolean bRecommended = hasRecommended() && recommendedList.contains(b.packageName);
+            if (aRecommended == bRecommended) {
+                return frameworkComparator.compare(a, b);
+            } else if (aRecommended) {
+                return -1;
+            } else {
+                return 1;
+            }
+        };
+        list.sort((a, b) -> {
             boolean aChecked = checkedList.contains(a.packageName);
             boolean bChecked = checkedList.contains(b.packageName);
             if (aChecked == bChecked) {
-                if (hasRecommended()) {
-                    boolean aRecommended = recommendedList.contains(a.packageName);
-                    boolean bRecommended = recommendedList.contains(b.packageName);
-                    if (aRecommended || bRecommended) {
-                        if (aRecommended == bRecommended) {
-                            return cmp.compare(a, b);
-                        } else if (aRecommended) {
-                            return -1;
-                        } else {
-                            return 1;
-                        }
-                    }
-                }
-                if (a.packageName.equals("android")) return -1;
-                if (b.packageName.equals("android")) return 1;
-                return cmp.compare(a, b);
+                return recommendedComparator.compare(a, b);
             } else if (aChecked) {
                 return -1;
             } else {
                 return 1;
             }
-
         });
+        return list;
     }
 
     private void checkRecommended() {
@@ -243,10 +247,6 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
             if (launchIntent != null) {
                 activity.startActivity(launchIntent);
             }
-        } else if (itemId == R.id.app_menu_compile_speed) {
-            CompileUtil.compileSpeed(activity, activity.getSupportFragmentManager(), info);
-        } else if (itemId == R.id.app_menu_compile_dexopt) {
-            CompileUtil.compileDexopt(activity, activity.getSupportFragmentManager(), info);
         } else if (itemId == R.id.app_menu_compile_reset) {
             CompileUtil.reset(activity, activity.getSupportFragmentManager(), info);
         } else if (itemId == R.id.app_menu_store) {
@@ -352,8 +352,6 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
                 menu.removeItem(R.id.app_menu_launch);
             }
             if (android) {
-                menu.removeItem(R.id.app_menu_compile_speed);
-                menu.removeItem(R.id.app_menu_compile_dexopt);
                 menu.removeItem(R.id.app_menu_compile_reset);
                 menu.removeItem(R.id.app_menu_store);
             }
@@ -463,28 +461,20 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
 
     public boolean onBackPressed() {
         if (masterSwitch.isChecked() && checkedList.isEmpty()) {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+            builder.setTitle(R.string.use_recommended);
+            builder.setMessage(hasRecommended() ? R.string.no_scope_selected_has_recommended : R.string.no_scope_selected);
             if (hasRecommended()) {
-                new MaterialAlertDialogBuilder(activity)
-                        .setTitle(R.string.use_recommended)
-                        .setMessage(R.string.no_scope_selected_has_recommended)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> checkRecommended())
-                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                            ModuleUtil.getInstance().setModuleEnabled(modulePackageName, false);
-                            Toast.makeText(activity, activity.getString(R.string.module_disabled_no_selection, moduleName), Toast.LENGTH_LONG).show();
-                            activity.finish();
-                        })
-                        .show();
+                builder.setPositiveButton(android.R.string.ok, (dialog, which) -> checkRecommended());
             } else {
-                new MaterialAlertDialogBuilder(activity)
-                        .setMessage(R.string.no_scope_selected)
-                        .setPositiveButton(android.R.string.cancel, null)
-                        .setNegativeButton(android.R.string.ok, (dialog, which) -> {
-                            ModuleUtil.getInstance().setModuleEnabled(modulePackageName, false);
-                            Toast.makeText(activity, activity.getString(R.string.module_disabled_no_selection, moduleName), Toast.LENGTH_LONG).show();
-                            activity.finish();
-                        })
-                        .show();
+                builder.setPositiveButton(android.R.string.cancel, null);
             }
+            builder.setNegativeButton(hasRecommended() ? android.R.string.cancel : android.R.string.ok, (dialog, which) -> {
+                ModuleUtil.getInstance().setModuleEnabled(modulePackageName, false);
+                Toast.makeText(activity, activity.getString(R.string.module_disabled_no_selection, moduleName), Toast.LENGTH_LONG).show();
+                activity.finish();
+            });
+            builder.show();
             return false;
         } else {
             return true;

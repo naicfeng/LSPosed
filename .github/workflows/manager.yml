@@ -52,12 +52,12 @@ jobs:
           name: manager-unsigned
           path: "app/build/outputs/apk/release/*.apk"
 #      - name: Post to channel
-#        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
+#        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
 #        env:
 #          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 #          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 #          FILE: ${{ steps.sign.outputs.signedReleaseFile }}
 #          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 #        run: |
-#          ESCAPED=`echo $COMMIT_MESSAGE | python3 -c 'import json,sys,urllib.parse; print(urllib.parse.quote(json.dumps(sys.stdin.read())))'`
+#          ESCAPED=`python3 -c 'import json,os,urllib.parse; print(urllib.parse.quote(json.dumps(os.environ["COMMIT_MESSAGE"])))'`
 #          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22:%22document%22,%20%22media%22:%22attach://release%22,%22caption%22:${ESCAPED}%7D%5D"  -F release="@$FILE"
