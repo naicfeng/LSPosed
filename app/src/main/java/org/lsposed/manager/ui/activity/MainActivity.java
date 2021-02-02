@@ -1,6 +1,9 @@
 package org.lsposed.manager.ui.activity;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -10,6 +13,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.Locale;
 
+import org.lsposed.manager.BuildConfig;
 import org.lsposed.manager.Constants;
 import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.ActivityMainBinding;
@@ -17,6 +21,7 @@ import org.lsposed.manager.ui.fragment.StatusDialogBuilder;
 import org.lsposed.manager.util.GlideHelper;
 import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.NavUtil;
+import org.lsposed.manager.util.Version;
 import org.lsposed.manager.util.light.Light;
 
 public class MainActivity extends BaseActivity {
@@ -26,6 +31,24 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // make sure the versions are consistent
+        Version managerVersion = new Version(BuildConfig.VERSION_NAME);
+        Version coreVersion = new Version(Constants.getXposedVersion());
+
+        if (!managerVersion.equals(coreVersion)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.outdated_manager)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            android.os.Process.killProcess(android.os.Process.myPid());
+                        }
+                    })
+                    .setCancelable(false);
+            Dialog dlg = builder.create();
+            dlg.show();
+        }
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.modules.setOnClickListener(v -> {
