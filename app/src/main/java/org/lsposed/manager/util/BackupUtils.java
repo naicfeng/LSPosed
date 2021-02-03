@@ -1,4 +1,4 @@
-package io.github.lsposed.manager.util;
+package org.lsposed.manager.util;
 
 import android.content.Context;
 import android.net.Uri;
@@ -11,7 +11,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import io.github.lsposed.manager.Constants;
+import org.lsposed.manager.Constants;
 
 public class BackupUtils {
     public static boolean backup(Context context, Uri uri) {
