@@ -91,7 +91,7 @@ start_log_cather () {
     fi
     touch "${LOG_FILE}"
     touch "${PID_FILE}"
-    echo "LSPosed Log">>"${LOG_FILE}"
+    echo "LSPosed Log (Disable LogCat)">>"${LOG_FILE}"
     echo "--------- beginning of information">>"${LOG_FILE}"
     echo "Manufacturer: ${MANUFACTURER}">>"${LOG_FILE}"
     echo "Brand: ${BRAND}">>"${LOG_FILE}"
@@ -109,19 +109,19 @@ start_log_cather () {
     echo "Riru version: ${RIRU_VERSION} (${RIRU_VERCODE})">>"${LOG_FILE}"
     echo "Riru api: ${RIRU_APICODE}">>"${LOG_FILE}"
     echo "Magisk: ${MAGISK_VERSION%:*} (${MAGISK_VERCODE})">>"${LOG_FILE}"
-    loop_logcat -f "${LOG_FILE}" *:S "${LOG_TAG_FILTERS}" &
-    LOG_PID=$!
-    echo "${LOG_PID}">"${LOG_PATH}/${LOG_FILE_NAME}.pid"
+#    loop_logcat -f "${LOG_FILE}" *:S "${LOG_TAG_FILTERS}" &
+#    LOG_PID=$!
+#    echo "${LOG_PID}">"${LOG_PATH}/${LOG_FILE_NAME}.pid"
 }
 
 # execute live patch if rule not found
 [[ -f "${MODDIR}/sepolicy.rule" ]] || livePatch
 
 # start_verbose_log_catcher
-#start_log_cather all "LSPosed:V XSharedPreferences:V LSPosed-Bridge:V LSPosedManager:V *:F" true ${LOG_VERBOSE}
+start_log_cather all "LSPosed:V XSharedPreferences:V LSPosed-Bridge:V LSPosedManager:V *:F" true ${LOG_VERBOSE}
 
 # start_bridge_log_catcher
-#start_log_cather error "XSharedPreferences:V LSPosed-Bridge:V" true true
+start_log_cather error "XSharedPreferences:V LSPosed-Bridge:V" true true
 
 if [[ -f "/data/adb/riru/modules/lspd.prop" ]]; then
     CONFIG=$(cat "/data/adb/riru/modules/lspd.prop")

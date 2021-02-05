@@ -9,7 +9,7 @@
 
 namespace lspd {
 
-#define LOG_DISABLED
+//#define LOG_DISABLED
 //#define DEBUG
 
 

@@ -3,6 +3,8 @@
 
 #include <android/log.h>
 
+#define LOG_DISABLED
+
 #ifndef LOG_TAG
 #define LOG_TAG    "LSPosed"
 #endif
