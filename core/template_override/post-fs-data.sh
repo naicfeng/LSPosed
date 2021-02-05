@@ -63,15 +63,15 @@ fi
 # If logcat client is kicked out by klogd server, we'll restart it.
 # However, if it is killed manually or by LSPosed Manager, we'll exit.
 # Refer to https://github.com/ElderDrivers/LSPosed/pull/575 for more information.
-loop_logcat() {
-    while true
-    do
-        logcat $*
-        if [[ $? -ne 1 ]]; then
-            break
-        fi
-    done
-}
+#loop_logcat() {
+#    while true
+#    do
+#        logcat $*
+#        if [[ $? -ne 1 ]]; then
+#            break
+#        fi
+#    done
+#}
 
 start_log_cather () {
     LOG_FILE_NAME=$1
@@ -118,10 +118,10 @@ start_log_cather () {
 [[ -f "${MODDIR}/sepolicy.rule" ]] || livePatch
 
 # start_verbose_log_catcher
-start_log_cather all "LSPosed:V XSharedPreferences:V LSPosed-Bridge:V LSPosedManager:V *:F" true ${LOG_VERBOSE}
+#start_log_cather all "LSPosed:V XSharedPreferences:V LSPosed-Bridge:V LSPosedManager:V *:F" true ${LOG_VERBOSE}
 
 # start_bridge_log_catcher
-start_log_cather error "XSharedPreferences:V LSPosed-Bridge:V" true true
+#start_log_cather error "XSharedPreferences:V LSPosed-Bridge:V" true true
 
 if [[ -f "/data/adb/riru/modules/lspd.prop" ]]; then
     CONFIG=$(cat "/data/adb/riru/modules/lspd.prop")
