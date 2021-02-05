@@ -159,12 +159,11 @@ public final class XposedBridge {
 	 * @param text The log message.
 	 */
 	public synchronized static void log(String text) {
-		return;
 		//log_off
 		if (ConfigManager.isNoModuleLogEnabled()) {
 			return;
 		}
-		Log.i(TAG, text);
+//		Log.i(TAG, text);
 	}
 
 	/**
@@ -176,9 +175,8 @@ public final class XposedBridge {
 	 * @param t The Throwable object for the stack trace.
 	 */
 	public synchronized static void log(Throwable t) {
-		return;
 		//log_off
-		Log.e(TAG, Log.getStackTraceString(t));
+//		Log.e(TAG, Log.getStackTraceString(t));
 	}
 
 	/**
