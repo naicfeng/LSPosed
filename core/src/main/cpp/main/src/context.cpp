@@ -21,7 +21,7 @@
 #include "art/runtime/runtime.h"
 #include "art/runtime/gc/heap.h"
 #include "native_hook.h"
-#include "jni/logger.h"
+//#include "jni/logger.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-value"
@@ -114,7 +114,7 @@ namespace lspd {
         entry_class_ = (jclass) (env->NewGlobalRef(
                 FindClassFromLoader(env, GetCurrentClassLoader(), kEntryClassName)));
 
-        RegisterLogger(env);
+//        RegisterLogger(env);
         RegisterEdxpResourcesHook(env);
         RegisterConfigManagerMethods(env);
         RegisterArtClassLinker(env);
