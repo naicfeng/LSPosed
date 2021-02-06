@@ -238,6 +238,24 @@ namespace lspd {
             fs::create_directories(GetPrefsPath(""));
             fs::permissions(GetPrefsPath(""),
                             fs::perms::owner_all | fs::perms::group_all | fs::perms::others_exec);
+            auto log_path = GetLogPath();
+            auto modules_log_path = GetModulesLogPath();
+            if (!fs::is_directory(log_path)) {
+                fs::remove(log_path);
+            }
+            if (!path_exists(log_path)) {
+                fs::create_directories(modules_log_path);
+            }
+            if (!path_exists<true>(modules_log_path)) {
+                std::ofstream(modules_log_path, std::ios::out);
+            }
+            fs::permissions(log_path,
+                            fs::perms::owner_all | fs::perms::group_all | fs::perms::others_all);
+            recursive_permissions(log_path,
+                                  fs::perms::owner_read | fs::perms::owner_write |
+                                  fs::perms::group_read |
+                                  fs::perms::group_write | fs::perms::others_read |
+                                  fs::perms::others_write, fs::perm_options::add);
         } catch (const fs::filesystem_error &e) {
             LOGE("init: %s", e.what());
             return false;
@@ -271,21 +289,18 @@ namespace lspd {
                 if (!path_exists<true>(conf_path)) {
                     fs::create_directories(conf_path);
                 }
-                auto log_path = GetLogPath();
-                if (!path_exists<true>(log_path)) {
-                    fs::create_directories(log_path);
-                }
                 recursive_permissions(conf_path, fs::perms::owner_all | fs::perms::group_all |
                                                  fs::perms::set_gid);
-                recursive_permissions(log_path, fs::perms::owner_all | fs::perms::group_all |
-                                                fs::perms::set_gid);
                 if (pkg_name == "android") uid = -1;
                 path_chown(conf_path, uid, 1000u, true);
-                path_chown(log_path, uid, 1000u, true);
                 if (current_user_ == 0) {
                     auto variant = GetVariantPath();
                     fs::permissions(variant, fs::perms::owner_all | fs::perms::group_all);
                     path_chown(variant, uid, 1000u);
+                    auto disable_verbose_log = misc_path_ / "disable_verbose_log";
+                    fs::permissions(disable_verbose_log,
+                                    fs::perms::owner_all | fs::perms::group_all);
+                    path_chown(disable_verbose_log, uid, 1000u);
                 }
 
                 if (pkg_name == kPrimaryInstallerPkgName) {

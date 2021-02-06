@@ -11,16 +11,16 @@ namespace lspd {
         return (jboolean) ConfigManager::GetInstance()->IsResourcesHookEnabled();
     }
 
-    LSP_DEF_NATIVE_METHOD(jboolean, ConfigManager, isNoModuleLogEnabled) {
-        return (jboolean) ConfigManager::GetInstance()->IsNoModuleLogEnabled();
-    }
-
     LSP_DEF_NATIVE_METHOD(jstring, ConfigManager, getInstallerPackageName) {
         return env->NewStringUTF(ConfigManager::GetInstance()->GetInstallerPackageName().c_str());
     }
 
     LSP_DEF_NATIVE_METHOD(jstring, ConfigManager, getDataPathPrefix) {
         return env->NewStringUTF(ConfigManager::GetInstance()->GetDataPathPrefix().c_str());
+    }
+
+    LSP_DEF_NATIVE_METHOD(jstring, ConfigManager, getLogPath) {
+        return env->NewStringUTF(ConfigManager::GetLogPath().c_str());
     }
 
     LSP_DEF_NATIVE_METHOD(jstring, ConfigManager, getConfigPath, jstring jSuffix) {
@@ -70,9 +70,10 @@ namespace lspd {
 
     static JNINativeMethod gMethods[] = {
             LSP_NATIVE_METHOD(ConfigManager, isResourcesHookEnabled, "()Z"),
-            LSP_NATIVE_METHOD(ConfigManager, isNoModuleLogEnabled, "()Z"),
             LSP_NATIVE_METHOD(ConfigManager, getInstallerPackageName, "()Ljava/lang/String;"),
             LSP_NATIVE_METHOD(ConfigManager, getDataPathPrefix, "()Ljava/lang/String;"),
+            LSP_NATIVE_METHOD(ConfigManager, getMiscPath, "()Ljava/lang/String;"),
+            LSP_NATIVE_METHOD(ConfigManager, getLogPath, "()Ljava/lang/String;"),
             LSP_NATIVE_METHOD(ConfigManager, getPrefsPath,
                               "(Ljava/lang/String;)Ljava/lang/String;"),
             LSP_NATIVE_METHOD(ConfigManager, getCachePath,
@@ -83,7 +84,7 @@ namespace lspd {
     };
 
     void RegisterConfigManagerMethods(JNIEnv *env) {
-        REGISTER_EDXP_NATIVE_METHODS("io.github.lsposed.lspd.nativebridge.ConfigManager");
+        REGISTER_LSP_NATIVE_METHODS(ConfigManager);
     }
 
 }

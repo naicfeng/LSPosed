@@ -31,6 +31,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import de.robv.android.xposed.callbacks.XCallback;
 import external.com.android.dx.DexMaker;
 import external.com.android.dx.TypeId;
+import io.github.lsposed.lspd.nativebridge.Logger;
 
 import static de.robv.android.xposed.XposedHelpers.getIntField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
@@ -159,11 +160,8 @@ public final class XposedBridge {
 	 * @param text The log message.
 	 */
 	public synchronized static void log(String text) {
-		//log_off
-		if (ConfigManager.isNoModuleLogEnabled()) {
-			return;
-		}
 //		Log.i(TAG, text);
+//		Logger.log(text);
 	}
 
 	/**
@@ -175,8 +173,9 @@ public final class XposedBridge {
 	 * @param t The Throwable object for the stack trace.
 	 */
 	public synchronized static void log(Throwable t) {
-		//log_off
-//		Log.e(TAG, Log.getStackTraceString(t));
+//		String logStr = Log.getStackTraceString(t);
+//		Log.e(TAG, logStr);
+//		Logger.log(logStr);
 	}
 
 	/**
