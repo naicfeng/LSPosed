@@ -160,8 +160,8 @@ public final class XposedBridge {
 	 * @param text The log message.
 	 */
 	public synchronized static void log(String text) {
-//		Log.i(TAG, text);
-//		Logger.log(text);
+		Log.i(TAG, text);
+		Logger.log(text);
 	}
 
 	/**
@@ -173,9 +173,9 @@ public final class XposedBridge {
 	 * @param t The Throwable object for the stack trace.
 	 */
 	public synchronized static void log(Throwable t) {
-//		String logStr = Log.getStackTraceString(t);
-//		Log.e(TAG, logStr);
-//		Logger.log(logStr);
+		String logStr = Log.getStackTraceString(t);
+		Log.e(TAG, logStr);
+		Logger.log(logStr);
 	}
 
 	/**
