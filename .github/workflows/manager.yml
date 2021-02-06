@@ -43,7 +43,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
         uses: actions/upload-artifact@v2
         with:
-          name: LSPosedManager-v0.5.3.0-${{ env.APPVEYOR_BUILD_NUMBER }}-release
+          name: LSPosedManager-v0.5.4.0-${{ env.APPVEYOR_BUILD_NUMBER }}-release
           path: ${{ steps.sign.outputs.signedReleaseFile }}
       - name: Upload unsigned apk
         if: ${{ github.event_name == 'pull_request' || failure() }}
