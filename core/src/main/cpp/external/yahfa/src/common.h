@@ -7,7 +7,7 @@
 #define YAHFA_COMMON_H
 
 //#define DEBUG
-//#define LOG_DISABLED
+#define LOG_DISABLED
 
 #ifdef LOG_DISABLED
 #define LOGI(...)
