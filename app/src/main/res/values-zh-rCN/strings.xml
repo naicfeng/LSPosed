@@ -142,4 +142,6 @@
     <string name="menu_backup_and_restore">备份…</string>
     <string name="menu_backup">备份</string>
     <string name="menu_restore">恢复</string>
+    <string name="xposed_module_updated_notification_content">%s 已更新</string>
+    <string name="compile_done">优化完成</string>
 </resources>
