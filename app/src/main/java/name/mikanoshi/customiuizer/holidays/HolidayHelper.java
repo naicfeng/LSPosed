@@ -17,7 +17,7 @@ import com.github.matteobattilana.weather.WeatherView;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
-import io.github.lsposed.manager.R;
+import org.lsposed.manager.R;
 import name.mikanoshi.customiuizer.utils.GravitySensor;
 import name.mikanoshi.customiuizer.utils.Helpers;
 
