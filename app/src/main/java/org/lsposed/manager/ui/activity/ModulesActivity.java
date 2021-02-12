@@ -29,7 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.request.target.CustomTarget;
@@ -44,7 +43,7 @@ import java.util.List;
 import org.lsposed.manager.Constants;
 import org.lsposed.manager.R;
 import org.lsposed.manager.adapters.AppHelper;
-import org.lsposed.manager.databinding.ActivityAppListBinding;
+import org.lsposed.manager.databinding.ActivityListBinding;
 import org.lsposed.manager.util.GlideApp;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
 import org.lsposed.manager.util.ModuleUtil;
@@ -54,7 +53,7 @@ import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleListener {
 
-    ActivityAppListBinding binding;
+    ActivityListBinding binding;
     private SearchView searchView;
     private SearchView.OnQueryTextListener mSearchListener;
     private PackageManager pm;
@@ -65,12 +64,12 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAppListBinding.inflate(getLayoutInflater());
+        binding = ActivityListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.toolbar);
+        setAppBar(binding.appBar, binding.toolbar);
+        binding.getRoot().bringChildToFront(binding.appBar);
         binding.toolbar.setNavigationOnClickListener(view -> onBackPressed());
-//        binding.appBar.setLiftOnScrollTargetViewId(R.id.recyclerView);
-        binding.masterSwitch.setVisibility(View.GONE);
+        binding.recyclerView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> binding.appBar.setRaised(!top));
         ActionBar bar = getSupportActionBar();
         if (bar != null) {
             bar.setDisplayHomeAsUpEnabled(true);
@@ -83,14 +82,8 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         binding.recyclerView.setAdapter(adapter);
         binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setLayoutManager(new LinearLayoutManagerFix(this));
-        RecyclerViewKt.addFastScroller(binding.recyclerView, binding.swipeRefreshLayout);
+        RecyclerViewKt.addFastScroller(binding.recyclerView, binding.recyclerView);
         RecyclerViewKt.fixEdgeEffect(binding.recyclerView, false, true);
-        if (!preferences.getBoolean("md2", true)) {
-            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this,
-                    DividerItemDecoration.VERTICAL);
-            binding.recyclerView.addItemDecoration(dividerItemDecoration);
-        }
-        binding.swipeRefreshLayout.setOnRefreshListener(() -> adapter.refresh(true));
         mSearchListener = new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -310,7 +303,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
                     }
                 });
                 showList = fullList;
-                binding.swipeRefreshLayout.setRefreshing(false);
+                //binding.swipeRefreshLayout.setRefreshing(false);
                 String queryStr = searchView != null ? searchView.getQuery().toString() : "";
                 runOnUiThread(() -> getFilter().filter(queryStr));
                 moduleUtil.updateModulesList();

@@ -21,8 +21,8 @@ public class AboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAboutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.toolbar);
-        binding.toolbar.setNavigationOnClickListener(view -> finish());
+//        setSupportActionBar(binding.toolbar);
+//        binding.toolbar.setNavigationOnClickListener(view -> finish());
         ActionBar bar = getSupportActionBar();
         if (bar != null) {
             bar.setDisplayHomeAsUpEnabled(true);

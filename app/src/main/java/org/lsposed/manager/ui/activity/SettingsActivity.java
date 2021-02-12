@@ -4,30 +4,23 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.Preference;
-import androidx.preference.SwitchPreferenceCompat;
+import androidx.preference.SwitchPreference;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.takisoft.preferencex.PreferenceFragmentCompat;
 import com.takisoft.preferencex.SimpleMenuPreference;
@@ -46,7 +39,9 @@ import org.lsposed.manager.databinding.ActivitySettingsBinding;
 import org.lsposed.manager.ui.fragment.StatusDialogBuilder;
 import org.lsposed.manager.ui.widget.IntegerListPreference;
 import org.lsposed.manager.util.BackupUtils;
+import rikka.material.app.DayNightDelegate;
 import rikka.recyclerview.RecyclerViewKt;
+import rikka.widget.borderview.BorderRecyclerView;
 
 public class SettingsActivity extends BaseActivity {
     private static final String KEY_PREFIX = SettingsActivity.class.getName() + '.';
@@ -73,7 +68,8 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = ActivitySettingsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.toolbar);
+        setAppBar(binding.appBar, binding.toolbar);
+        binding.getRoot().bringChildToFront(binding.appBar);
         binding.toolbar.setNavigationOnClickListener(view -> finish());
         ActionBar bar = getSupportActionBar();
         if (bar != null) {
@@ -136,7 +132,7 @@ public class SettingsActivity extends BaseActivity {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireActivity())
+                        AlertDialog alertDialog = new AlertDialog.Builder(requireActivity())
                                 .setCancelable(false)
                                 .setMessage(R.string.settings_backuping)
                                 .show();
@@ -163,7 +159,7 @@ public class SettingsActivity extends BaseActivity {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireActivity())
+                        AlertDialog alertDialog = new AlertDialog.Builder(requireActivity())
                                 .setCancelable(false)
                                 .setMessage(R.string.settings_restoring)
                                 .show();
@@ -187,7 +183,7 @@ public class SettingsActivity extends BaseActivity {
             addPreferencesFromResource(R.xml.prefs);
 
             boolean installed = Constants.getXposedVersion() != null;
-            SwitchPreferenceCompat prefVerboseLogs = findPreference("disable_verbose_log");
+            SwitchPreference prefVerboseLogs = findPreference("disable_verbose_log");
             if (prefVerboseLogs != null) {
                 if (requireActivity().getApplicationInfo().uid / 100000 != 0) {
                     prefVerboseLogs.setVisible(false);
@@ -211,7 +207,7 @@ public class SettingsActivity extends BaseActivity {
                 }
             }
 
-            SwitchPreferenceCompat prefEnableResources = findPreference("enable_resources");
+            SwitchPreference prefEnableResources = findPreference("enable_resources");
             if (prefEnableResources != null) {
                 prefEnableResources.setEnabled(installed);
                 prefEnableResources.setChecked(Files.exists(enableResourcesFlag));
@@ -265,31 +261,21 @@ public class SettingsActivity extends BaseActivity {
                 });
             }
 
-            SwitchPreferenceCompat transparent = findPreference("transparent_status_bar");
-            if (transparent != null) {
-                transparent.setOnPreferenceChangeListener((preference, newValue) -> {
-                    boolean enabled = (Boolean) newValue;
-                    SettingsActivity activity = (SettingsActivity) getActivity();
-                    if (activity != null) {
-                        if (enabled) {
-                            activity.getWindow().setStatusBarColor(activity.getThemedColor(R.attr.colorActionBar));
-                        } else {
-                            activity.getWindow().setStatusBarColor(activity.getThemedColor(R.attr.colorPrimaryDark));
+            IntegerListPreference theme = findPreference("theme");
+            if (theme != null) {
+                theme.setOnPreferenceChangeListener((preference, newValue) -> {
+                    if (preferences.getInt("theme", -1) != Integer.parseInt((String) newValue)) {
+                        DayNightDelegate.setDefaultNightMode(Integer.parseInt((String) newValue));
+                        SettingsActivity activity = (SettingsActivity) getActivity();
+                        if (activity != null) {
+                            activity.restart();
                         }
                     }
                     return true;
                 });
             }
 
-            IntegerListPreference theme = findPreference("theme");
-            if (theme != null) {
-                theme.setOnPreferenceChangeListener((preference, newValue) -> {
-                    AppCompatDelegate.setDefaultNightMode(Integer.parseInt((String) newValue));
-                    return true;
-                });
-            }
-
-            SwitchPreferenceCompat black_dark_theme = findPreference("black_dark_theme");
+            SwitchPreference black_dark_theme = findPreference("black_dark_theme");
             if (black_dark_theme != null) {
                 black_dark_theme.setOnPreferenceChangeListener((preference, newValue) -> {
                     SettingsActivity activity = (SettingsActivity) getActivity();
@@ -321,41 +307,6 @@ public class SettingsActivity extends BaseActivity {
                     return true;
                 });
             }
-
-            Preference colorized_action_bar = findPreference("colorized_action_bar");
-            if (colorized_action_bar != null) {
-                colorized_action_bar.setOnPreferenceChangeListener((preference, newValue) -> {
-                    SettingsActivity activity = (SettingsActivity) getActivity();
-                    if (activity != null && !(isBlackNightTheme() && isNightMode(getResources().getConfiguration()))) {
-                        activity.restart();
-                    }
-                    return true;
-                });
-            }
-
-            SwitchPreferenceCompat md2 = findPreference("md2");
-            if (md2 != null) {
-                md2.setOnPreferenceChangeListener((preference, newValue) -> {
-                    SettingsActivity activity = (SettingsActivity) getActivity();
-                    if (activity != null) {
-                        updatePreference(!md2.isChecked());
-                        activity.restart();
-                    }
-                    return true;
-                });
-                updatePreference(!md2.isChecked());
-            }
-        }
-
-        private void updatePreference(boolean show) {
-            Preference transparent_status_bar = findPreference("transparent_status_bar");
-            if (transparent_status_bar != null) {
-                transparent_status_bar.setVisible(show);
-            }
-            Preference colorized_action_bar = findPreference("colorized_action_bar");
-            if (colorized_action_bar != null) {
-                colorized_action_bar.setVisible(show);
-            }
         }
 
         private class OnFlagChangeListener implements Preference.OnPreferenceChangeListener {
@@ -383,18 +334,16 @@ public class SettingsActivity extends BaseActivity {
         }
 
         @Override
-        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-            super.onViewCreated(view, savedInstanceState);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                RecyclerView recyclerView = getListView();
-                recyclerView.setClipToPadding(false);
-                RecyclerViewKt.fixEdgeEffect(recyclerView, false, true);
-                ViewCompat.setOnApplyWindowInsetsListener(recyclerView, (v, insets) -> {
-                    Insets insets1 = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
-                    v.setPadding(0, 0, 0, insets1.bottom);
-                    return WindowInsetsCompat.CONSUMED;
-                });
-            }
+        public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+            BorderRecyclerView recyclerView = (BorderRecyclerView) super.onCreateRecyclerView(inflater, parent, savedInstanceState);
+            RecyclerViewKt.fixEdgeEffect(recyclerView, false, true);
+            recyclerView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> {
+                SettingsActivity activity = (SettingsActivity) getActivity();
+                if (activity != null) {
+                    activity.binding.appBar.setRaised(!top);
+                }
+            });
+            return recyclerView;
         }
     }
 

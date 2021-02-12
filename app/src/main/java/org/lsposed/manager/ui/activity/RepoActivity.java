@@ -26,6 +26,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
@@ -36,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.SearchView;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.lsposed.manager.R;
-import org.lsposed.manager.databinding.ActivityAppListBinding;
+import org.lsposed.manager.databinding.ActivityListBinding;
 import org.lsposed.manager.repo.RepoLoader;
 import org.lsposed.manager.repo.model.OnlineModule;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
@@ -56,18 +56,18 @@ public class RepoActivity extends BaseActivity implements RepoLoader.Listener {
     private final RepoLoader repoLoader = RepoLoader.getInstance();
     private SearchView searchView;
     private SearchView.OnQueryTextListener searchListener;
-    private ActivityAppListBinding binding;
+    private ActivityListBinding binding;
     private RepoAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAppListBinding.inflate(getLayoutInflater());
+        binding = ActivityListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.toolbar);
+        setAppBar(binding.appBar, binding.toolbar);
+        binding.getRoot().bringChildToFront(binding.appBar);
         binding.toolbar.setNavigationOnClickListener(view -> onBackPressed());
-//        binding.appBar.setLiftOnScrollTargetViewId(R.id.recyclerView);
-        binding.masterSwitch.setVisibility(View.GONE);
+        binding.recyclerView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> binding.appBar.setRaised(!top));
         ActionBar bar = getSupportActionBar();
         assert bar != null;
         bar.setDisplayHomeAsUpEnabled(true);
@@ -76,15 +76,10 @@ public class RepoActivity extends BaseActivity implements RepoLoader.Listener {
         binding.recyclerView.setAdapter(adapter);
         binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setLayoutManager(new LinearLayoutManagerFix(this));
-        RecyclerViewKt.addFastScroller(binding.recyclerView, binding.swipeRefreshLayout);
+        binding.progress.setVisibilityAfterHide(View.GONE);
+        RecyclerViewKt.addFastScroller(binding.recyclerView, binding.recyclerView);
         RecyclerViewKt.fixEdgeEffect(binding.recyclerView, false, true);
-        if (!preferences.getBoolean("md2", true)) {
-            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this,
-                    DividerItemDecoration.VERTICAL);
-            binding.recyclerView.addItemDecoration(dividerItemDecoration);
-        }
         repoLoader.addListener(this);
-        binding.swipeRefreshLayout.setOnRefreshListener(repoLoader::loadRemoteData);
         searchListener = new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -115,14 +110,24 @@ public class RepoActivity extends BaseActivity implements RepoLoader.Listener {
     @Override
     public void repoLoaded() {
         runOnUiThread(() -> {
-            binding.swipeRefreshLayout.setRefreshing(false);
+            binding.progress.hide();
             adapter.setData(repoLoader.getOnlineModules());
         });
     }
 
     @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_refresh) {
+            binding.progress.show();
+            repoLoader.loadRemoteData();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_modules, menu);
+        getMenuInflater().inflate(R.menu.menu_repo, menu);
         searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
         searchView.setOnQueryTextListener(searchListener);
         return super.onCreateOptionsMenu(menu);
@@ -178,7 +183,7 @@ public class RepoActivity extends BaseActivity implements RepoLoader.Listener {
         public void initData() {
             Collection<OnlineModule> modules = repoLoader.getOnlineModules();
             if (!repoLoader.isRepoLoaded()) {
-                binding.swipeRefreshLayout.setRefreshing(true);
+                binding.progress.show();
                 repoLoader.loadRemoteData();
             } else {
                 adapter.setData(modules);

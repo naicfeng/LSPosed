@@ -35,11 +35,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
@@ -73,6 +72,9 @@ import io.noties.markwon.image.glide.GlideImagesPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
 import io.noties.markwon.utils.NoCopySpannableFactory;
 import rikka.recyclerview.RecyclerViewKt;
+import rikka.widget.borderview.BorderNestedScrollView;
+import rikka.widget.borderview.BorderRecyclerView;
+import rikka.widget.borderview.BorderView;
 
 public class RepoItemActivity extends BaseActivity {
     ActivityModuleDetailBinding binding;
@@ -86,7 +88,8 @@ public class RepoItemActivity extends BaseActivity {
         String modulePackageName = getIntent().getStringExtra("modulePackageName");
         String moduleName = getIntent().getStringExtra("moduleName");
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.toolbar);
+        setAppBar(binding.appBar, binding.toolbar);
+        binding.getRoot().bringChildToFront(binding.appBar);
         binding.toolbar.setNavigationOnClickListener(view -> onBackPressed());
         ActionBar bar = getSupportActionBar();
         assert bar != null;
@@ -107,10 +110,14 @@ public class RepoItemActivity extends BaseActivity {
         binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
+                BorderView borderView;
                 if (position == 0) {
-                    binding.appBar.setLiftOnScrollTargetViewId(R.id.scrollView);
+                    borderView = findViewById(R.id.scrollView);
                 } else {
-                    binding.appBar.setLiftOnScrollTargetViewId(R.id.recyclerView);
+                    borderView = findViewById(R.id.recyclerView);
+                }
+                if (borderView != null) {
+                    binding.appBar.setRaised(!borderView.getBorderViewDelegate().isShowingTopBorder());
                 }
             }
         });
@@ -247,7 +254,7 @@ public class RepoItemActivity extends BaseActivity {
                 holder.viewAssets.setOnClickListener(v -> {
                     ArrayList<String> names = new ArrayList<>();
                     assets.forEach(releaseAsset -> names.add(releaseAsset.getName()));
-                    new MaterialAlertDialogBuilder(RepoItemActivity.this)
+                    new AlertDialog.Builder(RepoItemActivity.this)
                             .setItems(names.toArray(new String[0]), (dialog, which) -> NavUtil.startURL(RepoItemActivity.this, assets.get(which).getDownloadUrl()))
                             .show();
                 });
@@ -302,16 +309,14 @@ public class RepoItemActivity extends BaseActivity {
             switch (position) {
                 case 0:
                     holder.textView.setTransformationMethod(new LinkTransformationMethod(RepoItemActivity.this));
+                    holder.scrollView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> binding.appBar.setRaised(!top));
                     markwon.setMarkdown(holder.textView, module.getReadme());
                     break;
                 case 1:
                 case 2:
                     holder.recyclerView.setAdapter(position == 1 ? new ReleaseAdapter(module.getReleases()) : new InformationAdapter(module));
                     holder.recyclerView.setLayoutManager(new LinearLayoutManagerFix(RepoItemActivity.this));
-                    if (!preferences.getBoolean("md2", true)) {
-                        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(RepoItemActivity.this, DividerItemDecoration.VERTICAL);
-                        holder.recyclerView.addItemDecoration(dividerItemDecoration);
-                    }
+                    holder.recyclerView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> binding.appBar.setRaised(!top));
                     RecyclerViewKt.fixEdgeEffect(holder.recyclerView, false, true);
                     RecyclerViewKt.addFastScroller(holder.recyclerView, holder.itemView);
                     break;
@@ -330,12 +335,14 @@ public class RepoItemActivity extends BaseActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView textView;
-            RecyclerView recyclerView;
+            BorderNestedScrollView scrollView;
+            BorderRecyclerView recyclerView;
 
             public ViewHolder(@NonNull View itemView, int viewType) {
                 super(itemView);
                 if (viewType == 0) {
                     textView = itemView.findViewById(R.id.readme);
+                    scrollView = itemView.findViewById(R.id.scrollView);
                 } else {
                     recyclerView = itemView.findViewById(R.id.recyclerView);
                 }

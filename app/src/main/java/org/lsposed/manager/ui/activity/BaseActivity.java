@@ -5,16 +5,16 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.view.Window;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Objects;
 
@@ -24,11 +24,11 @@ import org.lsposed.manager.Constants;
 import org.lsposed.manager.R;
 import org.lsposed.manager.util.CustomThemeColor;
 import org.lsposed.manager.util.CustomThemeColors;
-import org.lsposed.manager.util.InsetsViewInflater;
 import org.lsposed.manager.util.NavUtil;
 import org.lsposed.manager.util.Version;
+import rikka.material.app.MaterialActivity;
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends MaterialActivity {
 
     private static final String THEME_DEFAULT = "DEFAULT";
     private static final String THEME_BLACK = "BLACK";
@@ -43,9 +43,6 @@ public class BaseActivity extends AppCompatActivity {
         return preferences.getBoolean("black_dark_theme", false);
     }
 
-    private void onInstallViewFactory(LayoutInflater layoutInflater) {
-        layoutInflater.setFactory2(new InsetsViewInflater(getDelegate()));
-    }
 
     public String getTheme(Context context) {
         if (isBlackNightTheme()
@@ -61,9 +58,6 @@ public class BaseActivity extends AppCompatActivity {
 
     @StyleRes
     public int getThemeStyleRes(Context context) {
-//        if (this instanceof AboutActivity) {
-//            return R.style.ThemeOverlay_Black;
-//        }
         switch (getTheme(context)) {
             case THEME_BLACK:
                 return R.style.ThemeOverlay_Black;
@@ -75,8 +69,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @StyleRes
     private int getCustomTheme() {
-        String baseThemeName = preferences.getBoolean("colorized_action_bar", false) && !preferences.getBoolean("md2", true) ?
-                "ThemeOverlay.ActionBarPrimaryColor" : "ThemeOverlay";
+        String baseThemeName = "ThemeOverlay";
         String customThemeName;
         String primaryColorEntryName = "colorPrimary";
         for (CustomThemeColor color : CustomThemeColors.Primary.values()) {
@@ -98,10 +91,8 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        onInstallViewFactory(LayoutInflater.from(this));
         super.onCreate(savedInstanceState);
-        AppCompatDelegate.setDefaultNightMode(preferences.getInt("theme", -1));
-        theme = getTheme(this) + getCustomTheme() + preferences.getBoolean("md2", true);
+        theme = getTheme(this) + getCustomTheme();
 
         // make sure the versions are consistent
         String coreVersionStr = Constants.getXposedVersion();
@@ -109,7 +100,7 @@ public class BaseActivity extends AppCompatActivity {
             Version managerVersion = new Version(BuildConfig.VERSION_NAME);
             Version coreVersion = new Version(coreVersionStr);
             if (!managerVersion.equals(coreVersion)) {
-                new MaterialAlertDialogBuilder(this)
+                new AlertDialog.Builder(this)
                         .setMessage(R.string.outdated_manager)
                         .setPositiveButton(R.string.ok, (dialog, id) -> {
                             NavUtil.startURL(this, getString(R.string.about_source));
@@ -131,22 +122,13 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!(this instanceof MainActivity)) {
-            if (preferences.getBoolean("transparent_status_bar", false)) {
-                getWindow().setStatusBarColor(getThemedColor(R.attr.colorActionBar));
-            } else {
-                getWindow().setStatusBarColor(getThemedColor(R.attr.colorPrimaryDark));
-            }
-        } else {
-            getWindow().setStatusBarColor(0);
-        }
-        if (!Objects.equals(theme, getTheme(this) + getCustomTheme() + preferences.getBoolean("md2", true))) {
+        if (!Objects.equals(theme, getTheme(this) + getCustomTheme())) {
             recreate();
         }
     }
 
     @Override
-    protected void onApplyThemeResource(Resources.Theme theme, int resid, boolean first) {
+    protected void onApplyThemeResource(@NonNull Resources.Theme theme, int resid, boolean first) {
         // apply real style and our custom style
         if (getParent() == null) {
             theme.applyStyle(resid, true);
@@ -159,14 +141,30 @@ public class BaseActivity extends AppCompatActivity {
             theme.applyStyle(resid, false);
         }
         theme.applyStyle(getCustomTheme(), true);
-        if (preferences.getBoolean("md2", true) && !(this instanceof MainActivity)) {
-            theme.applyStyle(R.style.ThemeOverlay_Md2, true);
-        }
-        if (this instanceof MainActivity) {
-            theme.applyStyle(R.style.ThemeOverlay_ActivityMain, true);
-        }
         theme.applyStyle(getThemeStyleRes(this), true);
         // only pass theme style to super, so styled theme will not be overwritten
         super.onApplyThemeResource(theme, R.style.ThemeOverlay, first);
+    }
+
+    @Override
+    public void onApplyTranslucentSystemBars() {
+        super.onApplyTranslucentSystemBars();
+        Window window = getWindow();
+        window.setStatusBarColor(Color.TRANSPARENT);
+
+        window.getDecorView().post(() -> {
+            if (window.getDecorView().getRootWindowInsets().getSystemWindowInsetBottom() >= Resources.getSystem().getDisplayMetrics().density * 40) {
+                window.setNavigationBarColor(getThemedColor(android.R.attr.navigationBarColor) & 0x00ffffff | -0x20000000);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    window.setNavigationBarContrastEnforced(false);
+                }
+            } else {
+                window.setNavigationBarColor(Color.TRANSPARENT);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    window.setNavigationBarContrastEnforced(true);
+                }
+            }
+        });
+
     }
 }
