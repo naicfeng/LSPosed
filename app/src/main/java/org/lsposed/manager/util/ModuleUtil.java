@@ -22,6 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.lsposed.manager.App;
 import org.lsposed.manager.Constants;
 import org.lsposed.manager.adapters.AppHelper;
+import org.lsposed.manager.repo.RepoLoader;
+import org.lsposed.manager.repo.model.OnlineModule;
 
 public final class ModuleUtil {
     // xposedminversion below this
@@ -272,6 +274,13 @@ public final class ModuleUtil {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                }
+                RepoLoader repoLoader = RepoLoader.getInstance();
+                if (scopeList == null && repoLoader.isRepoLoaded()) {
+                    OnlineModule module = repoLoader.getOnlineModule(packageName);
+                    if (module != null && module.getScope() != null) {
+                        scopeList = module.getScope();
+                    }
                 }
             }
             return scopeList;

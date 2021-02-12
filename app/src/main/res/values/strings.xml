@@ -152,4 +152,14 @@
     <string name="menu_backup">Backup</string>
     <string name="menu_restore">Restore</string>
     <string name="xposed_module_updated_notification_content">%s has been updated</string>
+    <string name="module_repo">Repository</string>
+    <string name="module_repo_summary">Module repository (Alpha)</string>
+    <string name="module_readme">Readme</string>
+    <string name="module_releases">Releases</string>
+    <string name="module_information">Info</string>
+    <string name="module_information_homepage">Homepage</string>
+    <string name="module_information_source_url">Source code</string>
+    <string name="module_information_collaborators">Collaborators</string>
+    <string name="module_release_view_assets">Assets</string>
+    <string name="menu_open_in_browser">Open in browser</string>
 </resources>

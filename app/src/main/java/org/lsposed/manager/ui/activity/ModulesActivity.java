@@ -48,7 +48,7 @@ import org.lsposed.manager.databinding.ActivityAppListBinding;
 import org.lsposed.manager.util.GlideApp;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
 import org.lsposed.manager.util.ModuleUtil;
-import me.zhanghai.android.fastscroll.FastScrollerBuilder;
+import rikka.recyclerview.RecyclerViewKt;
 
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
@@ -69,6 +69,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
         binding.toolbar.setNavigationOnClickListener(view -> onBackPressed());
+        binding.appBar.setLiftOnScrollTargetViewId(R.id.recyclerView);
         binding.masterSwitch.setVisibility(View.GONE);
         ActionBar bar = getSupportActionBar();
         if (bar != null) {
@@ -80,17 +81,15 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         adapter.setHasStableIds(true);
         moduleUtil.addListener(this);
         binding.recyclerView.setAdapter(adapter);
+        binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setLayoutManager(new LinearLayoutManagerFix(this));
-        setupRecyclerViewInsets(binding.recyclerView, binding.getRoot());
-        FastScrollerBuilder fastScrollerBuilder = new FastScrollerBuilder(binding.recyclerView);
+        RecyclerViewKt.addFastScroller(binding.recyclerView, binding.swipeRefreshLayout);
+        RecyclerViewKt.fixEdgeEffect(binding.recyclerView, false, true);
         if (!preferences.getBoolean("md2", true)) {
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this,
                     DividerItemDecoration.VERTICAL);
             binding.recyclerView.addItemDecoration(dividerItemDecoration);
-        } else {
-            fastScrollerBuilder.useMd2Style();
         }
-        fastScrollerBuilder.build();
         binding.swipeRefreshLayout.setOnRefreshListener(() -> adapter.refresh(true));
         mSearchListener = new SearchView.OnQueryTextListener() {
             @Override
