@@ -60,10 +60,8 @@
 
     <!-- About tab -->
     <string name="about_modify_label">修改者</string>
-    <string name="about_version_label">版本</string>
-    <string name="about_source_label">源代码</string>
 	<string name="about_cuojue">浅秋枫影</string>
-	<string name="about_cuojue_summary">仅修改了管理器图标和包名</string>
+	<string name="about_cuojue_summary">修改了图标和包名;禁用了日志</string>
     <!-- DownloadView -->
 
     <!-- DownloadUtils -->
@@ -153,4 +151,8 @@
     <string name="module_information_collaborators">合作者</string>
     <string name="module_release_view_assets">附件</string>
     <string name="menu_open_in_browser">在浏览器中打开</string>
+    <string name="refresh">刷新</string>
+    <string name="group_network">网络</string>
+    <string name="dns_over_http">安全 DNS (DoH)</string>
+    <string name="dns_over_http_summary">解决某些地区的 DNS 污染问题</string>
 </resources>
