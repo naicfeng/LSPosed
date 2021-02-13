@@ -48,7 +48,7 @@
 
     <!-- Modules tab -->
     <string name="module_is_not_activated_yet">LSPosed 模块尚未激活</string>
-    <string name="module_is_not_activated_yet_detailed">%s 已安装, 但尚未激活</string>
+    <string name="module_is_not_activated_yet_detailed">%1$s 已安装, 但尚未激活</string>
     <string name="module_empty_description">(未提供介绍)</string>
     <string name="module_no_ui">该模块未提供用户界面</string>
     <string name="xposed_module_updated_notification_title">LSPosed 模块已更新</string>
@@ -79,9 +79,7 @@
     <string name="log_is_empty">日志为空</string>
 
     <!-- About tab -->
-    <string name="about_modify_label">修改者</string>
-	<string name="about_cuojue">浅秋枫影</string>
-	<string name="about_cuojue_summary">修改了图标和包名;禁用了日志</string>
+
     <!-- DownloadView -->
 
     <!-- DownloadUtils -->
@@ -108,7 +106,6 @@
     <string name="not_installed">未安装</string>
     <string name="follow_system">跟随系统</string>
     <string name="pure_black_dark_theme">使用纯黑深色主题</string>
-    <string name="transparent_status_bar">透明状态栏</string>
     <string name="sort_by_name">应用名称</string>
     <string name="sort_by_name_reverse">应用名称（降序）</string>
     <string name="sort_by_package_name">包体名称</string>
@@ -119,9 +116,7 @@
     <string name="sort_by_update_time_reverse">更新时间（降序）</string>
     <string name="primary_color">主要色</string>
     <string name="accent_color">强调色</string>
-    <string name="colorized_action_bar">着色应用栏</string>
     <string name="settings_group_theme">主题</string>
-    <string name="material_design_2">质感界面</string>
     <string name="settings_enable_resources">启用资源钩子</string>
     <string name="settings_enable_resources_summary"><b>警告: </b> 资源钩子已被弃用</string>
     <string name="settings_variant">框架类型</string>
@@ -133,12 +128,12 @@
     <string name="menu_show_modules">模块</string>
     <string name="failed_to_save_scope_list">作用域列表保存失败</string>
     <string name="module_settings">模块设置</string>
-    <string name="app_description">%s\n版本：%s</string>
+    <string name="app_description">%1$s\n版本：%2$s</string>
     <string name="use_recommended">推荐应用</string>
     <string name="no_scope_selected_has_recommended">未选择任何应用。选择推荐的应用？</string>
     <string name="use_recommended_message">选择推荐的应用?</string>
     <string name="requested_by_module">推荐的应用</string>
-    <string name="module_disabled_no_selection">由于未选择任何应用，模块 %s 已被禁用。</string>
+    <string name="module_disabled_no_selection">由于未选择任何应用，模块 %1$s 已被禁用。</string>
     <string name="android_framework">系统框架</string>
     <string name="app_destroyed">此应用程序已被损坏，请确保您从官方来源下载该应用程序。</string>
     <string name="compile_speed">重新优化</string>
@@ -159,7 +154,7 @@
     <string name="menu_backup_and_restore">备份…</string>
     <string name="menu_backup">备份</string>
     <string name="menu_restore">恢复</string>
-    <string name="xposed_module_updated_notification_content">%s 已更新</string>
+    <string name="xposed_module_updated_notification_content">%1$s 已更新</string>
     <string name="compile_done">优化完成</string>
     <string name="module_repo">仓库</string>
     <string name="module_repo_summary">模块仓库（Alpha）</string>
@@ -175,4 +170,7 @@
     <string name="group_network">网络</string>
     <string name="dns_over_http">安全 DNS (DoH)</string>
     <string name="dns_over_http_summary">解决某些地区的 DNS 污染问题</string>
+    <string name="about_view_source_code"><![CDATA[在 %1$s 查看源码(修改版源码)<br/>加入我们的 %2$s 频道(官方)<br/><br/>修改者 %3$s (浅秋枫影)<br/>修改了图标和包名并禁用了日志。<br/><br/>使用中如有任何问题请先使用官方版(Debug)并<b>附带日志</b>向官方反映！<br/><br/><br/><i>我们并不能保证模块作者不滥用日志功能！所以需要完全禁用日志！</i>]]></string>
+    <string name="module_release_load_more">显示更旧的版本</string>
+    <string name="module_release_no_more">没有更旧的版本</string>
 </resources>

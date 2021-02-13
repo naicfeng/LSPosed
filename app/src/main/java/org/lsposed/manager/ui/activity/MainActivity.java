@@ -20,13 +20,15 @@
 
 package org.lsposed.manager.ui.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
+import android.view.LayoutInflater;
 import android.view.View;
 
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.text.HtmlCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
@@ -36,17 +38,20 @@ import java.util.Locale;
 import org.lsposed.manager.Constants;
 import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.ActivityMainBinding;
+import org.lsposed.manager.databinding.DialogAboutBinding;
+import org.lsposed.manager.ui.activity.base.BaseActivity;
 import org.lsposed.manager.ui.fragment.StatusDialogBuilder;
 import org.lsposed.manager.util.GlideHelper;
 import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.NavUtil;
+import org.lsposed.manager.util.chrome.LinkTransformationMethod;
 import name.mikanoshi.customiuizer.holidays.HolidayHelper;
 import name.mikanoshi.customiuizer.utils.Helpers;
+import rikka.core.res.ResourcesKt;
 
 public class MainActivity extends BaseActivity {
     ActivityMainBinding binding;
 
-    @SuppressLint({"PrivateResource", "ClickableViewAccessibility"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +72,19 @@ public class MainActivity extends BaseActivity {
         binding.download.setOnClickListener(new StartActivityListener(RepoActivity.class, false));
         binding.logs.setOnClickListener(new StartActivityListener(LogsActivity.class, true));
         binding.settings.setOnClickListener(new StartActivityListener(SettingsActivity.class, false));
-        binding.about.setOnClickListener(new StartActivityListener(AboutActivity.class, false));
+        binding.about.setOnClickListener(v -> {
+            DialogAboutBinding binding = DialogAboutBinding.inflate(LayoutInflater.from(this), null, false);
+            binding.sourceCode.setMovementMethod(LinkMovementMethod.getInstance());
+            binding.sourceCode.setTransformationMethod(new LinkTransformationMethod(this));
+            binding.sourceCode.setText(HtmlCompat.fromHtml(getString(
+                    R.string.about_view_source_code,
+                    "<b><a href=\"https://github.com/naicfeng/EdXposed/tree/LSPosed\">GitHub</a></b>",
+                    "<b><a href=\"https://t.me/LSPosed\">Telegram</a></b>",
+                    "<b><a href=\"https://cuojue.org\">CuoJue.org</a></b>"), HtmlCompat.FROM_HTML_MODE_LEGACY));
+            new AlertDialog.Builder(this)
+                    .setView(binding.getRoot())
+                    .show();
+        });
         Glide.with(binding.appIcon)
                 .load(GlideHelper.wrapApplicationInfoForIconLoader(getApplicationInfo()))
                 .into(binding.appIcon);
@@ -78,19 +95,18 @@ public class MainActivity extends BaseActivity {
             if (!Constants.isPermissive()) {
                 if (Helpers.currentHoliday == Helpers.Holidays.LUNARNEWYEAR) {
                     cardBackgroundColor = 0xfff05654;
-
                 } else {
-                    cardBackgroundColor = ContextCompat.getColor(this, R.color.colorNormal);
+                    cardBackgroundColor = ResourcesKt.resolveColor(getTheme(), R.attr.colorNormal);
                 }
                 binding.statusIcon.setImageResource(R.drawable.ic_check_circle);
                 binding.statusSummary.setText(String.format(Locale.US, "%s (%d) WuYang", installedXposedVersion, Constants.getXposedVersionCode()));
             } else {
-                cardBackgroundColor = ContextCompat.getColor(this, R.color.colorError);
+                cardBackgroundColor = ResourcesKt.resolveColor(getTheme(), R.attr.colorError);
                 binding.statusIcon.setImageResource(R.drawable.ic_warning);
                 binding.statusSummary.setText(R.string.selinux_permissive_summary);
             }
         } else {
-            cardBackgroundColor = ContextCompat.getColor(this, R.color.colorInstall);
+            cardBackgroundColor = ResourcesKt.resolveColor(getTheme(), R.attr.colorInstall);
             binding.statusTitle.setText(R.string.Install);
             binding.statusSummary.setText(R.string.InstallDetail);
             binding.statusIcon.setImageResource(R.drawable.ic_error);
@@ -126,7 +142,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-
         super.onResume();
         binding.modulesSummary.setText(String.format(getString(R.string.ModulesDetail), ModuleUtil.getInstance().getEnabledModules().size()));
         HolidayHelper.onResume();

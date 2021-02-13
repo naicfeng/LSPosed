@@ -47,7 +47,7 @@
 
     <!-- Modules tab -->
     <string name="module_is_not_activated_yet">LSPosed 模塊尚未激活</string>
-    <string name="module_is_not_activated_yet_detailed">%s 已安裝, 但尚未激活</string>
+    <string name="module_is_not_activated_yet_detailed">%1$s 已安裝, 但尚未激活</string>
     <string name="module_empty_description">(未提供介紹)</string>
     <string name="module_no_ui">該模塊未提供用户界面</string>
     <string name="xposed_module_updated_notification_title">LSPosed 模塊已更新</string>
@@ -76,7 +76,6 @@
     <string name="log_is_empty">日誌為空</string>
 
     <!-- About tab -->
-    <string name="about_source_label">源代碼</string>
 
     <!-- DownloadView -->
 
@@ -104,8 +103,8 @@
     <string name="follow_system">跟隨系統</string>
     <string name="pure_black_dark_theme">使用純黑深色主題</string><![CDATA[>
 
+
     ]]>
-    <string name="transparent_status_bar">透明狀態欄</string>
     <string name="sort_by_name">應用名稱</string>
     <string name="sort_by_name_reverse">應用名稱（降序）</string>
     <string name="sort_by_package_name">包體名稱</string>
@@ -116,6 +115,5 @@
     <string name="sort_by_update_time_reverse">更新時間（降序）</string>
     <string name="primary_color">主要色</string>
     <string name="accent_color">強調色</string>
-    <string name="colorized_action_bar">着色應用欄</string>
     <string name="settings_group_theme">主題</string>
 </resources>

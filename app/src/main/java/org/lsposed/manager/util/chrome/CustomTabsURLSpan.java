@@ -23,7 +23,7 @@ package org.lsposed.manager.util.chrome;
 import android.text.style.URLSpan;
 import android.view.View;
 
-import org.lsposed.manager.ui.activity.BaseActivity;
+import org.lsposed.manager.ui.activity.base.BaseActivity;
 import org.lsposed.manager.util.NavUtil;
 
 public class CustomTabsURLSpan extends URLSpan {

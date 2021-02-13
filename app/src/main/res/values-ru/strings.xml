@@ -30,13 +30,11 @@
     <string name="ModulesDetail">%d модулей включено</string>
     <string name="Settings">Настройки</string>
     <string name="about_source">https://github.com/LSPosed/LSPosed/</string>
-    <string name="about_source_label">Исходный код</string>
     <string name="accent_color">Цвет акцента</string>
     <string name="android_framework">System Framework</string>
     <string name="android_sdk">Android %2$s (%1$s, API %3$d)</string>
     <string name="app_destroyed">Эта программа прекратила работу, пожалуйста, убедитесь, что загрузили ее из официального источника.</string>
     <string name="app_launch">Запустить</string>
-    <string name="colorized_action_bar">Цветной ActionBar</string>
     <string name="compile_failed">Ошибка оптимиз��ции или возвращено пустое значение</string>
     <string name="compile_failed_with_info">Ошибка оптимизации:</string>
     <string name="compile_speed">Повторная оптимизация</string>
@@ -54,7 +52,6 @@
     <string name="logs_cleared">Логи успешно очищены.</string>
     <string name="logs_save_failed">Не удалось сохранить:</string>
     <string name="lsposed_not_active">LSPosed пока не установлен или не активен.</string>
-    <string name="material_design_2">Material Design 2</string>
     <string name="menuClearLog">Очистить логи сейчас</string>
     <string name="menuReload">Перезагрузить</string>
     <string name="menuSaveToSd">Сохранить</string>
@@ -67,10 +64,10 @@
     <string name="menu_show_system_apps">Системные приложения</string>
     <string name="menu_sort">Сортировка…</string>
     <string name="module_app_info">Информация о приложении</string>
-    <string name="module_disabled_no_selection">Модуль %s отключен, так как ни одна программа не выбрана.</string>
+    <string name="module_disabled_no_selection">Модуль %1$s отключен, так как ни одна программа не выбрана.</string>
     <string name="module_empty_description">(описание не представлено)</string>
     <string name="module_is_not_activated_yet">Модуль LSPosed еще не активирован</string>
-    <string name="module_is_not_activated_yet_detailed">%s установлен, но еще не активирован</string>
+    <string name="module_is_not_activated_yet_detailed">%1$s установлен, но еще не активирован</string>
     <string name="module_no_ui">Этот модуль не предоставляет интерфейса пользователя</string>
     <string name="module_settings">Настройки модуля</string>
     <string name="module_uninstall">Удалить</string>
@@ -118,7 +115,6 @@
     <string name="sort_by_package_name_reverse">Сортировать по названию пакета (обратный)</string>
     <string name="sort_by_update_time">Сортировать по времени обновления</string>
     <string name="sort_by_update_time_reverse">Сортировать по времени обновления (обратный)</string>
-    <string name="transparent_status_bar">Прозрачная строка состояния</string>
     <string name="use_recommended">Рекомендуется</string>
     <string name="use_recommended_message">Выбрать рекомендуемые приложения?</string>
     <string name="warning_installed_on_external_storage">Этот модуль нельзя загрузить, поскольку он установлен на SD-карте, перенесите его во внутреннюю память</string>

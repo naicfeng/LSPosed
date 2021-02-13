@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ This file is part of LSPosed.
   ~
@@ -19,14 +18,13 @@
   ~ Copyright (C) 2021 LSPosed Contributors
   -->
 
-<resources>
-    <color name="colorPrimary">@color/material_blue_700</color>
-    <color name="colorBackground">#303030</color>
-    <color name="colorPrimaryDark">#2E2E2E</color>
-    <color name="colorActionBar">#383838</color>
-    <color name="selectorTransparency">#cbffffff</color>
-    <color name="navigationBarColor">#B3000000</color>
-    <color name="colorError">@color/material_red_700</color>
-    <color name="colorNormal">@color/material_green_700</color>
-    <color name="colorInstall">@color/material_blue_700</color>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M7.41,8.59L12,13.17l4.59,-4.58L18,10l-6,6 -6,-6 1.41,-1.41z" />
+</vector>

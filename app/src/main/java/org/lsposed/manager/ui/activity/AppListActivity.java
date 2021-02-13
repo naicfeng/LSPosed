@@ -27,7 +27,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -44,6 +43,7 @@ import org.lsposed.manager.BuildConfig;
 import org.lsposed.manager.R;
 import org.lsposed.manager.adapters.ScopeAdapter;
 import org.lsposed.manager.databinding.ActivityAppListBinding;
+import org.lsposed.manager.ui.activity.base.BaseActivity;
 import org.lsposed.manager.util.BackupUtils;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
 import rikka.recyclerview.RecyclerViewKt;

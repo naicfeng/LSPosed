@@ -28,13 +28,11 @@
     <string name="ModulesDetail">%d модулі(в) увімкнено</string>
     <string name="Settings">Налаштування</string>
     <string name="about_source">https://github.com/LSPosed/LSPosed/</string>
-    <string name="about_source_label">Вихідний код</string>
     <string name="accent_color">Колір акценту</string>
     <string name="android_framework">System Framework</string>
     <string name="android_sdk">Android %2$s (%1$s, API %3$d)</string>
     <string name="app_destroyed">Ця програма припинила роботу, будь ласка, переконайтесь, що завантажили її з офіційного джерела.</string>
     <string name="app_launch">Запустити</string>
-    <string name="colorized_action_bar">Кольоровий ActionBar</string>
     <string name="compile_failed">Помилка оптимізації або повернене значення порожнє</string>
     <string name="compile_failed_with_info">Помилка оптимізації:</string>
     <string name="compile_speed">Повторна оптимізація</string>
@@ -44,7 +42,6 @@
     <string name="enable_module">Увімкнути модуль</string>
     <string name="failed_to_save_scope_list">Не вдалося зберегти список областей</string>
     <string name="follow_system">Слідувати системі</string>
-    <string name="group_telegram_channel_link">http://t.me/LSPosed</string>
     <string name="info">Інформація</string>
     <string name="install_warning_title">Обережно!</string>
     <string name="loading">Завантаження…</string>
@@ -54,7 +51,6 @@
     <string name="logs_cleared">Звіт успішно очищено.</string>
     <string name="logs_save_failed">Не вдалося зберегти:</string>
     <string name="lsposed_not_active">LSPosed наразі не встановлений або не активний.</string>
-    <string name="material_design_2">Material Design 2</string>
     <string name="menuClearLog">Очистити звіт зараз</string>
     <string name="menuReload">Перезавантажити</string>
     <string name="menuSaveToSd">Зберегти</string>
@@ -67,10 +63,10 @@
     <string name="menu_show_system_apps">Системні програми</string>
     <string name="menu_sort">Сортування…</string>
     <string name="module_app_info">Інформація про програму</string>
-    <string name="module_disabled_no_selection">Модуль %s вимкнено, оскільки жодна програма не вибрана.</string>
+    <string name="module_disabled_no_selection">Модуль %1$s вимкнено, оскільки жодна програма не вибрана.</string>
     <string name="module_empty_description">(опису не надано)</string>
     <string name="module_is_not_activated_yet">Модуль LSPosed ще не активований</string>
-    <string name="module_is_not_activated_yet_detailed">%s було встановлено, але ще не активовано</string>
+    <string name="module_is_not_activated_yet_detailed">%1$s було встановлено, але ще не активовано</string>
     <string name="module_no_ui">Цей модуль не надає інтерфейсу користувача</string>
     <string name="module_settings">Налаштування модуля</string>
     <string name="module_uninstall">Видалити</string>
@@ -118,7 +114,6 @@
     <string name="sort_by_package_name_reverse">Сортувати за назвою пакету (зворотній)</string>
     <string name="sort_by_update_time">Сортувати за часом оновлення</string>
     <string name="sort_by_update_time_reverse">Сортувати за часом оновлення (зворотній)</string>
-    <string name="transparent_status_bar">Прозорий рядок стану</string>
     <string name="use_recommended">Рекомендовано</string>
     <string name="use_recommended_message">Вибрати рекомендовані програми?</string>
     <string name="warning_installed_on_external_storage">Цей модуль не можна завантажити, оскільки він встановлений на SD-карті, перенесіть його у внутрішню пам’ять</string>

@@ -61,6 +61,7 @@ import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.ActivityLogsBinding;
 import org.lsposed.manager.databinding.DialogInstallWarningBinding;
 import org.lsposed.manager.databinding.ItemLogBinding;
+import org.lsposed.manager.ui.activity.base.BaseActivity;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
 import rikka.recyclerview.RecyclerViewKt;
 
