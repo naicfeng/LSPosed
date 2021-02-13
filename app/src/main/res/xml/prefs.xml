@@ -90,6 +90,7 @@
             android:defaultValue="false"
             android:key="disable_verbose_log"
             android:title="@string/pref_title_disable_verbose_log"
+			android:shouldDisableView="true"
             android:persistent="false"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>

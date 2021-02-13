@@ -210,7 +210,8 @@ public class SettingsActivity extends BaseActivity {
                 if (requireActivity().getApplicationInfo().uid / 100000 != 0) {
                     prefVerboseLogs.setVisible(false);
                 } else {
-                    prefVerboseLogs.setEnabled(installed);
+//                    prefVerboseLogs.setEnabled(installed);
+                    prefVerboseLogs.setEnabled(false);
                     try {
                         prefVerboseLogs.setChecked(Files.readAllBytes(disableVerboseLogsFlag)[0] == 49);
                     } catch (Exception e) {
