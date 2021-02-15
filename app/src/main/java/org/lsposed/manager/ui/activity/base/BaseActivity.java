@@ -36,8 +36,7 @@ import org.lsposed.manager.BuildConfig;
 import org.lsposed.manager.Constants;
 import org.lsposed.manager.R;
 import org.lsposed.manager.util.NavUtil;
-import org.lsposed.manager.util.ThemeUtil;
-import org.lsposed.manager.util.Version;
+import org.lsposed.manager.util.theme.ThemeUtil;
 import rikka.core.res.ResourcesKt;
 import rikka.material.app.MaterialActivity;
 
@@ -56,9 +55,7 @@ public class BaseActivity extends MaterialActivity {
         // make sure the versions are consistent
         String coreVersionStr = Constants.getXposedVersion();
         if (coreVersionStr != null) {
-            Version managerVersion = new Version(BuildConfig.VERSION_NAME);
-            Version coreVersion = new Version(coreVersionStr);
-            if (!managerVersion.equals(coreVersion)) {
+            if (!BuildConfig.VERSION_NAME.equals(coreVersionStr)) {
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.outdated_manager)
                         .setPositiveButton(R.string.ok, (dialog, id) -> {
@@ -74,12 +71,12 @@ public class BaseActivity extends MaterialActivity {
     @Override
     public void onApplyUserThemeResource(@NonNull Resources.Theme theme, boolean isDecorView) {
         theme.applyStyle(ThemeUtil.getNightThemeStyleRes(this), true);
-        theme.applyStyle(ThemeUtil.getColorThemeStyleRes(this), true);
+        theme.applyStyle(ThemeUtil.getColorThemeStyleRes(), true);
     }
 
     @Override
     public String computeUserThemeKey() {
-        return ThemeUtil.getColorTheme(this) + ThemeUtil.getNightTheme(this);
+        return ThemeUtil.getColorTheme() + ThemeUtil.getNightTheme(this);
     }
 
     @Override
