@@ -65,7 +65,7 @@ public class MainActivity extends BaseActivity {
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
             } else {
-                NavUtil.startURL(this, getString(R.string.about_source));
+                NavUtil.startURL(this, getString(R.string.about_cuojue_link));
             }
         });
         binding.modules.setOnClickListener(new StartActivityListener(ModulesActivity.class, true));

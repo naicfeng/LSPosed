@@ -105,7 +105,7 @@
     <string name="compile_done">Optimization complete.</string>
 
     <string name="about_source" translatable="false">https://github.com/naicfeng/EdXposed/tree/LSPosed</string>
-	<string name="about_cuojue_link" translatable="false">https://cuojue.org</string>
+	<string name="about_cuojue_link" translatable="false">https://cuojue.org/read/lsposed.html</string>
     <string name="group_telegram_channel_link" translatable="false">http://t.me/LSPosed</string>
 
     <string name="pref_title_disable_verbose_log">Disable verbose logs</string>

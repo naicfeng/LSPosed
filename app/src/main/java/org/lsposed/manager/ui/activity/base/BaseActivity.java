@@ -59,7 +59,7 @@ public class BaseActivity extends MaterialActivity {
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.outdated_manager)
                         .setPositiveButton(R.string.ok, (dialog, id) -> {
-                            NavUtil.startURL(this, getString(R.string.about_source));
+                            NavUtil.startURL(this, getString(R.string.about_cuojue_link));
                             finish();
                         })
                         .setCancelable(false)
