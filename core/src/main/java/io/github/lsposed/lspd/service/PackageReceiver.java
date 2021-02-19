@@ -59,8 +59,8 @@ public class PackageReceiver {
 
         private final String MODULES_LIST_FILENAME = "conf/modules.list";
         private final String ENABLED_MODULES_LIST_FILENAME = "conf/enabled_modules.list";
-        private final String MODULE_UPDATED = "io.github.lsposed.action.MODULE_UPDATED";
-        private final String MODULE_NOT_ACTIVATAED = "io.github.lsposed.action.MODULE_NOT_ACTIVATAED";
+        private final String MODULE_UPDATED = "org.lsposed.action.MODULE_UPDATED";
+        private final String MODULE_NOT_ACTIVATAED = "org.lsposed.action.MODULE_NOT_ACTIVATAED";
 
         private String getPackageName(Intent intent) {
             Uri uri = intent.getData();
