@@ -25,7 +25,6 @@ import android.content.res.TypedArray;
 import android.util.Log;
 
 import io.github.lsposed.lspd.BuildConfig;
-import io.github.lsposed.lspd.nativebridge.ConfigManager;
 import io.github.lsposed.lspd.config.LSPdConfigGlobal;
 
 import java.lang.reflect.AccessibleObject;
@@ -51,7 +50,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import de.robv.android.xposed.callbacks.XCallback;
 import external.com.android.dx.DexMaker;
 import external.com.android.dx.TypeId;
-//import io.github.lsposed.lspd.nativebridge.Logger;
+//import io.github.lsposed.lspd.nativebridge.ModuleLogger;
 
 import static de.robv.android.xposed.XposedHelpers.getIntField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
@@ -83,8 +82,6 @@ public final class XposedBridge {
 	private static final int RUNTIME_DALVIK = 1;
 	private static final int RUNTIME_ART = 2;
 
-	public static boolean disableHooks = false;
-
 	// This field is set "magically" on MIUI.
 	/*package*/ static long BOOT_START_TIME;
 
@@ -97,15 +94,6 @@ public final class XposedBridge {
 	/*package*/ static final CopyOnWriteSortedSet<XC_InitZygote> sInitZygoteCallbacks = new CopyOnWriteSortedSet<>();
 
 	private XposedBridge() {}
-
-	/**
-	 * Called when native methods and other things are initialized, but before preloading classes etc.
-	 * @hide
-	 */
-	@SuppressWarnings("deprecation")
-	public static void main(String[] args) {
-		// ed: moved
-	}
 
 	/** @hide */
 //	protected static final class ToolEntryPoint {
@@ -181,7 +169,7 @@ public final class XposedBridge {
 	 */
 	public synchronized static void log(String text) {
 //		Log.i(TAG, text);
-//		Logger.log(text);
+//		ModuleLogger.log(text);
 	}
 
 	/**
@@ -195,7 +183,7 @@ public final class XposedBridge {
 	public synchronized static void log(Throwable t) {
 		String logStr = Log.getStackTraceString(t);
 //		Log.e(TAG, logStr);
-//		Logger.log(logStr);
+//		ModuleLogger.log(logStr);
 	}
 
 	/**
@@ -330,15 +318,6 @@ public final class XposedBridge {
 	public static Object handleHookedMethod(Member method, long originalMethodId, Object additionalInfoObj,
 			Object thisObject, Object[] args) throws Throwable {
 		AdditionalHookInfo additionalInfo = (AdditionalHookInfo) additionalInfoObj;
-
-		if (disableHooks) {
-			try {
-				return invokeOriginalMethodNative(method, originalMethodId, additionalInfo.parameterTypes,
-						additionalInfo.returnType, thisObject, args);
-			} catch (InvocationTargetException e) {
-				throw e.getCause();
-			}
-		}
 
 		Object[] callbacksSnapshot = additionalInfo.callbacks.getSnapshot();
 		final int callbacksLength = callbacksSnapshot.length;
@@ -543,28 +522,6 @@ public final class XposedBridge {
 		long methodId = LSPdConfigGlobal.getHookProvider().getMethodId(method);
 		return invokeOriginalMethodNative(method, methodId, parameterTypes, returnType, thisObject, args);
 	}
-
-	/*package*/ static void setObjectClass(Object obj, Class<?> clazz) {
-		if (clazz.isAssignableFrom(obj.getClass())) {
-			throw new IllegalArgumentException("Cannot transfer object from " + obj.getClass() + " to " + clazz);
-		}
-		setObjectClassNative(obj, clazz);
-	}
-
-	private static native void setObjectClassNative(Object obj, Class<?> clazz);
-	/*package*/ static native void dumpObjectNative(Object obj);
-
-	/*package*/ static Object cloneToSubclass(Object obj, Class<?> targetClazz) {
-		if (obj == null)
-			return null;
-
-		if (!obj.getClass().isAssignableFrom(targetClazz))
-			throw new ClassCastException(targetClazz + " doesn't extend " + obj.getClass());
-
-		return cloneToSubclassNative(obj, targetClazz);
-	}
-
-	private static native Object cloneToSubclassNative(Object obj, Class<?> targetClazz);
 
 	private static void removeFinalFlagNative(Class clazz) {
 		LSPdConfigGlobal.getHookProvider().removeFinalFlagNative(clazz);

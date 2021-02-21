@@ -21,3 +21,6 @@
 
 -renamesourcefileattribute
 -keep class org.lsposed.manager.Constants { *; }
+-keepclassmembers class org.lsposed.manager.receivers.LSPosedManagerServiceClient {
+    private static android.os.IBinder binder;
+}

@@ -26,6 +26,6 @@ namespace lspd {
 
     static constexpr uint32_t kAccFinal = 0x0010;
 
-    void RegisterEdxpResourcesHook(JNIEnv *);
+    void RegisterResourcesHook(JNIEnv *);
 
 } // namespace lspd

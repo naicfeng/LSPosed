@@ -33,9 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import org.lsposed.manager.adapters.AppHelper;
-
 public class BackupUtils {
     private static final int VERSION = 1;
 
@@ -56,11 +53,11 @@ public class BackupUtils {
                 JSONObject moduleObject = new JSONObject();
                 moduleObject.put("enable", ModuleUtil.getInstance().isModuleEnabled(module.packageName));
                 moduleObject.put("package", module.packageName);
-                List<String> scope = AppHelper.getScopeList(module.packageName);
+                //List<String> scope = AppHelper.getScopeList(module.packageName);
                 JSONArray scopeArray = new JSONArray();
-                for (String s : scope) {
-                    scopeArray.put(s);
-                }
+                //for (String s : scope) {
+                //    scopeArray.put(s);
+                //}
                 moduleObject.put("scope", scopeArray);
                 modulesArray.put(moduleObject);
             }
@@ -110,7 +107,7 @@ public class BackupUtils {
                         for (int j = 0; j < scopeArray.length(); j++) {
                             scope.add(scopeArray.getString(j));
                         }
-                        AppHelper.saveScopeList(name, scope);
+                        //AppHelper.saveScopeList(name, scope);
                     }
                 }
             }

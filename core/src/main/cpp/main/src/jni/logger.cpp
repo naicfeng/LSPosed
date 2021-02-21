@@ -22,15 +22,13 @@
 #include "nativehelper/jni_macros.h"
 #include "native_util.h"
 #include "JNIHelper.h"
-#include "../config_manager.h"
 #include <fstream>
 #include <fcntl.h>
 
 namespace lspd {
-    LSP_DEF_NATIVE_METHOD(void, Logger, nativeLog, jstring jstr) {
-        static int fd = open(ConfigManager::GetModulesLogPath().c_str(), O_APPEND | O_WRONLY);
-        if (fd < 0) {
-            LOGD("Logger fail: %s", strerror(errno));
+    LSP_DEF_NATIVE_METHOD(void, ModuleLogger, nativeLog, int fd, jstring jstr) {
+        if (UNLIKELY(fd < 0)) {
+            LOGE("fd is -1");
             return;
         }
         JUTFString str(env, jstr);
@@ -41,10 +39,10 @@ namespace lspd {
     }
 
     static JNINativeMethod gMethods[] = {
-            LSP_NATIVE_METHOD(Logger, nativeLog, "(Ljava/lang/String;)V")
+            LSP_NATIVE_METHOD(ModuleLogger, nativeLog, "(ILjava/lang/String;)V")
     };
 
     void RegisterLogger(JNIEnv *env) {
-        REGISTER_LSP_NATIVE_METHODS(Logger);
+        REGISTER_LSP_NATIVE_METHODS(ModuleLogger);
     }
 }

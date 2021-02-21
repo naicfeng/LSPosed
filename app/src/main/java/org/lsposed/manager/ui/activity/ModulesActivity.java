@@ -57,7 +57,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.lsposed.manager.Constants;
+import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
 import org.lsposed.manager.adapters.AppHelper;
 import org.lsposed.manager.ui.activity.base.ListActivity;
@@ -188,11 +188,11 @@ public class ModulesActivity extends ListActivity implements ModuleUtil.ModuleLi
                 sb.append(getString(R.string.module_empty_description));
             }
 
-            int installedXposedVersion = Constants.getXposedApiVersion();
+            int installXposedVersion = ConfigManager.getXposedApiVersion();
             String warningText = null;
             if (item.minVersion == 0) {
                 warningText = getString(R.string.no_min_version_specified);
-            } else if (installedXposedVersion > 0 && item.minVersion > installedXposedVersion) {
+            } else if (installXposedVersion > 0 && item.minVersion > installXposedVersion) {
                 warningText = String.format(getString(R.string.warning_xposed_min_version), item.minVersion);
             } else if (item.minVersion < ModuleUtil.MIN_MODULE_VERSION) {
                 warningText = String.format(getString(R.string.warning_min_version_too_low), item.minVersion, ModuleUtil.MIN_MODULE_VERSION);
