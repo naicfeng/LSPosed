@@ -123,7 +123,7 @@
     <string name="menu_show_modules">모듈</string>
     <string name="failed_to_save_scope_list">범위 목록 저장에 실패했습니다.</string>
     <string name="module_settings">모듈 설정</string>
-    <string name="app_description">%s\n버전: %s</string>
+    <string name="app_description">%1$s\n버전: %2$s</string>
     <string name="use_recommended">권장</string>
     <string name="no_scope_selected_has_recommended">앱을 선택하지 않았습니다. 권장 앱을 선택하시겠습니까?</string>
     <string name="use_recommended_message">권장 앱을 선택하시겠습니까?</string>
@@ -164,7 +164,7 @@
     <string name="group_network">네트워크</string>
     <string name="dns_over_http">DNS over HTTPS</string>
     <string name="dns_over_http_summary">일부 국가의 DNS 포이즈닝 문제를 해결합니다.</string>
-    <string name="about_view_source_code"><![CDATA[%s에서 소스 코드 보기<br/>%s 채널에 가입하십시오.]]></string>
+    <string name="about_view_source_code"><![CDATA[%!$s에서 소스 코드 보기<br/>%2$s 채널에 가입하십시오.]]></string>
     <string name="module_release_load_more">이전 버전 표시</string>
     <string name="module_release_no_more">release 더 없음</string>
     <string name="theme_color">테마 색상</string>
