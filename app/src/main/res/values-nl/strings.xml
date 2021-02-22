@@ -127,7 +127,7 @@
     <string name="menu_show_modules">Modules</string>
     <string name="failed_to_save_scope_list">Scope-lijst opslaan is mislukt</string>
     <string name="module_settings">Module instellingen</string>
-    <string name="app_description">%s\nVersie: %s</string>
+    <string name="app_description">%1$s\nVersie: %2$s</string>
     <string name="use_recommended">Aanbevolen</string>
     <string name="no_scope_selected_has_recommended">U heeft geen app geselecteerd. Selecteer aanbevolen apps?</string>
     <string name="use_recommended_message">Selecteer aanbevolen apps?</string>
@@ -168,7 +168,7 @@
     <string name="group_network">Netwerk</string>
     <string name="dns_over_http">DNS via HTTPS</string>
     <string name="dns_over_http_summary">Tijdelijke oplossing voor DNS-vergiftiging in sommige landen</string>
-    <string name="about_view_source_code"><![CDATA[Bekijk de broncode op %s<br/>Word lid van ons %s-kanaal]]></string>
+    <string name="about_view_source_code"><![CDATA[Bekijk de broncode op %1$s<br/>Word lid van ons %2$s-kanaal]]></string>
     <string name="module_release_load_more">Toon oudere versies</string>
     <string name="module_release_no_more">Geen release meer</string>
     <string name="theme_color">Thema kleur</string>
