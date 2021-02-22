@@ -1,3 +1,22 @@
+/*
+ * This file is part of LSPosed.
+ *
+ * LSPosed is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LSPosed is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Copyright (C) 2021 LSPosed Contributors
+ */
+
 package io.github.lsposed.lspd.service;
 
 import android.content.Intent;
@@ -49,6 +68,7 @@ public class LSPosedService extends ILSPosedService.Stub {
             Log.e(TAG, "Package name is null");
             return;
         }
+        Log.d(TAG, "New installed: " + packageName);
         int uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
         int userId = intent.getIntExtra(Intent.EXTRA_USER, -1);
         boolean replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
@@ -84,7 +104,9 @@ public class LSPosedService extends ILSPosedService.Stub {
             }
         }
         if (!intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED) && uid > 0 && ConfigManager.getInstance().isManager(packageName)) {
+            Log.d(TAG, "Manager updated");
             try {
+                ConfigManager.getInstance().updateManager();
                 ConfigManager.grantManagerPermission();
             } catch (Throwable e) {
                 Log.e(TAG, Log.getStackTraceString(e));

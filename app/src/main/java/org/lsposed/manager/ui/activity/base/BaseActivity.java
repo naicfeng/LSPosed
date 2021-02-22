@@ -34,6 +34,7 @@ import androidx.appcompat.app.AlertDialog;
 import org.lsposed.manager.App;
 import org.lsposed.manager.BuildConfig;
 import org.lsposed.manager.ConfigManager;
+import org.lsposed.manager.Constants;
 import org.lsposed.manager.R;
 import org.lsposed.manager.util.NavUtil;
 import org.lsposed.manager.util.theme.ThemeUtil;
@@ -54,6 +55,10 @@ public class BaseActivity extends MaterialActivity {
 
         // make sure the versions are consistent
         String coreVersionStr = ConfigManager.getXposedVersionName();
+        // for showing the version mismatch dialog
+        if (coreVersionStr == null) {
+            coreVersionStr = Constants.getXposedVersion();
+        }
         if (coreVersionStr != null) {
             if (!BuildConfig.VERSION_NAME.equals(coreVersionStr)) {
                 new AlertDialog.Builder(this)

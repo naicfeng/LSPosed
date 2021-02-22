@@ -37,7 +37,7 @@ android {
         targetSdkVersion androidTargetSdkVersion.toInteger()
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
-        resConfigs 'en', 'zh-rCN', 'zh-rTW', 'zh-rHK', 'ru', 'uk', 'nl'
+        resConfigs 'en', 'zh-rCN', 'zh-rTW', 'zh-rHK', 'ru', 'uk', 'nl', 'ko'
         resValue "string", "versionName", "${rootProject.ext.versionName}"
     }
 
@@ -144,7 +144,6 @@ dependencies {
     implementation 'me.zhanghai.android.fastscroll:library:1.1.5'
     implementation files('libs/WeatherView-2.0.3.aar')
     implementation project(':manager-service')
-    compileOnly project(":hiddenapi-stubs")
 }
 
 configurations {

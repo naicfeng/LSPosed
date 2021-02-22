@@ -1,3 +1,22 @@
+/*
+ * This file is part of LSPosed.
+ *
+ * LSPosed is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LSPosed is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Copyright (C) 2021 LSPosed Contributors
+ */
+
 package io.github.lsposed.lspd.service;
 
 import android.content.ContentValues;
@@ -197,6 +216,8 @@ public class ConfigManager {
             if (info != null) {
                 managerUid = info.applicationInfo.uid;
                 manager = info.packageName;
+            } else {
+                Log.w(TAG, "manager is not installed");
             }
         } catch (RemoteException ignored) {
         }
@@ -539,8 +560,8 @@ public class ConfigManager {
         }
     }
 
-    public boolean isManager(String module_pkg_name) {
-        return module_pkg_name.equals(manager);
+    public boolean isManager(String packageName) {
+        return packageName.equals(manager) || packageName.equals(DEFAULT_MANAGER_PACKAGE_NAME);
     }
 
     public boolean isManager(int uid) {

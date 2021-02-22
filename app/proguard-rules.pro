@@ -21,6 +21,10 @@
 
 -renamesourcefileattribute
 -keep class org.lsposed.manager.Constants { *; }
--keepclassmembers class org.lsposed.manager.receivers.LSPosedManagerServiceClient {
+-keepclasseswithmembers class org.lsposed.manager.receivers.LSPosedManagerServiceClient {
     private static android.os.IBinder binder;
+}
+-assumenosideeffects class kotlin.jvm.internal.Intrinsics {
+    public static void check*(...);
+    public static void throw*(...);
 }

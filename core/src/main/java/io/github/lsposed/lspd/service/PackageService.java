@@ -1,3 +1,22 @@
+/*
+ * This file is part of LSPosed.
+ *
+ * LSPosed is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LSPosed is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Copyright (C) 2021 LSPosed Contributors
+ */
+
 package io.github.lsposed.lspd.service;
 
 import android.content.pm.ComponentInfo;
@@ -8,6 +27,7 @@ import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -19,6 +39,7 @@ import io.github.lsposed.lspd.Application;
 import io.github.lsposed.lspd.utils.ParceledListSlice;
 
 import static android.content.pm.ServiceInfo.FLAG_ISOLATED_PROCESS;
+import static io.github.lsposed.lspd.service.ServiceManager.TAG;
 
 public class PackageService {
     private static IPackageManager pm = null;
@@ -27,6 +48,20 @@ public class PackageService {
     public static IPackageManager getPackageManager() {
         if (binder == null && pm == null) {
             binder = ServiceManager.getService("package");
+            if (binder == null) return null;
+            try {
+                binder.linkToDeath(new IBinder.DeathRecipient() {
+                    @Override
+                    public void binderDied() {
+                        Log.w(TAG, "pm is dead");
+                        binder.unlinkToDeath(this, 0);
+                        binder = null;
+                        pm = null;
+                    }
+                }, 0);
+            } catch (RemoteException e) {
+                Log.e(TAG, Log.getStackTraceString(e));
+            }
             pm = IPackageManager.Stub.asInterface(binder);
         }
         return pm;
