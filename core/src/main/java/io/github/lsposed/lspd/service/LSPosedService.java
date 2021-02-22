@@ -87,7 +87,7 @@ public class LSPosedService extends ILSPosedService.Stub {
             ConfigManager.getInstance().updateModuleApkPath(packageName, pkgInfo.applicationInfo.sourceDir);
 
             boolean enabled = Arrays.asList(ConfigManager.getInstance().enabledModules()).contains(packageName);
-            Intent broadcastIntent = new Intent(enabled ? "io.github.lsposed.action.MODULE_UPDATED" : "io.github.lsposed.action.MODULE_NOT_ACTIVATAED");
+            Intent broadcastIntent = new Intent(enabled ? "org.lsposed.action.MODULE_UPDATED" : "org.lsposed.action.MODULE_NOT_ACTIVATAED");
             broadcastIntent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             broadcastIntent.addFlags(0x01000000);
             broadcastIntent.addFlags(0x00400000);
