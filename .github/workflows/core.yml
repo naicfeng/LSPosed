@@ -26,6 +26,9 @@ jobs:
         java-version: 1.8
     - name: Get version code
       run: echo APPVEYOR_BUILD_NUMBER=$(expr $GITHUB_RUN_NUMBER + 1999) >> $GITHUB_ENV
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
     - name: Build with Gradle
       env:
         KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
@@ -39,7 +42,7 @@ jobs:
     - name: Upload release
       uses: actions/upload-artifact@v2
       with:
-        name: LSPosed-v1.0.0-${{ env.APPVEYOR_BUILD_NUMBER }}-release
+        name: LSPosed-v1.0.0-${{ env.APPVEYOR_BUILD_NUMBER }}-${{ steps.date.outputs.date }}-release
         path: './LSPosed-release/*'
 #    - name: Upload debug
 #      if: ${{ github.event_name == 'pull_request' && success() }}
