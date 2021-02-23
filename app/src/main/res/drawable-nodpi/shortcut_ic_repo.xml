@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ This file is part of LSPosed.
   ~
   ~ LSPosed is free software: you can redistribute it and/or modify
@@ -15,26 +14,15 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
   ~
-  ~ Copyright (C) 2020 EdXposed Contributors
   ~ Copyright (C) 2021 LSPosed Contributors
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item
-        android:id="@+id/menu_launch"
-        android:title="@string/module_settings" />
-    <item
-        android:id="@+id/menu_app_store"
-        android:title="@string/modules_app_store" />
-    <item
-        android:id="@+id/menu_repo"
-        android:title="@string/view_in_repo" />
-    <item
-        android:id="@+id/menu_app_info"
-        android:title="@string/module_app_info" />
-    <item
-        android:id="@+id/menu_uninstall"
-        android:title="@string/module_uninstall" />
-
-</menu>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/material_grey_100" />
+    <foreground>
+        <!-- 44dp icon scaled to 52dp in 72dp, padding = (1-52/44*24/72)/2 -->
+        <inset
+            android:drawable="@drawable/ic_get_app"
+            android:inset="30.303%" />
+    </foreground>
+</adaptive-icon>

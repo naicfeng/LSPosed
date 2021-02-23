@@ -60,6 +60,7 @@ import java.util.List;
 import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
 import org.lsposed.manager.adapters.AppHelper;
+import org.lsposed.manager.repo.RepoLoader;
 import org.lsposed.manager.ui.activity.base.ListActivity;
 import org.lsposed.manager.util.GlideApp;
 import org.lsposed.manager.util.ModuleUtil;
@@ -139,6 +140,12 @@ public class ModulesActivity extends ListActivity implements ModuleUtil.ModuleLi
         } else if (itemId == R.id.menu_uninstall) {
             startActivity(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, Uri.fromParts("package", module.packageName, null)));
             return true;
+        } else if (itemId == R.id.menu_repo) {
+            Intent intent = new Intent();
+            intent.setClass(this, RepoItemActivity.class);
+            intent.putExtra("modulePackageName", module.packageName);
+            intent.putExtra("moduleName", module.getAppName());
+            startActivity(intent);
         }
         return super.onContextItemSelected(item);
     }
@@ -219,6 +226,9 @@ public class ModulesActivity extends ListActivity implements ModuleUtil.ModuleLi
                 Intent intent = AppHelper.getSettingsIntent(item.packageName, pm);
                 if (intent == null) {
                     menu.removeItem(R.id.menu_launch);
+                }
+                if (RepoLoader.getInstance().getOnlineModule(item.packageName) == null) {
+                    menu.removeItem(R.id.menu_repo);
                 }
             });
 
