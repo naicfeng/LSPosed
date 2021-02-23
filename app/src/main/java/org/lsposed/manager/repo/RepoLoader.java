@@ -20,6 +20,7 @@
 
 package org.lsposed.manager.repo;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -78,6 +79,7 @@ public class RepoLoader {
                 .build()).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e(App.TAG, Log.getStackTraceString(e));
                 App.getInstance().runOnUiThread(() -> Toast.makeText(App.getInstance(), e.getMessage(), Toast.LENGTH_LONG).show());
                 synchronized (this) {
                     isLoading = false;
@@ -85,23 +87,32 @@ public class RepoLoader {
             }
 
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                ResponseBody body = response.body();
-                if (body != null) {
-                    String bodyString = body.string();
-                    Gson gson = new Gson();
-                    Map<String, OnlineModule> modules = new HashMap<>();
-                    OnlineModule[] repoModules = gson.fromJson(bodyString, OnlineModule[].class);
-                    Arrays.stream(repoModules).forEach(onlineModule -> modules.put(onlineModule.getName(), onlineModule));
-                    onlineModules = modules;
-                    Files.write(repoFile, bodyString.getBytes(StandardCharsets.UTF_8));
-                }
-                for (Listener listener : listeners) {
-                    listener.repoLoaded();
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                if (response.isSuccessful()) {
+                    ResponseBody body = response.body();
+                    if (body != null) {
+                        try {
+                            String bodyString = body.string();
+                            Gson gson = new Gson();
+                            Map<String, OnlineModule> modules = new HashMap<>();
+                            OnlineModule[] repoModules = gson.fromJson(bodyString, OnlineModule[].class);
+                            Arrays.stream(repoModules).forEach(onlineModule -> modules.put(onlineModule.getName(), onlineModule));
+                            onlineModules = modules;
+                            Files.write(repoFile, bodyString.getBytes(StandardCharsets.UTF_8));
+                            for (Listener listener : listeners) {
+                                listener.repoLoaded();
+                            }
+                            synchronized (this) {
+                                repoLoaded = true;
+                            }
+                        } catch (Throwable e) {
+                            Log.e(App.TAG, Log.getStackTraceString(e));
+                            App.getInstance().runOnUiThread(() -> Toast.makeText(App.getInstance(), e.getMessage(), Toast.LENGTH_LONG).show());
+                        }
+                    }
                 }
                 synchronized (this) {
                     isLoading = false;
-                    repoLoaded = true;
                 }
             }
         });
@@ -113,20 +124,28 @@ public class RepoLoader {
                 .build()).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e(App.TAG, Log.getStackTraceString(e));
                 App.getInstance().runOnUiThread(() -> Toast.makeText(App.getInstance(), e.getMessage(), Toast.LENGTH_LONG).show());
             }
 
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                ResponseBody body = response.body();
-                if (body != null) {
-                    String bodyString = body.string();
-                    Gson gson = new Gson();
-                    OnlineModule module = gson.fromJson(bodyString, OnlineModule.class);
-                    module.releasesLoaded = true;
-                    onlineModules.replace(packageName, module);
-                    for (Listener listener : listeners) {
-                        listener.moduleReleasesLoaded(module);
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                if (response.isSuccessful()) {
+                    ResponseBody body = response.body();
+                    if (body != null) {
+                        try {
+                            String bodyString = body.string();
+                            Gson gson = new Gson();
+                            OnlineModule module = gson.fromJson(bodyString, OnlineModule.class);
+                            module.releasesLoaded = true;
+                            onlineModules.replace(packageName, module);
+                            for (Listener listener : listeners) {
+                                listener.moduleReleasesLoaded(module);
+                            }
+                        } catch (Throwable e) {
+                            Log.e(App.TAG, Log.getStackTraceString(e));
+                            App.getInstance().runOnUiThread(() -> Toast.makeText(App.getInstance(), e.getMessage(), Toast.LENGTH_LONG).show());
+                        }
                     }
                 }
             }
