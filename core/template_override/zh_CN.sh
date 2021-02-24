@@ -37,6 +37,7 @@ LANG_CUST_INST_COPY_LIB="正在复制框架运行库"
 LANG_CUST_INST_REM_OLDCONF="正在移除老旧配置"
 LANG_CUST_INST_COPT_EXTRA="正在复制文件"
 LANG_CUST_INST_DONE="欢迎使用"
+LANG_CUST_INST_SKIP_SELECTION="配置存在，已跳过选择框架类型"
 
 LANG_CUST_ERR_VERIFY_FAIL="无法解压校验工具!"
 LANG_CUST_ERR_STUB="管理器预装失败! 请手动安装 LSPosed Manager"

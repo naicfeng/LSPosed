@@ -79,6 +79,7 @@ LANG_CUST_INST_COPY_LIB="Copying framework libraries"
 LANG_CUST_INST_REM_OLDCONF="Removing old configuration"
 LANG_CUST_INST_COPT_EXTRA="Copying extra files"
 LANG_CUST_INST_DONE="Welcome to"
+LANG_CUST_INST_SKIP_SELECTION="variant file exists, skip selection"
 
 LANG_CUST_ERR_VERIFY_FAIL="Unable to extract verify tool!"
 LANG_CUST_ERR_PERM="Can't set permission"
@@ -230,21 +231,26 @@ fi
 echo "rm -rf /data/misc/$MISC_PATH" >> "${MODPATH}/uninstall.sh" || abortC "! ${LANG_CUST_ERR_CONF_UNINST}"
 echo "[[ -f /data/adb/lspd/new_install ]] || rm -rf /data/adb/lspd" >> "${MODPATH}/uninstall.sh" || abortC "! ${LANG_CUST_ERR_CONF_UNINST}"
 
-extract "${ZIPFILE}" "${BIN_PATH}/key_selector" "${TMPDIR}"
-SELECTOR_PATH="${TMPDIR}/${BIN_PATH}/key_selector"
-chmod 755 "${SELECTOR_PATH}"
-"${SELECTOR_PATH}"
-VARIANT=$?
-if [ $VARIANT -lt 16 ]; then
-  abortC "${LANG_UTIL_ERR_VARIANT_SELECTION}"
-fi
+# If the variant file exists, skip selection
+if [[ ! -e /data/adb/lspd/config/variant ]]; then
+  extract "${ZIPFILE}" "${BIN_PATH}/key_selector" "${TMPDIR}"
+  SELECTOR_PATH="${TMPDIR}/${BIN_PATH}/key_selector"
+  chmod 755 "${SELECTOR_PATH}"
+  "${SELECTOR_PATH}"
+  VARIANT=$?
+  if [ $VARIANT -lt 16 ]; then
+    abortC "${LANG_UTIL_ERR_VARIANT_SELECTION}"
+  fi
 
-if [ $VARIANT == 17 ]; then  # YAHFA
-  echo "1" > /data/adb/lspd/config/variant
-elif [ $VARIANT == 18 ]; then  # SandHook
-  echo "2" > /data/adb/lspd/config/variant
+  if [ $VARIANT == 17 ]; then  # YAHFA
+    echo "1" > /data/adb/lspd/config/variant
+  elif [ $VARIANT == 18 ]; then  # SandHook
+    echo "2" > /data/adb/lspd/config/variant
+  else
+    abortC "${LANG_UTIL_ERR_VARIANT_UNSUPPORT} ${VARIANT}"
+  fi
 else
-  abortC "${LANG_UTIL_ERR_VARIANT_UNSUPPORT} ${VARIANT}"
+  ui_print "- ${LANG_CUST_INST_SKIP_SELECTION}"
 fi
 
 if [[ ! -e /data/adb/lspd/config/verbose_log ]]; then
