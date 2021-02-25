@@ -38,13 +38,13 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
         env:
           BUILD_TOOLS_VERSION: "30.0.3"
-      - name: Extract file name
-        run: export release=$(find -name 'LSPosedManager-v*-release-signed.apk' -exec basename {} \;)
+      - name: Get file name
+        run: echo FILE_NAME=$(find core/release/ -name 'LSPosedManager-v*-release-signed.apk' -exec basename {} \;) >> $GITHUB_ENV
       - name: Upload signed apk
         if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.release }}
+          name: ${{ env.FILE_NAME }}
           path: ${{ steps.sign.outputs.signedReleaseFile }}
       - name: Upload unsigned apk
         if: ${{ github.event_name == 'pull_request' || failure() }}

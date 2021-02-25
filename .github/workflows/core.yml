@@ -33,12 +33,12 @@ jobs:
     - name: Prepare artifact
       if: success()
       run: |
-           export release=$(find core/release/ -name 'LSPosed-v*-release.zip' -exec basename {} \;)
+	   echo FILE_NAME=$(find core/release/ -name 'LSPosed-v*-release.zip' -exec basename {} \;) >> $GITHUB_ENV
            unzip core/release/LSPosed-v*-release.zip -d LSPosed-release
     - name: Upload release
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.release }}
+        name: ${{ env.FILE_NAME }}
         path: './LSPosed-release/*'
 #    - name: Upload debug
 #      if: ${{ github.event_name == 'pull_request' && success() }}
