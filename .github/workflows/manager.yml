@@ -39,7 +39,7 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: "30.0.3"
       - name: Get file name
-        run: echo FILE_NAME=$(find core/release/ -name 'LSPosedManager-v*-release-signed.apk' -exec basename {} \;) >> $GITHUB_ENV
+        run: echo FILE_NAME=$(basename ${{ steps.sign.outputs.signedReleaseFile }}) >> $GITHUB_ENV
       - name: Upload signed apk
         if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
         uses: actions/upload-artifact@v2
