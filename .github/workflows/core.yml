@@ -32,9 +32,9 @@ jobs:
       run:  bash ./gradlew zipRelease
     - name: Prepare artifact
       if: success()
-      run: unzip core/release/LSPosed-v*-release.zip -d LSPosed-release;
-#           unzip core/release/LSPosed-v*-debug.zip -d LSPosed-debug;
-           export release=$(find $OUTPUT -name "LSPosed-v*-release.zip");
+      run: |
+           export release=$(find core/release/ -name 'LSPosed-v*-release.zip' -exec basename {} \;)
+           unzip core/release/LSPosed-v*-release.zip -d LSPosed-release
     - name: Upload release
       uses: actions/upload-artifact@v2
       with:

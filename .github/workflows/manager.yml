@@ -38,11 +38,16 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
         env:
           BUILD_TOOLS_VERSION: "30.0.3"
+      - name: Prepare artifact
+       if: success()
+       run: |
+          export release=$(find -name 'LSPosedManager-v*-release-signed.apk' -exec basename {} \;)
+          unzip core/release/LSPosed-v*-release.zip -d LSPosed-release
       - name: Upload signed apk
         if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
         uses: actions/upload-artifact@v2
         with:
-          name: LSPosedManager-v1.0.1-${{ env.APPVEYOR_BUILD_NUMBER }}-release
+          name: ${{ env.release }}
           path: ${{ steps.sign.outputs.signedReleaseFile }}
       - name: Upload unsigned apk
         if: ${{ github.event_name == 'pull_request' || failure() }}
