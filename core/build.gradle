@@ -137,7 +137,8 @@ afterEvaluate {
     android.applicationVariants.all { variant ->
         def variantCapped = variant.name.capitalize()
         def variantLowered = variant.name.toLowerCase()
-        def zipFileName = "${module_name}-${rootProject.ext.versionName}-${rootProject.ext.versionCode}-${variantLowered}.zip"
+	def createTime = new Date().format("YYYY-MM-dd", TimeZone.getTimeZone("GMT+08:00"))
+        def zipFileName = "${module_name}-${rootProject.ext.versionName}-${rootProject.ext.versionCode}-${createTime}-${variantLowered}.zip"
 
         delete file(zipPathMagiskReleasePath)
 
@@ -147,7 +148,7 @@ afterEvaluate {
             doFirst {
                 copy {
                     from "${projectDir}/tpl/module.prop.tpl"
-                    into templateRootPath
+                    into "${projectDir}/template_override"
                     rename "module.prop.tpl", "module.prop"
                     expand(moduleId: "$module_id",
                             versionName: "$rootProject.ext.versionName",
