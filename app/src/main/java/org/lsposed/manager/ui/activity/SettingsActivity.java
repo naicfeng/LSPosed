@@ -205,7 +205,16 @@ public class SettingsActivity extends BaseActivity {
 //                    prefVerboseLogs.setEnabled(installed);
                     prefVerboseLogs.setEnabled(false);
                     prefVerboseLogs.setChecked(!ConfigManager.isVerboseLogEnabled());
-                    prefVerboseLogs.setOnPreferenceChangeListener((preference, newValue) -> ConfigManager.setVerboseLogEnabled(!(boolean) newValue));
+                    prefVerboseLogs.setOnPreferenceChangeListener((preference, newValue) -> {
+                        boolean result = ConfigManager.setVerboseLogEnabled(!(boolean) newValue);
+                        SettingsActivity activity = (SettingsActivity) getActivity();
+                        if (result && activity != null) {
+                            Snackbar.make(activity.binding.snackbar, R.string.reboot_required, Snackbar.LENGTH_SHORT)
+                                    .setAction(R.string.reboot, v -> ConfigManager.reboot(false, null, false))
+                                    .show();
+                        }
+                        return result;
+                    });
                 }
             }
 
