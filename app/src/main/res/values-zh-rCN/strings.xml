@@ -95,7 +95,6 @@
 
     <string name="android_sdk" translatable="false">Android %2$s (%1$s, API %3$d)</string>
     <string name="android_sdk_preview" translatable="false">Android %1$s Preview</string>
-    <string name="not_logcat">此处仅显示 LSPosed 及模块相关日志信息\n如果您想抓取系统日志, 可以尝试我们的 Log Catcher Magisk 模块</string>
 
     <!-- LSPd related -->
     <string name="compile_speed_msg">优化中…</string>
@@ -172,7 +171,7 @@
     <string name="group_network">网络</string>
     <string name="dns_over_http">安全 DNS (DoH)</string>
     <string name="dns_over_http_summary">解决某些地区的 DNS 污染问题</string>
-    <string name="about_view_source_code"><![CDATA[在 %1$s 查看源码(修改版源码)<br/>加入我们的 %2$s 频道(官方)<br/><br/>修改者 %3$s (浅秋枫影)<br/>修改了图标和包名并禁用了日志。<br/><br/>使用中如有任何问题请先使用官方版(Debug)并<b>附带日志</b>向官方反映！<br/><br/><br/><i>我们并不能保证模块作者不滥用日志功能！所以日常使用需要完全禁用日志！</i>]]></string>
+    <string name="about_view_source_code"><![CDATA[在 %1$s 查看源码(修改版源码)<br/>加入我们的 %2$s 频道(官方)<br/><br/>修改者 %3$s (浅秋枫影)<br/>修改了图标和包名并禁用了日志。<br/><br/>使用中如有任何问题请先使用官方版(Debug)并<b>附带日志</b>向官方issues反映！<br/><br/><br/><i>我们并不能保证模块作者不滥用日志功能！所以日常使用需要完全禁用日志！</i>]]></string>
     <string name="module_release_load_more">显示更旧的版本</string>
     <string name="module_release_no_more">没有更旧的版本</string>
     <string name="theme_color">主题颜色</string>
@@ -183,4 +182,5 @@
     <string name="force_stop_dlg_text">强行停止某个应用可能会导致其出现异常。</string>
     <string name="reboot_required">需要重新启动才能应用此更改</string>
     <string name="reboot">重新启动</string>
+    <string name="not_logcat_2">如果有人要求您提供日志，那么您来错了地方。因为您正在使用的是去日志版本！所以这里的内容不会有任何帮助！请先切换到官方版然后获取日志！</string>
 </resources>
