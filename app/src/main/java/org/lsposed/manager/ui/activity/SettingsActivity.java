@@ -225,26 +225,6 @@ public class SettingsActivity extends BaseActivity {
                 prefEnableResources.setOnPreferenceChangeListener((preference, newValue) -> ConfigManager.setResourceHookEnabled((boolean) newValue));
             }
 
-            SimpleMenuPreference prefVariant = findPreference("variant");
-            if (prefVariant != null) {
-                if (StatusDialogBuilder.getArch().contains("x86") || requireActivity().getApplicationInfo().uid / 100000 != 0) {
-                    prefVariant.setVisible(false);
-                } else {
-                    prefVariant.setEnabled(installed);
-                    prefVariant.setValue(String.valueOf(ConfigManager.getVariant()));
-                    prefVariant.setOnPreferenceChangeListener((preference, newValue) -> {
-                        if (newValue.equals("2")) {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setCancelable(true)
-                                    .setMessage(R.string.settings_sandhook_deprecated_warning)
-                                    .setPositiveButton(android.R.string.ok, null)
-                                    .show();
-                        }
-                        return ConfigManager.setVariant(Integer.parseInt((String) newValue));
-                    });
-                }
-            }
-
             Preference backup = findPreference("backup");
             if (backup != null) {
                 backup.setEnabled(installed);
