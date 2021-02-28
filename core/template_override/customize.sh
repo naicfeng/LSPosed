@@ -216,11 +216,6 @@ fi
 echo "rm -rf /data/misc/$MISC_PATH" >> "${MODPATH}/uninstall.sh" || abortC "! ${LANG_CUST_ERR_CONF_UNINST}"
 echo "[[ -f /data/adb/lspd/new_install ]] || rm -rf /data/adb/lspd" >> "${MODPATH}/uninstall.sh" || abortC "! ${LANG_CUST_ERR_CONF_UNINST}"
 
-if [[ $(cat /data/adb/lspd/config/variant) != "1" ]]; then
-    ui_print "- ${LANG_AUTO_YAHFA}"
-    echo "1" > /data/adb/lspd/config/variant
-fi
-
 if [[ ! -e /data/adb/lspd/config/variant ]]; then
     echo "1" > /data/adb/lspd/config/variant
 else
