@@ -1,6 +1,18 @@
+# 这是一个复刻(fork)版本
+
+原版本 [LSPosed](https://github.com/LSPosed/LSPosed) (可能暂时私有无法访问)
+
+## 修改内容
+
+1. 修改了管理器图标
+2. 修改了管理器包名(org.lsposed.manager)
+3. 禁用了全部日志
+
+
+
 # LSPosed Framework
 
-![Core](https://github.com/LSPosed/LSPosed/workflows/Core/badge.svg) ![Manager](https://github.com/LSPosed/LSPosed/workflows/Manager/badge.svg)
+![Core](https://github.com/naicfeng/LSPosed/workflows/Core/badge.svg) ![Manager](https://github.com/naicfeng/LSPosed/workflows/Manager/badge.svg)
 
 ## Introduction 
 
@@ -17,14 +29,14 @@ Android 8.1 ~ 12 DP1
 1. Install Magisk v21+
 2. Install [Riru](https://github.com/RikkaApps/Riru/releases) v23+ from Magisk repo.
 3. [Download](#download) and install LSPosed in Magisk Manager
-4. Install [LSPosed Manager](https://github.com/LSPosed/LSPosed/releases)
+4. Install [LSPosed Manager](https://github.com/naicfeng/LSPosed/releases)
 5. Reboot.
 6. Have fun! :)
 
 ## Download
 
-For stable release, please go to [Github Release page](https://github.com/LSPosed/LSPosed/releases)
-For canary build, please check [Github Actions](https://github.com/LSPosed/LSPosed/actions)
+For stable release, please go to [Github Release page](https://github.com/naicfeng/LSPosed/releases)
+For canary build, please check [Github Actions](https://github.com/naicfeng/LSPosed/actions)
 Note: debug build is only available on Github Actions. 
 
 ## Useful Links

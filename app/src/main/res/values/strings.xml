@@ -161,7 +161,7 @@
     <string name="module_release_no_more">No more release</string>
 
 
-    <string name="about_source" translatable="false">https://github.com/naicfeng/EdXposed/tree/LSPosed</string>
+    <string name="about_source" translatable="false">https://github.com/naicfeng/LSPosed</string>
 	<string name="about_cuojue_link" translatable="false">https://cuojue.org/read/lsposed.html</string>
 
     <string name="app_destroyed">This application has been destroyed, please make sure you download it from the official source.</string>
