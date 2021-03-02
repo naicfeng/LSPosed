@@ -29,7 +29,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import io.github.lsposed.lspd.hooker.XposedInstallerHooker;
 import io.github.lsposed.lspd.util.Hookers;
-//import io.github.lsposed.lspd.util.InstallerVerifier;
+import io.github.lsposed.lspd.util.InstallerVerifier;
 
 import static io.github.lsposed.lspd.config.LSPApplicationServiceClient.serviceClient;
 
@@ -80,11 +80,11 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
 
             IBinder binder = serviceClient.requestManagerBinder();
             if (binder != null) {
-//                if (InstallerVerifier.verifyInstallerSignature(loadedApk.getApplicationInfo())) {
+                if (InstallerVerifier.verifyInstallerSignature(loadedApk.getApplicationInfo())) {
                     XposedInstallerHooker.hookXposedInstaller(lpparam.classLoader, binder);
-//                } else {
-//                    InstallerVerifier.hookXposedInstaller(classLoader);
-//                }
+                } else {
+                    InstallerVerifier.hookXposedInstaller(classLoader);
+                }
             } else {
                 XC_LoadPackage.callAll(lpparam);
             }
