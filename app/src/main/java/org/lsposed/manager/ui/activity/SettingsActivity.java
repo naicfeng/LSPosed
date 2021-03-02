@@ -42,7 +42,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.takisoft.preferencex.PreferenceFragmentCompat;
-import com.takisoft.preferencex.SimpleMenuPreference;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -52,7 +51,6 @@ import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.ActivitySettingsBinding;
 import org.lsposed.manager.ui.activity.base.BaseActivity;
-import org.lsposed.manager.ui.fragment.StatusDialogBuilder;
 import org.lsposed.manager.util.BackupUtils;
 import org.lsposed.manager.util.theme.ThemeUtil;
 import rikka.core.util.ResourceUtils;
