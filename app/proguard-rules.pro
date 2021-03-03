@@ -28,3 +28,8 @@
     public static void check*(...);
     public static void throw*(...);
 }
+
+-assumenosideeffects class android.util.Log {
+    public static *** v(...);
+    public static *** d(...);
+}
