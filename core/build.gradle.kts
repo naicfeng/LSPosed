@@ -47,6 +47,7 @@ val moduleMinRiruApiVersion = 10
 val moduleMinRiruVersionName = "v23.0"
 val moduleMaxRiruApiVersion = 10
 
+val defaultManagerPackageName: String by rootProject.extra
 val apiCode: Int by rootProject.extra
 
 val androidTargetSdkVersion: Int by rootProject.extra
@@ -102,6 +103,7 @@ android {
         buildConfigField("int", "API_CODE", "$apiCode")
         buildConfigField("String", "VERSION_NAME", "\"$verName\"")
         buildConfigField("Integer", "VERSION_CODE", verCode.toString())
+        buildConfigField("String", "DEFAULT_MANAGER_PACKAGE_NAME", "\"$defaultManagerPackageName\"")
     }
 
     lint {
@@ -153,6 +155,7 @@ afterEvaluate {
 
         val prepareMagiskFilesTask = task("prepareMagiskFiles$variantCapped") {
             dependsOn("assemble$variantCapped")
+            dependsOn(":app:assemble$variantCapped")
             doFirst {
                 copy {
                     from("$projectDir/tpl/module.prop.tpl")
@@ -222,6 +225,12 @@ afterEvaluate {
                     rename("riru_lspd", "libriru_lspd.so")
                     from("$libPathRelease/x86_64")
                     into("$zipPathMagiskReleasePath/system_x86/lib64")
+                }
+                copy {
+                    from("${project(":app").projectDir}/build/outputs/apk/${variantLowered}")
+                    include("*.apk")
+                    rename(".*\\.apk", "manager.apk")
+                    into(zipPathMagiskReleasePath)
                 }
                 // generate sha1sum
                 fileTree(zipPathMagiskReleasePath).matching {

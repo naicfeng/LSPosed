@@ -39,8 +39,9 @@ val repo = FileRepository(rootProject.file(".git"))
 val refId = repo.refDatabase.exactRef("refs/remotes/origin/LSPosed").objectId
 val commitCount = Git(repo).log().add(refId).call().count()
 
+val defaultManagerPackageName by extra("org.lsposed.manager")
 val verCode by extra(commitCount + 800)
-val verName by extra("v1.2.0")
+val verName by extra("v1.2.1")
 val androidTargetSdkVersion by extra(30)
 val androidMinSdkVersion by extra(27)
 val androidBuildToolsVersion by extra("30.0.3")
