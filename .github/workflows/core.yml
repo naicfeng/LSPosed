@@ -25,7 +25,7 @@ jobs:
         submodules: 'recursive'
         fetch-depth: 0
     - name: Write key
-      if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+      if: github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed'
       run: |
         echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
         echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
@@ -38,24 +38,30 @@ jobs:
         java-version: 11
     - name: Build with Gradle
       run:  bash ./gradlew zipRelease
-    - name: Prepare artifact and Get file name
+    - name: Prepare artifact
       if: success()
+      id: prepareArtifact
       run: |
-           echo FILE_NAME=$(basename $(find core/release/ -name 'LSPosed-v*-release.zip') .zip) >> $GITHUB_ENV
-           unzip core/release/LSPosed-v*-release.zip -d LSPosed-release
+        releaseName=`ls core/release/LSPosed-v*-release.zip | awk -F '(/|.zip)' '{print $3}'` && echo "::set-output name=releaseName::$releaseName"
+        unzip core/release/LSPosed-v*-release.zip -d LSPosed-release
     - name: Upload release
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.FILE_NAME }}
+        name: ${{ steps.prepareArtifact.outputs.releaseName }}
         path: './LSPosed-release/*'
 #    - name: Upload debug
 #      if: ${{ github.event_name == 'pull_request' && success() }}
 #      uses: actions/upload-artifact@v2
 #      with:
-#        name: LSPosed-debug
+#        name: ${{ steps.prepareArtifact.outputs.debugName }}
 #        path: './LSPosed-debug/*'
+#    - name: Upload mappings
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: mappings
+#        path: "core/build/outputs/mapping"
 #    - name: Post to channel
-#      if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
+#      if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
 #      env:
 #        CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 #        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -66,4 +72,3 @@ jobs:
 #        export debug=$(find $OUTPUT -name "LSPosed-v*-debug.zip")
 #        ESCAPED=`python3 -c 'import json,os,urllib.parse; print(urllib.parse.quote(json.dumps(os.environ["COMMIT_MESSAGE"])))'`
 #        curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22:%22document%22,%20%22media%22:%22attach://release%22%7D,%7B%22type%22:%22document%22,%20%22media%22:%22attach://debug%22,%22caption%22:${ESCAPED}%7D%5D"  -F release="@$release" -F debug="@$debug"
-

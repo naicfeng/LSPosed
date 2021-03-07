@@ -28,7 +28,7 @@ jobs:
         with:
           java-version: 11
       - name: Write key
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed'
         run: |
           echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
           echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
@@ -38,7 +38,7 @@ jobs:
       - name: Build with Gradle
         id: buildRelease
         run: |
-          ./gradlew :app:assembleRelease
+          bash ./gradlew :app:assembleRelease
           echo "::set-output name=releaseName::`ls app/build/outputs/apk/release/LSPosed*-v*-release.apk | awk -F '(/|.apk)' '{print $6}'`"
       - name: Upload apk
         if: success()
@@ -46,13 +46,13 @@ jobs:
         with:
           name: ${{ steps.buildRelease.outputs.releaseName }}
           path: "app/build/outputs/apk/release/*.apk"
-      - name: Upload mappings
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.buildRelease.outputs.releaseName }}-mappings
-          path: "app/build/outputs"
+#      - name: Upload mappings
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: ${{ steps.buildRelease.outputs.releaseName }}-mappings
+#          path: "app/build/outputs"
 #      - name: Post to channel
-#        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+#        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed'
 #        env:
 #          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 #          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}

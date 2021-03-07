@@ -206,4 +206,3 @@ configurations.all {
         exclude(group = "androidx.appcompat", module = "appcompat")
     }
 }
-
