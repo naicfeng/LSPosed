@@ -65,7 +65,7 @@
     <!-- Settings tab -->
     <string name="settings_group_framework">框架</string>
     <string name="settings_enable_resources">启用资源钩子</string>
-    <string name="settings_enable_resources_summary"><b>警告: </b> 资源钩子已被弃用</string>
+    <string name="settings_enable_resources_summary"><b>警告: </b> 资源钩子为实验性</string>
 
     <!-- Support tab -->
     <string name="support_framework_label">框架/管理器 支持</string>
@@ -181,4 +181,7 @@
     <string name="reboot">重新启动</string>
     <string name="not_logcat_2">如果有人要求您提供日志，那么您来错了地方。因为您正在使用的是去日志版本！所以这里的内容不会有任何帮助！请先切换到官方版然后获取日志！</string>
     <string name="verbose_log_not_avaliable">详细日志不可用，如果您只是启用了它而没有重新启动，请在重新启动后再试一次。</string>
+    <string name="module_uninstall_message">要卸载此模块吗？</string>
+    <string name="module_uninstalled">已卸载%1$s</string>
+    <string name="module_uninstall_failed">卸载失败</string>
 </resources>
