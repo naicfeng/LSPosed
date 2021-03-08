@@ -79,7 +79,6 @@ LANG_CUST_INST_COPY_LIB="Copying framework libraries"
 LANG_CUST_INST_REM_OLDCONF="Removing old configuration"
 LANG_CUST_INST_COPT_EXTRA="Copying extra files"
 LANG_CUST_INST_DONE="Welcome to"
-LANG_CUST_INST_SKIP_SELECTION="variant file exists, skip selection"
 
 LANG_CUST_ERR_VERIFY_FAIL="Unable to extract verify tool!"
 LANG_CUST_ERR_PERM="Can't set permission"
@@ -108,7 +107,6 @@ LANG_UTIL_ERR_ANDROID_UNSUPPORT_2="(below Oreo)"
 LANG_UTIL_ERR_ANDROID_UNSUPPORT_3="Learn more from our GitHub Wiki"
 LANG_UTIL_ERR_PLATFORM_UNSUPPORT="Unsupported platform"
 LANG_CUST_INST_MIGRATE_CONF="Migrating configuration"
-LANG_AUTO_YAHFA="Auto Use YAHFA Variant"
 
 # Load lang
 if [[ ${BOOTMODE} == true ]]; then
@@ -212,23 +210,12 @@ fi
 echo "rm -rf /data/misc/$MISC_PATH" >> "${MODPATH}/uninstall.sh" || abortC "! ${LANG_CUST_ERR_CONF_UNINST}"
 echo "[[ -f /data/adb/lspd/new_install ]] || rm -rf /data/adb/lspd" >> "${MODPATH}/uninstall.sh" || abortC "! ${LANG_CUST_ERR_CONF_UNINST}"
 
-if [[ ! -e /data/adb/lspd/config/variant ]]; then
-    echo "1" > /data/adb/lspd/config/variant
-else
-    if [[ $(cat /data/adb/lspd/config/variant) != "1" ]]; then
-        ui_print "- ${LANG_AUTO_YAHFA}"
-        echo "1" > /data/adb/lspd/config/variant
-    fi
-fi
+echo "1" > /data/adb/lspd/config/variant
 
 if [[ ! -e /data/adb/lspd/config/verbose_log ]]; then
     echo "0" > /data/adb/lspd/config/verbose_log
 fi
 
-
-mkdir -p /data/misc/$MISC_PATH/cache
-rm /data/misc/$MISC_PATH/cache/*
-set_perm /data/misc/$MISC_PATH/cache 0 0 0777 "u:object_r:magisk_file:s0" || abortC "! ${LANG_CUST_ERR_PERM}"
 
 mv "${MODPATH}/system/lib/libriru_lspd.so" "${MODPATH}/system/lib/${LIB_RIRU_EDXP}"
 if [[ "${IS64BIT}" == true ]]; then
