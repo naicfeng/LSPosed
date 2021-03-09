@@ -41,8 +41,8 @@ import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.ActivityMainBinding;
 import org.lsposed.manager.databinding.DialogAboutBinding;
 import org.lsposed.manager.ui.activity.base.BaseActivity;
-import org.lsposed.manager.ui.dialog.StatusDialogBuilder;
 import org.lsposed.manager.ui.dialog.BlurBehindDialogBuilder;
+import org.lsposed.manager.ui.dialog.InfoDialogBuilder;
 import org.lsposed.manager.util.GlideHelper;
 import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.NavUtil;
@@ -62,9 +62,8 @@ public class MainActivity extends BaseActivity {
         HolidayHelper.setup(this);
         binding.status.setOnClickListener(v -> {
             if (ConfigManager.getXposedApiVersion() != -1) {
-                new StatusDialogBuilder(this)
+                new InfoDialogBuilder(this)
                         .setTitle(R.string.info)
-                        .setPositiveButton(android.R.string.ok, null)
                         .show();
             } else {
                 NavUtil.startURL(this, getString(R.string.about_cuojue_link));
