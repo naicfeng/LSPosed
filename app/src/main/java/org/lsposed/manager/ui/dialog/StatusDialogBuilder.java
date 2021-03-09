@@ -14,11 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2020 EdXposed Contributors
  * Copyright (C) 2021 LSPosed Contributors
  */
 
-package org.lsposed.manager.ui.fragment;
+package org.lsposed.manager.ui.dialog;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -39,7 +38,6 @@ import org.lsposed.manager.BuildConfig;
 import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.StatusInstallerBinding;
-import org.lsposed.manager.util.BlurBehindDialogBuilder;
 
 @SuppressLint("StaticFieldLeak")
 public class StatusDialogBuilder extends BlurBehindDialogBuilder {

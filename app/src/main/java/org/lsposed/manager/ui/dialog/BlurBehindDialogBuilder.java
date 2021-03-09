@@ -17,7 +17,7 @@
  * Copyright (C) 2021 LSPosed Contributors
  */
 
-package org.lsposed.manager.util;
+package org.lsposed.manager.ui.dialog;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;

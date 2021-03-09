@@ -28,7 +28,7 @@ import android.net.Uri;
 import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.NotificationUtil;
 
-public class EdServiceReceiver extends BroadcastReceiver {
+public class ServiceReceiver extends BroadcastReceiver {
 
     private static String getPackageName(Intent intent) {
         Uri uri = intent.getData();
