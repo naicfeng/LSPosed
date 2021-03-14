@@ -26,9 +26,9 @@ import android.os.RemoteException;
 
 import java.util.List;
 
-import io.github.lsposed.lspd.Application;
-import io.github.lsposed.lspd.ILSPManagerService;
-import io.github.lsposed.lspd.utils.ParceledListSlice;
+import org.lsposed.lspd.Application;
+import org.lsposed.lspd.ILSPManagerService;
+import org.lsposed.lspd.utils.ParceledListSlice;
 
 public class LSPosedManagerServiceClient {
 
@@ -153,5 +153,10 @@ public class LSPosedManagerServiceClient {
     public static boolean uninstallPackage(String packageName) throws RemoteException, NullPointerException {
         ensureService();
         return service.uninstallPackage(packageName);
+    }
+
+    public static boolean isSepolicyLoaded() throws RemoteException, NullPointerException {
+        ensureService();
+        return service.isSepolicyLoaded();
     }
 }

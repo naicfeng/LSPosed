@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import io.github.lsposed.lspd.Application;
-import io.github.lsposed.lspd.utils.ParceledListSlice;
+import org.lsposed.lspd.Application;
+import org.lsposed.lspd.utils.ParceledListSlice;
 import org.lsposed.manager.adapters.ScopeAdapter;
 import org.lsposed.manager.receivers.LSPosedManagerServiceClient;
 
@@ -222,6 +222,15 @@ public class ConfigManager {
     public static boolean uninstallPackage(String packageName) {
         try {
             return LSPosedManagerServiceClient.uninstallPackage(packageName);
+        } catch (RemoteException | NullPointerException e) {
+            Log.e(App.TAG, Log.getStackTraceString(e));
+            return false;
+        }
+    }
+
+    public static boolean isSepolicyLoaded() {
+        try {
+            return LSPosedManagerServiceClient.isSepolicyLoaded();
         } catch (RemoteException | NullPointerException e) {
             Log.e(App.TAG, Log.getStackTraceString(e));
             return false;

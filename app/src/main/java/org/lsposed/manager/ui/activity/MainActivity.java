@@ -32,6 +32,18 @@ import androidx.core.text.HtmlCompat;
 import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.lsposed.manager.ConfigManager;
+import org.lsposed.manager.R;
+import org.lsposed.manager.databinding.ActivityMainBinding;
+import org.lsposed.manager.databinding.DialogAboutBinding;
+import org.lsposed.manager.ui.activity.base.BaseActivity;
+import org.lsposed.manager.ui.dialog.BlurBehindDialogBuilder;
+import org.lsposed.manager.ui.dialog.InfoDialogBuilder;
+import org.lsposed.manager.util.GlideHelper;
+import org.lsposed.manager.util.ModuleUtil;
+import org.lsposed.manager.util.NavUtil;
+import org.lsposed.manager.util.chrome.LinkTransformationMethod;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Locale;
@@ -82,6 +94,9 @@ public class MainActivity extends BaseActivity {
                     "<b><a href=\"https://github.com/naicfeng/LSPosed\">GitHub</a></b>",
                     "<b><a href=\"https://t.me/LSPosed\">Telegram</a></b>",
                     "<b><a href=\"https://cuojue.org\">CuoJue.org</a></b>"), HtmlCompat.FROM_HTML_MODE_LEGACY));
+            binding.translators.setMovementMethod(LinkMovementMethod.getInstance());
+            binding.translators.setTransformationMethod(new LinkTransformationMethod(this));
+            binding.translators.setText(HtmlCompat.fromHtml(getString(R.string.about_translators, getString(R.string.translators)), HtmlCompat.FROM_HTML_MODE_LEGACY));
             new BlurBehindDialogBuilder(this)
                     .setView(binding.getRoot())
                     .show();
@@ -92,8 +107,18 @@ public class MainActivity extends BaseActivity {
         String installXposedVersion = ConfigManager.getXposedVersionName();
         int cardBackgroundColor;
         if (installXposedVersion != null) {
-            binding.statusTitle.setText(R.string.Activated);
-            if (!ConfigManager.isPermissive()) {
+            if (ConfigManager.isPermissive()) {
+                cardBackgroundColor = ResourcesKt.resolveColor(getTheme(), R.attr.colorError);
+                binding.statusTitle.setText(R.string.activated);
+                binding.statusIcon.setImageResource(R.drawable.ic_warning);
+                binding.statusSummary.setText(R.string.selinux_permissive_summary);
+            } else if (!ConfigManager.isSepolicyLoaded()) {
+                binding.statusTitle.setText(R.string.partial_activated);
+                cardBackgroundColor = ResourcesKt.resolveColor(getTheme(), R.attr.colorWarning);
+                binding.statusIcon.setImageResource(R.drawable.ic_warning);
+                binding.statusSummary.setText(R.string.selinux_policy_not_loaded_summary);
+            } else {
+                binding.statusTitle.setText(R.string.activated);
                 if (Helpers.currentHoliday == Helpers.Holidays.LUNARNEWYEAR) {
                     cardBackgroundColor = 0xfff05654;
                 } else {
@@ -101,10 +126,6 @@ public class MainActivity extends BaseActivity {
                 }
                 binding.statusIcon.setImageResource(R.drawable.ic_check_circle);
                 binding.statusSummary.setText(String.format(Locale.US, "%s (%d) WuYang", installXposedVersion, ConfigManager.getXposedVersionCode()));
-            } else {
-                cardBackgroundColor = ResourcesKt.resolveColor(getTheme(), R.attr.colorError);
-                binding.statusIcon.setImageResource(R.drawable.ic_warning);
-                binding.statusSummary.setText(R.string.selinux_permissive_summary);
             }
         } else {
             cardBackgroundColor = ResourcesKt.resolveColor(getTheme(), R.attr.colorInstall);

@@ -28,8 +28,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath("com.android.tools:r8:3.0.26-dev")
-        classpath("com.android.tools.build:gradle:7.0.0-alpha08")
+        classpath("com.android.tools:r8:3.0.27-dev")
+        classpath("com.android.tools.build:gradle:7.0.0-alpha09")
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
         classpath(kotlin("gradle-plugin", version = "1.4.31"))
     }
@@ -41,7 +41,7 @@ val commitCount = Git(repo).log().add(refId).call().count()
 
 val defaultManagerPackageName by extra("org.lsposed.manager")
 val verCode by extra(commitCount + 800)
-val verName by extra("v1.3.0")
+val verName by extra("v1.3.3")
 val androidTargetSdkVersion by extra(30)
 val androidMinSdkVersion by extra(27)
 val androidBuildToolsVersion by extra("30.0.3")

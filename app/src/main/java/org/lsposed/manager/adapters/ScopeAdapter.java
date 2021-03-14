@@ -68,7 +68,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import io.github.lsposed.lspd.Application;
+import org.lsposed.lspd.Application;
 import org.lsposed.manager.App;
 import org.lsposed.manager.BuildConfig;
 import org.lsposed.manager.ConfigManager;
