@@ -82,9 +82,9 @@ jobs:
 #      uses: actions/upload-artifact@v2
 #      with:
 #        name: mappings
-#        path: "core/build/outputs/mapping"
+#        path: "core/build/outputs/mapping/release"
 #    - name: Post to channel
-#      if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
+#      if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
 #      env:
 #        CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 #        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
