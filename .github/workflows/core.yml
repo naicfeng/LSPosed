@@ -61,16 +61,19 @@ jobs:
         echo 'org.gradle.parallel=true' >> gradle.properties
         echo 'org.gradle.vfs.watch=true' >> gradle.properties
         bash ./gradlew zipRelease
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
     - name: Prepare artifact
       if: success()
       id: prepareArtifact
       run: |
-        releaseName=`ls core/release/LSPosed-v*-release.zip | awk -F '(/|.zip)' '{print $3}'` && echo "::set-output name=releaseName::$releaseName"
+        releaseName=`ls core/release/LSPosed-v*-release.zip | awk -F '(/|release.zip)' '{print $3}'` && echo "::set-output name=releaseName::$releaseName"
         unzip core/release/LSPosed-v*-release.zip -d LSPosed-release
     - name: Upload release
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ steps.prepareArtifact.outputs.releaseName }}
+        name: ${{ steps.prepareArtifact.outputs.releaseName }}${{ steps.date.outputs.date }}-release
         path: './LSPosed-release/*'
 #    - name: Upload debug
 #      if: ${{ github.event_name == 'pull_request' && success() }}
