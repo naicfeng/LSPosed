@@ -98,9 +98,9 @@ namespace lspd {
     RiruVersionedModuleInfo module{
             .moduleApiVersion = RIRU_MODULE_API_VERSION,
             .moduleInfo = RiruModuleInfo{
-                    .supportHide = true,
+                    .supportHide = !isDebug,
                     .version = RIRU_MODULE_VERSION,
-                    .versionName = STRINGIFY(RIRU_MODULE_VERSION_NAME),
+                    .versionName = RIRU_MODULE_VERSION_NAME,
                     .onModuleLoaded = lspd::onModuleLoaded,
                     .forkAndSpecializePre = lspd::nativeForkAndSpecializePre,
                     .forkAndSpecializePost = lspd::nativeForkAndSpecializePost,
@@ -112,11 +112,11 @@ namespace lspd {
     };
 }
 
-__attribute__((noinline)) RIRU_EXPORT RiruVersionedModuleInfo *init(Riru *riru) {
+RIRU_EXPORT RiruVersionedModuleInfo *init(Riru *riru) {
     LOGD("using riru %d", riru->riruApiVersion);
     LOGD("module path: %s", riru->magiskModulePath);
     lspd::magiskPath = riru->magiskModulePath;
-    if (lspd::magiskPath.find(STRINGIFY(MODULE_NAME)) == std::string::npos) {
+    if (lspd::magiskPath.find(MODULE_NAME) == std::string::npos) {
         LOGE("who am i");
         return nullptr;
     }
@@ -125,5 +125,4 @@ __attribute__((noinline)) RIRU_EXPORT RiruVersionedModuleInfo *init(Riru *riru) 
 }
 
 int main() {
-    init(nullptr);
 }
