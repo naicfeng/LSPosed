@@ -99,16 +99,20 @@ android {
                     "-fomit-frame-pointer",
                     "-fpie", "-fPIC",
                     "-Wno-builtin-macro-redefined",
+                    "-D__FILE__=__FILE_NAME__",
                     "-DRIRU_MODULE",
                     "-DRIRU_MODULE_API_VERSION=$moduleMaxRiruApiVersion",
-                    "-DRIRU_MODULE_VERSION=$verCode",
-                    "-D__FILE__=__FILE_NAME__",
-                    """-DRIRU_MODULE_VERSION_NAME=\"$verName\"""",
                     """-DMODULE_NAME=\"$riruModuleId\""""
+//                    "-DRIRU_MODULE_VERSION=$verCode", // this will stop ccache from hitting
+//                    """-DRIRU_MODULE_VERSION_NAME=\"$verName\"""",
                 )
                 cppFlags("-std=c++20", *flags)
                 cFlags("-std=c18", *flags)
-                arguments("-DANDROID_STL=none")
+                arguments(
+                    "-DANDROID_STL=none",
+                    "-DVERSION_CODE=$verCode",
+                    "-DVERSION_NAME=$verName"
+                )
                 targets("lspd")
             }
         }
@@ -175,7 +179,8 @@ android {
 fun findInPath(executable: String): String? {
     val pathEnv = System.getenv("PATH")
     return pathEnv.split(File.pathSeparator).map { folder ->
-        Paths.get("${folder}${File.separator}${executable}").toFile()
+        Paths.get("${folder}${File.separator}${executable}${if (isWindows) ".exe" else ""}")
+            .toFile()
     }.firstOrNull { path ->
         path.exists()
     }?.absolutePath
