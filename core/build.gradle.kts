@@ -97,8 +97,8 @@ android {
                     "-fno-rtti", "-fno-exceptions",
                     "-fno-stack-protector",
                     "-fomit-frame-pointer",
-                    "-fpie", "-fPIC",
                     "-Wno-builtin-macro-redefined",
+                    "-Wl,--exclude-libs,ALL",
                     "-D__FILE__=__FILE_NAME__",
                     "-DRIRU_MODULE",
                     "-DRIRU_MODULE_API_VERSION=$moduleMaxRiruApiVersion",
@@ -132,11 +132,10 @@ android {
         named("debug") {
             externalNativeBuild {
                 cmake {
-                    val flags = arrayOf(
-                        "-O0"
-                    )
-                    cppFlags.addAll(flags)
-                    cFlags.addAll(flags)
+                    arguments.addAll(arrayOf(
+                        "-DCMAKE_CXX_FLAGS_DEBUG=-Og",
+                        "-DCMAKE_C_FLAGS_DEBUG=-Og"
+                    ))
                 }
             }
         }
@@ -149,7 +148,6 @@ android {
                     val flags = arrayOf(
                         "-fvisibility=hidden",
                         "-fvisibility-inlines-hidden",
-                        "-Os",
                         "-Wno-unused-value",
                         "-ffunction-sections",
                         "-fdata-sections",
@@ -160,6 +158,16 @@ android {
                     )
                     cppFlags.addAll(flags)
                     cFlags.addAll(flags)
+                    val configFlags = arrayOf(
+                        "-Oz",
+                        "-DNDEBUG"
+                    ).joinToString(" ")
+                    arguments.addAll(arrayOf(
+                        "-DCMAKE_CXX_FLAGS_RELEASE=$configFlags",
+                        "-DCMAKE_CXX_FLAGS_RELWITHDEBINFO=$configFlags",
+                        "-DCMAKE_C_FLAGS_RELEASE=$configFlags",
+                        "-DCMAKE_C_FLAGS_RELWITHDEBINFO=$configFlags"
+                    ))
                 }
             }
         }
@@ -279,6 +287,10 @@ afterEvaluate {
                                 "%%%RIRU_MODULE_MIN_RIRU_VERSION_NAME%%%",
                                 moduleMinRiruVersionName
                             )
+                            .replace(
+                                "%%RIRU_MODULE_DEBUG%%",
+                                if (variantLowered == "debug") "true" else "false"
+                            )
                     }
                     filter(
                         mapOf("eol" to FixCrLfFilter.CrLf.newInstance("lf")),
@@ -286,26 +298,22 @@ afterEvaluate {
                     )
                 }
                 copy {
-                    include("lspd")
-                    rename("lspd", "liblspd.so")
+                    include("liblspd.so")
                     from("$libPathRelease/armeabi-v7a")
                     into("$zipPathMagiskReleasePath/riru/lib")
                 }
                 copy {
-                    include("lspd")
-                    rename("lspd", "liblspd.so")
+                    include("liblspd.so")
                     from("$libPathRelease/arm64-v8a")
                     into("$zipPathMagiskReleasePath/riru/lib64")
                 }
                 copy {
-                    include("lspd")
-                    rename("lspd", "liblspd.so")
+                    include("liblspd.so")
                     from("$libPathRelease/x86")
                     into("$zipPathMagiskReleasePath/riru_x86/lib")
                 }
                 copy {
-                    include("lspd")
-                    rename("lspd", "liblspd.so")
+                    include("liblspd.so")
                     from("$libPathRelease/x86_64")
                     into("$zipPathMagiskReleasePath/riru_x86/lib64")
                 }
