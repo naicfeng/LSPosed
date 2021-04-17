@@ -21,6 +21,7 @@
 package org.lsposed.manager.ui.activity;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
@@ -44,22 +45,10 @@ import org.lsposed.manager.util.GlideHelper;
 import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.NavUtil;
 import org.lsposed.manager.util.chrome.LinkTransformationMethod;
+import org.lsposed.manager.util.holiday.HolidayHelper;
 
 import java.util.Locale;
 
-import org.lsposed.manager.ConfigManager;
-import org.lsposed.manager.R;
-import org.lsposed.manager.databinding.ActivityMainBinding;
-import org.lsposed.manager.databinding.DialogAboutBinding;
-import org.lsposed.manager.ui.activity.base.BaseActivity;
-import org.lsposed.manager.ui.dialog.BlurBehindDialogBuilder;
-import org.lsposed.manager.ui.dialog.InfoDialogBuilder;
-import org.lsposed.manager.util.GlideHelper;
-import org.lsposed.manager.util.ModuleUtil;
-import org.lsposed.manager.util.NavUtil;
-import org.lsposed.manager.util.chrome.LinkTransformationMethod;
-import name.mikanoshi.customiuizer.holidays.HolidayHelper;
-import name.mikanoshi.customiuizer.utils.Helpers;
 import rikka.core.res.ResourcesKt;
 
 public class MainActivity extends BaseActivity {
@@ -119,8 +108,14 @@ public class MainActivity extends BaseActivity {
                 binding.statusSummary.setText(R.string.selinux_policy_not_loaded_summary);
             } else {
                 binding.statusTitle.setText(R.string.activated);
-                if (Helpers.currentHoliday == Helpers.Holidays.LUNARNEWYEAR) {
-                    cardBackgroundColor = 0xfff05654;
+                HolidayHelper.CardColors cardColors = HolidayHelper.getHolidayColors();
+                if (cardColors.textColor != 0) {
+                    binding.statusIcon.setImageTintList(ColorStateList.valueOf(cardColors.textColor));
+                    binding.statusTitle.setTextColor(ColorStateList.valueOf(cardColors.textColor));
+                    binding.statusSummary.setTextColor(ColorStateList.valueOf(cardColors.textColor));
+                }
+                if (cardColors.backgroundColor != 0) {
+                    cardBackgroundColor = cardColors.backgroundColor;
                 } else {
                     cardBackgroundColor = ResourcesKt.resolveColor(getTheme(), R.attr.colorNormal);
                 }
