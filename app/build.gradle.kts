@@ -31,6 +31,7 @@ val androidCompileSdkVersion: Int by rootProject.extra
 val androidCompileNdkVersion: String by rootProject.extra
 val androidSourceCompatibility: JavaVersion by rootProject.extra
 val androidTargetCompatibility: JavaVersion by rootProject.extra
+val defaultManagerPackageName: String by rootProject.extra
 val verCode: Int by rootProject.extra
 val verName: String by rootProject.extra
 
@@ -49,7 +50,7 @@ android {
     }
 
     defaultConfig {
-        applicationId("org.lsposed.manager")
+        applicationId(defaultManagerPackageName)
         minSdkVersion(androidMinSdkVersion)
         targetSdkVersion(androidTargetSdkVersion)
         versionCode(verCode)
@@ -162,7 +163,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
     implementation("androidx.core:core:1.3.2")
     implementation("androidx.fragment:fragment:1.3.2")
-    implementation("androidx.recyclerview:recyclerview:1.1.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.caverock:androidsvg-aar:1.4")
     implementation("com.github.bumptech.glide:glide:$glideVersion")
@@ -179,7 +180,7 @@ dependencies {
     implementation("dev.rikka.rikkax.insets:insets:1.0.1")
     implementation("dev.rikka.rikkax.material:material:1.6.4")
     implementation("dev.rikka.rikkax.preference:simplemenu-preference:1.0.2")
-    implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.0")
+    implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.1")
     implementation("dev.rikka.rikkax.widget:borderview:1.0.1")
     implementation("dev.rikka.rikkax.widget:switchbar:1.0.2")
     implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.0.1")

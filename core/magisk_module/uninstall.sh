@@ -1,3 +1,5 @@
+#!/sbin/sh
+
 #
 # This file is part of LSPosed.
 #
@@ -18,27 +20,5 @@
 # Copyright (C) 2021 LSPosed Contributors
 #
 
-check_magisk_version() {
-  ui_print "- Magisk version: ${MAGISK_VER_CODE}"
-  if [ "$MAGISK_VER_CODE" -lt 21000 ]; then
-      ui_print "${POUNDS}"
-      ui_print "Please install Magisk v21+!"
-      abortC "${POUNDS}"
-  fi
-}
-
-require_new_android() {
-  ui_print "${POUNDS}"
-  ui_print "! Unsupported Android version ${1} (below Oreo MR1)"
-  ui_print "! Learn more from our GitHub Wiki"
-  [ ${BOOTMODE} == true ] && am start -a android.intent.action.VIEW -d https://github.com/LSPosed/LSPosed/wiki/Available-Android-versions
-  abortC "${POUNDS}"
-}
-
-check_android_version() {
-  if [ ${API} -ge 27 ]; then
-    ui_print "- Android SDK version: ${API}"
-  else
-    require_new_android "${API}"
-  fi
-}
+MODDIR=${0%/*}
+rm -rf /data/adb/lspd
