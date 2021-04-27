@@ -38,8 +38,6 @@
 
     <string name="activated">Ativado</string>
     <string name="not_installed">Não instalado</string>
-    <string name="selinux_permissive"><![CDATA[<b>AVISO:</b> SELinux não está no modo "enforcing"! Algum app malicioso que atacar o SELinux pode controlar completamente o seu dispositivo e causar danos à sua propriedade e responsabilidade legal.]]></string>
-    <string name="selinux_permissive_summary">SELinux não está no modo "enforcing"!</string>
     <string name="partial_activated">Parcialmente ativado</string>
     <string name="selinux_policy_not_loaded_summary">SEPolicy não está carregado corretamente</string>
     <string name="selinux_policy_not_loaded"><![CDATA[<b>AVISO:</b> SEPolicy não está carregado corretamente, módulos que aplicam hooks do Framework do Sistema não funcionarão.<br>Por favor, relate isso para o desenvolvedor do <a href="https://github.com/topjohnwu/Magisk/issues"><b>Magisk</b></a>.]]></string>
@@ -125,7 +123,8 @@
     <string name="force_stop_dlg_text">Se forçar a parada de um app, ele pode apresentar mau funcionamento.</string>
     <string name="reboot_required">Necessário reiniciar para aplicar alteração</string>
     <string name="reboot">Reiniciar</string>
-
+    <string name="menu_filter">Filtrar…</string>
+  
     <!-- ModulesActivity and AppListActivity -->
     <string name="modules_app_store">Ver na Loja de Apps</string>
     <string name="module_app_info">Info do App</string>

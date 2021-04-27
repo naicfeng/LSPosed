@@ -79,15 +79,18 @@ namespace lspd {
         ShadowObject(void *thiz) : thiz_(thiz) {
         }
 
-        ALWAYS_INLINE inline void *Get() {
+        [[gnu::always_inline]]
+        inline void *Get() {
             return thiz_;
         }
 
-        ALWAYS_INLINE inline void Reset(void *thiz) {
+        [[gnu::always_inline]]
+        inline void Reset(void *thiz) {
             thiz_ = thiz;
         }
 
-        ALWAYS_INLINE inline operator bool() const {
+        [[gnu::always_inline]]
+        inline operator bool() const {
             return thiz_ != nullptr;
         }
 
@@ -100,26 +103,19 @@ namespace lspd {
     public:
 
         HookedObject(void *thiz) : ShadowObject(thiz) {}
-
-        static void SetupSymbols(void *handle) {
-
-        }
-
-        static void SetupHooks(void *handle, HookFunType hook_fun) {
-
-        }
     };
 
     struct ObjPtr {
         void *data;
     };
 
-    ALWAYS_INLINE static void *Dlsym(void *handle, const char *name) {
+    [[gnu::always_inline]]
+    inline void *Dlsym(void *handle, const char *name) {
         return dlsym(handle, name);
     }
 
     template<class T, class ... Args>
-    static void *Dlsym(void *handle, T first, Args... last) {
+    inline void *Dlsym(void *handle, T first, Args... last) {
         auto ret = Dlsym(handle, first);
         if (ret) {
             return ret;
@@ -127,9 +123,27 @@ namespace lspd {
         return Dlsym(handle, last...);
     }
 
-    ALWAYS_INLINE inline static void HookFunction(void *original, void *replace, void **backup) {
+    inline int HookFunction(void *original, void *replace, void **backup) {
         _make_rwx(original, _page_size);
-        hook_func(original, replace, backup);
+        if constexpr (isDebug) {
+            Dl_info info;
+            dladdr(original, &info);
+            LOGD("Hooking %s (%p) from %s (%p)",
+                 info.dli_sname ? info.dli_sname : "(unknown symbol)", info.dli_saddr,
+                 info.dli_fname ? info.dli_fname : "(unknown file)", info.dli_fbase);
+        }
+        return DobbyHook(original, replace, backup);
+    }
+
+    inline int UnhookFunction(void *original) {
+        if constexpr (isDebug) {
+            Dl_info info;
+            dladdr(original, &info);
+            LOGD("Unhooking %s (%p) from %s (%p)",
+                 info.dli_sname ? info.dli_sname : "(unknown symbol)", info.dli_saddr,
+                 info.dli_fname ? info.dli_fname : "(unknown file)", info.dli_fbase);
+        }
+        return DobbyDestroy(original);
     }
 
     template<class, template<class, class...> class>
