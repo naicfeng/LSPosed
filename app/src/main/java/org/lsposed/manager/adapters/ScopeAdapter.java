@@ -58,6 +58,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.request.target.CustomTarget;
@@ -163,7 +164,7 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
             return false;
         }
         if (preferences.getBoolean("filter_modules", true)) {
-            if (info.applicationInfo.metaData != null && info.applicationInfo.metaData.containsKey("xposedmodule")) {
+            if (info.applicationInfo.metaData != null && info.applicationInfo.metaData.containsKey("xposedminversion")) {
                 return true;
             }
         }
@@ -612,6 +613,22 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
             showList.addAll((Collection<AppInfo>) results.values);
             notifyDataSetChanged();
         }
+    }
+
+    public SearchView.OnQueryTextListener getSearchListener() {
+        return new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                refresh(false);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                refresh(false);
+                return true;
+            }
+        };
     }
 
     public boolean onBackPressed() {

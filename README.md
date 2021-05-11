@@ -12,7 +12,8 @@
 
 # LSPosed Framework
 
-![Core](https://github.com/naicfeng/LSPosed/workflows/Core/badge.svg) ![Manager](https://github.com/naicfeng/LSPosed/workflows/Manager/badge.svg)
+![Core](https://github.com/naicfeng/LSPosed/workflows/Core/badge.svg) ![Manager](https://github.com/naicfeng/LSPosed/workflows/Manager/badge.svg) 
+
 
 ## Introduction 
 

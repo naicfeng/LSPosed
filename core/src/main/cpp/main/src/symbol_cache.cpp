@@ -36,6 +36,11 @@ namespace lspd {
     void *sym_system_property_get = nullptr;
     void *sym_get_property = nullptr;
     void *handle_libart = nullptr;
+    void *sym_openInMemoryDexFilesNative = nullptr;
+    void *sym_createCookieWithArray = nullptr;
+    void *sym_createCookieWithDirectBuffer = nullptr;
+    void *sym_openDexFileNative = nullptr;
+    void *sym_setTrusted = nullptr;
 
     struct soinfo;
 
@@ -117,10 +122,25 @@ namespace lspd {
         for (const auto &soinfo : linker_get_solist()) {
             if (const auto &real_path = soinfo->get_realpath(), &soname = soinfo->get_soname();
                     (real_path &&
-                     std::string_view(real_path).find(kLibArtName) != std::string_view::npos) ||
-                    (soname &&
-                     std::string_view(soname).find(kLibArtName) != std::string_view::npos)) {
-                return soinfo->to_handle();
+                     std::string_view(real_path).find(kLibArtName) != std::string_view::npos)) {
+                auto art = SandHook::ElfImg(real_path);
+                auto api_level = GetAndroidApiLevel();
+                if (api_level < __ANDROID_API_P__ || (
+                        (sym_openDexFileNative = reinterpret_cast<void *>(art.getSymbAddress(
+                                "_ZN3artL25DexFile_openDexFileNativeEP7_JNIEnvP7_jclassP8_jstringS5_iP8_jobjectP13_jobjectArray"))) &&
+                        (
+                                (sym_openInMemoryDexFilesNative = reinterpret_cast<void *>(art.getSymbAddress(
+                                        "_ZN3artL34DexFile_openInMemoryDexFilesNativeEP7_JNIEnvP7_jclassP13_jobjectArrayS5_P10_jintArrayS7_P8_jobjectS5_"))) ||
+                                (
+                                        (sym_createCookieWithArray = reinterpret_cast<void *>(art.getSymbAddress(
+                                                "_ZN3artL29DexFile_createCookieWithArrayEP7_JNIEnvP7_jclassP11_jbyteArrayii"))) &&
+                                        (sym_createCookieWithDirectBuffer = reinterpret_cast<void *>(art.getSymbAddress(
+                                                "_ZN3artL36DexFile_createCookieWithDirectBufferEP7_JNIEnvP7_jclassP8_jobjectii")))
+                                )
+                        ) &&
+                        (sym_setTrusted = reinterpret_cast<void *>(art.getSymbAddress(
+                                "_ZN3artL18DexFile_setTrustedEP7_JNIEnvP7_jclassP8_jobject")))))
+                    return soinfo->to_handle();
             }
         }
         return nullptr;
