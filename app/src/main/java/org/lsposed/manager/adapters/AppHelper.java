@@ -20,17 +20,20 @@
 
 package org.lsposed.manager.adapters;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.UserHandle;
 import android.view.MenuItem;
 
 import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -40,25 +43,45 @@ public class AppHelper {
     public static final String SETTINGS_CATEGORY = "de.robv.android.xposed.category.MODULE_SETTINGS";
     private static List<PackageInfo> appList;
 
-    public static Intent getSettingsIntent(String packageName, PackageManager packageManager) {
-        // taken from
-        // ApplicationPackageManager.getLaunchIntentForPackage(String)
-        // first looks for an Xposed-specific category, falls back to
-        // getLaunchIntentForPackage
-
-        Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
-        intentToResolve.addCategory(SETTINGS_CATEGORY);
-        intentToResolve.setPackage(packageName);
-        List<ResolveInfo> ris = packageManager.queryIntentActivities(intentToResolve, 0);
-
-        if (ris.size() <= 0) {
-            return packageManager.getLaunchIntentForPackage(packageName);
+    public static Intent getSettingsIntent(String packageName, int userId, PackageManager packageManager) {
+        Intent intent = getIntentForCategory(packageName, userId, packageManager, SETTINGS_CATEGORY);
+        if (intent != null) {
+            return intent;
         }
+        return getIntentForCategory(packageName, userId, packageManager, Intent.CATEGORY_LAUNCHER);
+    }
 
-        Intent intent = new Intent(intentToResolve);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setClassName(ris.get(0).activityInfo.packageName, ris.get(0).activityInfo.name);
-        return intent;
+    public static void startActivityAsUser(Activity activity, Intent intent, UserHandle user) {
+        try {
+            //noinspection JavaReflectionMemberAccess
+            var startActivityAsUserMethod = Activity.class.getMethod("startActivityAsUser", Intent.class, UserHandle.class);
+            startActivityAsUserMethod.invoke(activity, intent, user);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    public static Intent getIntentForCategory(String packageName, int userId, PackageManager packageManager, String category) {
+        Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
+        intentToResolve.addCategory(category);
+        intentToResolve.setPackage(packageName);
+        try {
+            //noinspection JavaReflectionMemberAccess
+            Method queryIntentActivitiesAsUserMethod = PackageManager.class.getMethod("queryIntentActivitiesAsUser", Intent.class, int.class, int.class);
+            //noinspection unchecked
+            List<ResolveInfo> ris = (List<ResolveInfo>) queryIntentActivitiesAsUserMethod.invoke(packageManager, intentToResolve, 0, userId);
+
+            if (ris == null || ris.size() <= 0) {
+                return null;
+            }
+
+            Intent intent = new Intent(intentToResolve);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setClassName(ris.get(0).activityInfo.packageName, ris.get(0).activityInfo.name);
+            return intent;
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     public static boolean onOptionsItemSelected(MenuItem item, SharedPreferences preferences) {

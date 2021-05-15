@@ -42,12 +42,6 @@ public class LSPosedService extends ILSPosedService.Stub {
             Log.w(TAG, "Someone else got my binder!?");
             return null;
         }
-        if (uid == 1000 && processName.equals("android")) {
-            if (ConfigManager.getInstance().shouldSkipSystemServer())
-                return null;
-            else
-                return ServiceManager.requestApplicationService(uid, pid, heartBeat);
-        }
         if (ConfigManager.getInstance().shouldSkipProcess(new ConfigManager.ProcessScope(processName, uid))) {
             Log.d(TAG, "Skipped " + processName + "/" + uid);
             return null;
@@ -59,7 +53,6 @@ public class LSPosedService extends ILSPosedService.Stub {
         Log.d(TAG, "returned service");
         return ServiceManager.requestApplicationService(uid, pid, heartBeat);
     }
-
 
     @Override
     public void dispatchPackageChanged(Intent intent) throws RemoteException {
@@ -102,9 +95,7 @@ public class LSPosedService extends ILSPosedService.Stub {
         }
 
         ApplicationInfo applicationInfo = PackageService.getApplicationInfo(packageName, PackageManager.GET_META_DATA, 0);
-        boolean isXposedModule = (userId == 0 || userId == -1) &&
-                applicationInfo != null &&
-                applicationInfo.enabled &&
+        boolean isXposedModule = applicationInfo != null &&
                 applicationInfo.metaData != null &&
                 applicationInfo.metaData.containsKey("xposedminversion");
 
@@ -118,6 +109,7 @@ public class LSPosedService extends ILSPosedService.Stub {
             broadcastIntent.addFlags(0x01000000);
             broadcastIntent.addFlags(0x00400000);
             broadcastIntent.setData(intent.getData());
+            broadcastIntent.putExtras(intent.getExtras());
             broadcastIntent.setComponent(ComponentName.unflattenFromString(ConfigManager.getInstance().getManagerPackageName() + "/.receivers.ServiceReceiver"));
 
             try {
