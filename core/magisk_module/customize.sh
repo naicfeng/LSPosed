@@ -22,8 +22,7 @@
 SKIPUNZIP=1
 
 VERSION=$(grep_prop version "${TMPDIR}/module.prop")
-VERSION_CODE=$(grep_prop versionCode "${TMPDIR}/module.prop")
-ui_print "- LSPosed version ${VERSION} (${VERSION_CODE})"
+ui_print "- LSPosed version ${VERSION}"
 
 # Extract verify.sh
 ui_print "- Extracting verify.sh"
@@ -67,6 +66,7 @@ extract "$ZIPFILE" 'module.prop'        "$MODPATH"
 extract "$ZIPFILE" 'system.prop'        "$MODPATH"
 extract "$ZIPFILE" 'sepolicy.rule'      "$MODPATH"
 extract "$ZIPFILE" 'post-fs-data.sh'    "$MODPATH"
+extract "$ZIPFILE" 'service.sh'         "$MODPATH"
 extract "$ZIPFILE" 'uninstall.sh'       "$MODPATH"
 extract "$ZIPFILE" 'framework/lspd.dex' "$MODPATH"
 extract "$ZIPFILE" 'manager.apk'        '/data/adb/lspd'

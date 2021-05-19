@@ -22,7 +22,6 @@ package org.lsposed.lspd.service;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.VersionedPackage;
-import android.graphics.Bitmap;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
@@ -37,7 +36,6 @@ import org.lsposed.lspd.BuildConfig;
 import org.lsposed.lspd.ILSPManagerService;
 import org.lsposed.lspd.utils.ParceledListSlice;
 
-import static org.lsposed.lspd.service.PackageService.INSTALL_PARSE_FAILED_BAD_PACKAGE_NAME;
 import static org.lsposed.lspd.service.ServiceManager.TAG;
 
 public class LSPManagerService extends ILSPManagerService.Stub {
@@ -152,7 +150,9 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     @Override
     public boolean uninstallPackage(String packageName, int userId) throws RemoteException {
         try {
-            return PackageService.uninstallPackage(new VersionedPackage(packageName, PackageManager.VERSION_CODE_HIGHEST), userId);
+            if (ActivityManagerService.startUserInBackground(userId))
+                return PackageService.uninstallPackage(new VersionedPackage(packageName, PackageManager.VERSION_CODE_HIGHEST), userId);
+            else return false;
         } catch (InterruptedException | InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
             Log.e(TAG, e.getMessage(), e);
             return false;
@@ -170,10 +170,19 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     }
 
     @Override
-    public int installExistingPackageAsUser(String packageName, int userid) {
-        if (ConfigManager.getInstance().isModule(packageName)) {
-            return PackageService.installExistingPackageAsUser(packageName, userid);
+    public int installExistingPackageAsUser(String packageName, int userId) {
+        try {
+            if (ActivityManagerService.startUserInBackground(userId))
+                return PackageService.installExistingPackageAsUser(packageName, userId);
+            else return PackageService.INSTALL_FAILED_INTERNAL_ERROR;
+        } catch (Throwable e) {
+            Log.w(TAG, "install existing package as user: ", e);
+            return PackageService.INSTALL_FAILED_INTERNAL_ERROR;
         }
-        return INSTALL_PARSE_FAILED_BAD_PACKAGE_NAME;
+    }
+
+    @Override
+    public boolean systemServerRequested() throws RemoteException {
+        return ServiceManager.systemServerRequested();
     }
 }

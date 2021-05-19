@@ -37,7 +37,6 @@ MAGISK_VER_CODE=$(magisk -V)
 . $(magisk --path)/.magisk/modules/riru-core/util_functions.sh
 
 LSPD_VERSION=$(grep_prop version "${MODDIR}/module.prop")
-LSPD_VERSIONCODE=$(grep_prop versionCode "${MODDIR}/module.prop")
 
 ANDROID_SDK=$(getprop ro.build.version.sdk)
 BUILD_DESC=$(getprop ro.build.description)
@@ -92,7 +91,7 @@ print_log_head() {
     echo "Android build: ${BUILD}"
     echo "Android version: ${ANDROID}"
     echo "Android sdk: ${ANDROID_SDK}"
-    echo "LSPosed version: ${LSPD_VERSION} (${LSPD_VERSIONCODE})"
+    echo "LSPosed version: ${LSPD_VERSION}"
     echo "Riru version: ${RIRU_VERSION_NAME} (${RIRU_VERSION_CODE})"
     echo "Riru api: ${RIRU_API}"
     echo "Magisk: ${MAGISK_VERSION%:*} (${MAGISK_VER_CODE})"
@@ -137,13 +136,4 @@ if [ ! -z "${MISC_PATH}" ]; then
 #  start_log_catcher all "LSPosed:V XSharedPreferences:V LSPosed-Bridge:V LSPosedManager:V LSPosedService:V *:F" true ${LOG_VERBOSE}
 fi
 
-start_app_process() {
-  while true; do
-    if [ -S "/dev/socket/zygote" ]; then
-      nohup /system/bin/app_process -Djava.class.path=$(magisk --path)/.magisk/modules/riru_lsposed/framework/lspd.dex /system/bin --nice-name=lspd org.lsposed.lspd.core.Main >/dev/null 2>&1 &
-      return
-    fi
-  done
-}
-
-start_app_process &
+nohup /system/bin/app_process -Djava.class.path=$(magisk --path)/.magisk/modules/riru_lsposed/framework/lspd.dex /system/bin org.lsposed.lspd.core.Main --nice-name=lspd >/dev/null 2>&1

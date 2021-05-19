@@ -40,7 +40,9 @@
     <string name="not_installed">Not installed</string>
     <string name="partial_activated">Partially activated</string>
     <string name="selinux_policy_not_loaded_summary">SEPolicy is not loaded properly</string>
-    <string name="selinux_policy_not_loaded"><![CDATA[<b>WARNING:</b> SEPolicy is not loaded properly, modules that hook System Framework will not work.<br>Please report this to <a href="https://github.com/topjohnwu/Magisk/issues"><b>Magisk</b></a> developer.]]></string>
+    <string name="selinux_policy_not_loaded"><![CDATA[<b>WARNING:</b> SEPolicy is not loaded properly, modules that hook System Framework will not work.<br/>Please report this to <a href="https://github.com/topjohnwu/Magisk/issues"><b>Magisk</b></a> developer.]]></string>
+    <string name="system_inject_fail_summary">System Framework injection failed</string>
+    <string name="system_inject_fail"><![CDATA[<b>WARNING:</b> System Framework inject failed.<br/>This is rare and may be caused by <b>Magisk</b> or some low-quality Magisk modules.<br/>Please try to disable Magisk modules other than Riru and LSPosed or submit full log to developers.]]></string>
     <string name="info_api_version">API version</string>
     <string name="info_framework_version">Framework version</string>
     <string name="info_manager_version">Manager version</string>
@@ -85,7 +87,11 @@
     <string name="module_uninstall_message">Do you want to uninstall this module?</string>
     <string name="module_uninstalled">Uninstalled %1$s</string>
     <string name="module_uninstall_failed">Uninstall unsuccessful</string>
+    <string name="module_installed">Added %1$s to user %2$d</string>
+    <string name="module_install_failed">Adding module failed</string>
     <string name="user_title">User %d</string>
+    <string name="install_to_user">Install to user %d</string>
+    <string name="install_to_user_message">Want to install %1$s to user %2$d? It is recommended to install manually, forcing installation via LSPosed may cause problems.</string>
 
     <!-- AppListActivity -->
     <string name="compile_speed">Re-optimize</string>
@@ -127,7 +133,7 @@
     <string name="menu_filter">Filter…</string>
 
     <!-- ModulesActivity and AppListActivity -->
-    <string name="modules_app_store">View in App Store</string>
+    <string name="modules_other_app">View in other app</string>
     <string name="module_app_info">App info</string>
 
     <!-- SettingsActivity -->
@@ -181,4 +187,5 @@
     <string name="translators"><![CDATA[<a href="https://github.com/LSPosed/LSPosed">LSPosed</a>]]></string>
     <string name="copy_toast_msg">Copied</string>
     <string name="list_empty">¯\\\\_(ツ)_\/¯\nNothing here</string>
+    <string name="add_module_to_user">Add module to user</string>
 </resources>

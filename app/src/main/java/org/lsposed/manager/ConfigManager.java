@@ -239,8 +239,27 @@ public class ConfigManager {
         }
     }
 
+    public static boolean installExistingPackageAsUser(String packageName, int userId) {
+        final int INSTALL_SUCCEEDED = 1;
+        try {
+            var ret = LSPManagerServiceClient.installExistingPackageAsUser(packageName, userId);
+            return ret == INSTALL_SUCCEEDED;
+        } catch (RemoteException | NullPointerException e) {
+            Log.e(App.TAG, Log.getStackTraceString(e));
+            return false;
+        }
+    }
+
     public static boolean isMagiskInstalled() {
         return Arrays.stream(System.getenv("PATH").split(File.pathSeparator))
                 .anyMatch(str -> new File(str, "magisk").exists());
+    }
+
+    public static boolean systemServerRequested() {
+        try {
+            return LSPManagerServiceClient.systemServerRequested();
+        } catch (Throwable e) {
+            return false;
+        }
     }
 }
