@@ -50,7 +50,6 @@
     <string name="warning_xposed_min_version">Этот модуль требует более новой версии LSPosed (%d), поэтому его невозможно активировать</string>
     <string name="no_min_version_specified">Этот модуль не определяет нужную ему версию LSPosed.</string>
     <string name="warning_min_version_too_low">Этот модуль был создан для версии LSPosed %1$d, но из-за несовместимых изменений в версии %2$d был отключен</string>
-    <string name="modules_app_store">Просмотреть в Play Store</string>
     <string name="module_app_info">Информация о приложении</string>
     <string name="module_uninstall">Удалить</string>
 
@@ -68,7 +67,6 @@
     <string name="logs_save_failed">Не удалось сохранить:</string>
     <string name="menuClearLog">Очистить логи сейчас</string>
     <string name="logs_cleared">Логи успешно очищены.</string>
-    <string name="log_is_empty">Пусто.</string>
 
     <!-- About tab -->
 
