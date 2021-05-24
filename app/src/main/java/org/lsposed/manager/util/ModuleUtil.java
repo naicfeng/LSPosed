@@ -47,20 +47,19 @@ public final class ModuleUtil {
     private static ModuleUtil instance = null;
     private final PackageManager pm;
     private final List<ModuleListener> listeners = new CopyOnWriteArrayList<>();
-    private final HashSet<String> enabledModules;
+    private HashSet<String> enabledModules;
     private Map<Pair<String, Integer>, InstalledModule> installedModules;
     private boolean isReloading = false;
 
     private ModuleUtil() {
         pm = App.getInstance().getPackageManager();
-        enabledModules = new HashSet<>(Arrays.asList(ConfigManager.getEnabledModules()));
     }
 
     public static synchronized ModuleUtil getInstance() {
         if (instance == null) {
             instance = new ModuleUtil();
-            instance.reloadInstalledModules();
         }
+        instance.reloadInstalledModules();
         return instance;
     }
 
@@ -93,8 +92,10 @@ public final class ModuleUtil {
             }
         }
 
-
         installedModules = modules;
+
+        enabledModules = new HashSet<>(Arrays.asList(ConfigManager.getEnabledModules()));
+
         synchronized (this) {
             isReloading = false;
         }
@@ -102,6 +103,7 @@ public final class ModuleUtil {
 
     public InstalledModule reloadSingleModule(String packageName, int userId) {
         PackageInfo pkg;
+
         try {
             pkg = ConfigManager.getPackageInfo(packageName, PackageManager.GET_META_DATA, userId);
             if (pkg == null) {

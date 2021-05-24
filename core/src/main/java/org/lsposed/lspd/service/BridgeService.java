@@ -19,9 +19,13 @@
 
 package org.lsposed.lspd.service;
 
-import android.content.BroadcastReceiver;
+import static org.lsposed.lspd.service.ServiceManager.TAG;
+import static hidden.HiddenApiBridge.Binder_allowBlocking;
+import static hidden.HiddenApiBridge.Context_getActivityToken;
+
+import android.app.ActivityThread;
+import android.app.IApplicationThread;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcel;
@@ -44,9 +48,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
-
-import static hidden.HiddenApiBridge.Binder_allowBlocking;
-import static org.lsposed.lspd.service.ServiceManager.TAG;
 
 public class BridgeService {
     private static final int TRANSACTION_CODE = ('_' << 24) | ('L' << 16) | ('S' << 8) | 'P';
@@ -191,32 +192,7 @@ public class BridgeService {
         }
 
         var token = Binder.clearCallingIdentity();
-        if (serviceBinder == null) {
-            PackageReceiver.register(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (service == null) {
-                        Log.e(TAG, "Service is dead, missing package changed: " + intent);
-                        return;
-                    }
-                    try {
-                        service.dispatchPackageChanged(intent);
-                    } catch (RemoteException e) {
-                        Log.e(TAG, Log.getStackTraceString(e));
-                    }
-                }
-            });
-            BootReceiver.register(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    try {
-                        service.dispatchBootCompleted(intent);
-                    } catch (RemoteException e) {
-                        Log.e(TAG, Log.getStackTraceString(e));
-                    }
-                }
-            });
-        } else {
+        if (serviceBinder != null) {
             serviceBinder.unlinkToDeath(serviceRecipient, 0);
         }
         Binder.restoreCallingIdentity(token);
@@ -228,7 +204,13 @@ public class BridgeService {
         } catch (Throwable e) {
             Log.e(TAG, "service link to death: ", e);
         }
-
+        try {
+            IApplicationThread at = ActivityThread.currentActivityThread().getApplicationThread();
+            Context ct = ActivityThread.currentActivityThread().getSystemContext();
+            service.dispatchSystemServerContext(at.asBinder(), Context_getActivityToken(ct));
+        } catch (Throwable e) {
+            Log.e(TAG, "dispatch context: ", e);
+        }
         Log.i(TAG, "binder received");
     }
 

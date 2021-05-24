@@ -18,16 +18,12 @@
  * Copyright (C) 2021 LSPosed Contributors
  */
 
-package org.lsposed.lspd.nativebridge;
+package org.lsposed.lspd.util;
 
 import android.app.ActivityThread;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
 
-import org.lsposed.lspd.util.Utils;
-
-import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -58,7 +54,7 @@ public class ModuleLogger {
         sb.append(' ');
         sb.append(isThrowable ? "E" : "I");
         sb.append('/');
-        sb.append(processName == null ? "?" : processName);
+        sb.append(processName == null ? "android" : processName);
         sb.append('(');
         sb.append(Process.myPid());
         sb.append('-');

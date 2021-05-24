@@ -1,5 +1,6 @@
 package android.content.pm;
 
+import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.IInterface;
@@ -52,11 +53,14 @@ public interface IPackageManager extends IInterface {
     IPackageInstaller getPackageInstaller() throws RemoteException;
 
     int installExistingPackageAsUser(String packageName, int userId, int installFlags,
-                                     int installReason);
+                                     int installReason) throws RemoteException;
 
     @RequiresApi(29)
     int installExistingPackageAsUser(String packageName, int userId, int installFlags,
-                                     int installReason, List<String> whiteListedPermissions);
+                                     int installReason, List<String> whiteListedPermissions) throws RemoteException;
+
+    ParceledListSlice<ResolveInfo> queryIntentActivities(Intent intent,
+                                            String resolvedType, int flags, int userId) throws RemoteException;
 
     abstract class Stub extends Binder implements IPackageManager {
 

@@ -20,21 +20,19 @@
 
 package org.lsposed.lspd.deopt;
 
-import android.text.TextUtils;
+import static org.lsposed.lspd.config.LSPApplicationServiceClient.serviceClient;
+import static org.lsposed.lspd.deopt.InlinedMethodCallers.KEY_BOOT_IMAGE;
+import static org.lsposed.lspd.deopt.InlinedMethodCallers.KEY_BOOT_IMAGE_MIUI_RES;
+import static org.lsposed.lspd.deopt.InlinedMethodCallers.KEY_SYSTEM_SERVER;
 
 import org.lsposed.lspd.nativebridge.Yahfa;
 import org.lsposed.lspd.util.Utils;
+import org.lsposed.lspd.yahfa.hooker.YahfaHooker;
 
 import java.lang.reflect.Executable;
 import java.util.Arrays;
 
 import de.robv.android.xposed.XposedHelpers;
-import org.lsposed.lspd.yahfa.hooker.YahfaHooker;
-
-import static org.lsposed.lspd.config.LSPApplicationServiceClient.serviceClient;
-import static org.lsposed.lspd.deopt.InlinedMethodCallers.KEY_BOOT_IMAGE;
-import static org.lsposed.lspd.deopt.InlinedMethodCallers.KEY_BOOT_IMAGE_MIUI_RES;
-import static org.lsposed.lspd.deopt.InlinedMethodCallers.KEY_SYSTEM_SERVER;
 
 public class PrebuiltMethodsDeopter {
 
@@ -62,8 +60,7 @@ public class PrebuiltMethodsDeopter {
     public static void deoptBootMethods() {
         // todo check if has been done before
         deoptMethods(KEY_BOOT_IMAGE, null);
-        if (!TextUtils.isEmpty(Utils.getSysProp("ro.miui.ui.version.code"))
-                && serviceClient.isResourcesHookEnabled()) {
+        if (Utils.isMIUI && serviceClient.isResourcesHookEnabled()) {
             //deopt these only for MIUI with resources hook enabled
             deoptMethods(KEY_BOOT_IMAGE_MIUI_RES, null);
         }

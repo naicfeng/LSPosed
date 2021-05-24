@@ -19,26 +19,67 @@
 
 package org.lsposed.lspd.service;
 
+import static android.content.Context.BIND_AUTO_CREATE;
+import static org.lsposed.lspd.service.ServiceManager.TAG;
+
+import android.app.IServiceConnection;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.pm.VersionedPackage;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-
-import de.robv.android.xposed.XposedBridge;
 import org.lsposed.lspd.Application;
 import org.lsposed.lspd.BuildConfig;
 import org.lsposed.lspd.ILSPManagerService;
 import org.lsposed.lspd.utils.ParceledListSlice;
 
-import static org.lsposed.lspd.service.ServiceManager.TAG;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
+import de.robv.android.xposed.XposedBridge;
 
 public class LSPManagerService extends ILSPManagerService.Stub {
+
+    public Object guard = null;
+
+    public class ManagerGuard implements IBinder.DeathRecipient {
+        private final IBinder binder;
+        private final IServiceConnection connection = new IServiceConnection.Stub() {
+            @Override
+            public void connected(ComponentName name, IBinder service, boolean dead) {
+            }
+        };
+
+        public ManagerGuard(IBinder binder) {
+            guard = this;
+            this.binder = binder;
+            try {
+                this.binder.linkToDeath(this, 0);
+                var intent = new Intent();
+                intent.setComponent(ComponentName.unflattenFromString("com.miui.securitycore/com.miui.xspace.service.XSpaceService"));
+                ActivityManagerService.bindService(intent, intent.getType(), connection, BIND_AUTO_CREATE, "android", 0);
+            } catch (Throwable e) {
+                Log.e(TAG, "manager guard", e);
+            }
+        }
+
+        @Override
+        public void binderDied() {
+            try {
+                if (binder != null) binder.unlinkToDeath(this, 0);
+                ActivityManagerService.unbindService(connection);
+            } catch (Throwable e) {
+                Log.e(TAG, "manager guard", e);
+            }
+            guard = null;
+        }
+    }
 
     LSPManagerService() {
     }
@@ -184,5 +225,23 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     @Override
     public boolean systemServerRequested() throws RemoteException {
         return ServiceManager.systemServerRequested();
+    }
+
+    @Override
+    public int startActivityAsUserWithFeature(Intent intent, int userId) throws RemoteException {
+        if (!intent.getBooleanExtra("lsp_no_switch_to_user", false)) {
+            intent.removeExtra("lsp_no_switch_to_user");
+            var currentUser = ActivityManagerService.getCurrentUser();
+            if (currentUser == null) return -1;
+            var parent = UserService.getProfileParent(userId);
+            if (parent < 0) return -1;
+            if (currentUser.id != parent && !ActivityManagerService.switchUser(parent)) return -1;
+        }
+        return ActivityManagerService.startActivityAsUserWithFeature("android", null, intent, intent.getType(), null, null, 0, 0, null, null, userId);
+    }
+
+    @Override
+    public ParceledListSlice<ResolveInfo> queryIntentActivitiesAsUser(Intent intent, int flags, int userId) throws RemoteException {
+        return PackageService.queryIntentActivities(intent, intent.getType(), flags, userId);
     }
 }

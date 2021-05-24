@@ -25,7 +25,6 @@
 #include <dl_util.h>
 #include <art/runtime/jni_env_ext.h>
 #include <dobby.h>
-#include "utils.h"
 #include "symbol_cache.h"
 #include "logging.h"
 #include "native_api.h"
@@ -37,7 +36,6 @@
 #include "art/runtime/thread.h"
 #include "art/runtime/hidden_api.h"
 #include "art/runtime/instrumentation.h"
-#include "art/runtime/reflection.h"
 #include "art/runtime/thread_list.h"
 #include "art/runtime/gc/scoped_gc_critical_section.h"
 
@@ -54,16 +52,8 @@ namespace lspd {
         }
         installed = true;
         LOGI("Start to install inline hooks");
-        int api_level = GetAndroidApiLevel();
-        if (UNLIKELY(api_level < __ANDROID_API_L__)) {
-            LOGE("API level not supported: %d, skip inline hooks", api_level);
-            return;
-        }
-        LOGI("Using api level %d", api_level);
         InstallRiruHooks();
-        // install ART hooks
         InstallArtHooks(handle_libart);
-//        InstallNativeAPI();
     }
 
     void InstallArtHooks(void *art_handle) {
@@ -78,7 +68,6 @@ namespace lspd {
         art::mirror::Class::Setup(art_handle);
         art::JNIEnvExt::Setup(art_handle);
         art::instrumentation::DisableUpdateHookedMethodsCode(art_handle);
-        art::PermissiveAccessByReflection(art_handle);
         art::thread_list::ScopedSuspendAll::Setup(art_handle);
         art::gc::ScopedGCCriticalSection::Setup(art_handle);
 

@@ -21,6 +21,8 @@ package android.app;
 
 import android.content.IIntentReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.UserInfo;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -41,9 +43,49 @@ public interface IActivityManager extends IInterface {
                         String resultData, Bundle map, String[] requiredPermissions,
                         int appOp, Bundle options, boolean serialized, boolean sticky, int userId) throws RemoteException;
 
-    void forceStopPackage(String packageName, int userId);
+    int startActivity(IApplicationThread caller, String callingPackage, Intent intent,
+                      String resolvedType, IBinder resultTo, String resultWho, int requestCode,
+                      int flags, ProfilerInfo profilerInfo, Bundle options) throws RemoteException;
 
-    boolean startUserInBackground(int userid);
+    @RequiresApi(30)
+    int startActivityWithFeature(IApplicationThread caller, String callingPackage,
+                                 String callingFeatureId, Intent intent, String resolvedType,
+                                 IBinder resultTo, String resultWho, int requestCode, int flags,
+                                 ProfilerInfo profilerInfo, Bundle options) throws RemoteException;
+
+    int startActivityAsUser(IApplicationThread caller, String callingPackage,
+                            Intent intent, String resolvedType, IBinder resultTo, String resultWho,
+                            int requestCode, int flags, ProfilerInfo profilerInfo,
+                            Bundle options, int userId) throws RemoteException;
+
+    @RequiresApi(30)
+    int startActivityAsUserWithFeature(IApplicationThread caller, String callingPackage,
+                                       String callingFeatureId, Intent intent, String resolvedType,
+                                       IBinder resultTo, String resultWho, int requestCode, int flags,
+                                       ProfilerInfo profilerInfo, Bundle options, int userId) throws RemoteException;
+
+    void forceStopPackage(String packageName, int userId) throws RemoteException;
+
+    boolean startUserInBackground(int userid) throws RemoteException;
+
+    Intent registerReceiver(IApplicationThread caller, String callerPackage,
+                            IIntentReceiver receiver, IntentFilter filter,
+                            String requiredPermission, int userId, int flags);
+
+    @RequiresApi(30)
+    Intent registerReceiverWithFeature(IApplicationThread caller, String callerPackage,
+                                       String callingFeatureId, IIntentReceiver receiver, IntentFilter filter,
+                                       String requiredPermission, int userId, int flags) throws RemoteException;
+
+    int bindService(IApplicationThread caller, IBinder token, Intent service,
+                    String resolvedType, IServiceConnection connection, int flags,
+                    String callingPackage, int userId) throws RemoteException;
+
+    boolean unbindService(IServiceConnection connection) throws RemoteException;
+
+    boolean switchUser(int userid) throws RemoteException;
+
+    UserInfo getCurrentUser() throws RemoteException;
 
     abstract class Stub extends Binder implements IActivityManager {
 

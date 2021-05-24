@@ -33,8 +33,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.UserHandle;
-import android.os.UserManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -65,7 +63,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.checkbox.MaterialCheckBox;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -85,7 +82,6 @@ import org.lsposed.manager.util.ModuleUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Predicate;
@@ -108,8 +104,6 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
     private PackageManager pm;
     private ModuleUtil moduleUtil;
     private ModuleUtil.InstalledModule selectedModule;
-    private UserHandle selectedModuleUser;
-    private UserManager userManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -119,7 +113,6 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         moduleUtil = ModuleUtil.getInstance();
         pm = getPackageManager();
         moduleUtil.addListener(this);
-        userManager = getSystemService(UserManager.class);
         super.onCreate(savedInstanceState);
         binding = ActivityModuleDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -145,7 +138,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         });
 
         binding.fab.setOnClickListener(view -> {
-            var pickAdaptor = new ModuleAdapter(0, null, true);
+            var pickAdaptor = new ModuleAdapter(0, true);
             var position = binding.viewPager.getCurrentItem();
             var snapshot = adapters.get(position).snapshot().stream().map(m -> m.packageName).collect(Collectors.toSet());
             var userId = adapters.get(position).getUserId();
@@ -169,17 +162,13 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         mSearchListener = new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                adapters.forEach(adapter -> {
-                    adapter.getFilter().filter(query);
-                });
+                adapters.forEach(adapter -> adapter.getFilter().filter(query));
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                adapters.forEach(adapter -> {
-                    adapter.getFilter().filter(newText);
-                });
+                adapters.forEach(adapter -> adapter.getFilter().filter(newText));
                 return false;
             }
         };
@@ -210,18 +199,13 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         super.onResume();
         int[] userIds = ConfigManager.getUsers();
         if (userIds != null) {
-            List<UserHandle> users = userManager.getUserProfiles();
-            HashMap<Integer, UserHandle> handles = new HashMap<>();
-            for (UserHandle handle : users) {
-                handles.put(handle.hashCode(), handle);
-            }
             if (userIds.length != adapters.size()) {
                 adapters.clear();
-                if (users.size() != 1) {
+                if (userIds.length != 1) {
                     binding.viewPager.setUserInputEnabled(true);
                     ArrayList<String> titles = new ArrayList<>();
                     for (int userId : userIds) {
-                        var adapter = new ModuleAdapter(userId, handles.get(userId));
+                        var adapter = new ModuleAdapter(userId);
                         adapter.setHasStableIds(true);
                         adapters.add(adapter);
                         titles.add(getString(R.string.user_title, userId));
@@ -230,7 +214,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
                     binding.tabLayout.setVisibility(View.VISIBLE);
                 } else {
                     binding.viewPager.setUserInputEnabled(false);
-                    var adapter = new ModuleAdapter(0, users.get(0));
+                    var adapter = new ModuleAdapter(0);
                     adapter.setHasStableIds(true);
                     adapters.add(adapter);
                     binding.tabLayout.setVisibility(View.GONE);
@@ -262,9 +246,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.menu_refresh) {
-            adapters.forEach(adapter -> {
-                adapter.refresh(true);
-            });
+            adapters.forEach(adapter -> adapter.refresh(true));
         }
         return super.onOptionsItemSelected(item);
     }
@@ -293,26 +275,25 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
-        ModuleUtil.InstalledModule module = ModuleUtil.getInstance().getModule(selectedModule.packageName, selectedModule.userId);
-        if (module == null) {
+        if (selectedModule == null) {
             return false;
         }
         int itemId = item.getItemId();
         if (itemId == R.id.menu_launch) {
-            String packageName = module.packageName;
+            String packageName = selectedModule.packageName;
             if (packageName == null) {
                 return false;
             }
-            Intent intent = AppHelper.getSettingsIntent(packageName, module.userId, pm);
+            Intent intent = AppHelper.getSettingsIntent(packageName, selectedModule.userId);
             if (intent != null) {
-                AppHelper.startActivityAsUser(this, intent, selectedModuleUser);
+                ConfigManager.startActivityAsUserWithFeature(intent, selectedModule.userId);
             } else {
                 Snackbar.make(binding.snackbar, R.string.module_no_ui, Snackbar.LENGTH_LONG).show();
             }
             return true;
         } else if (itemId == R.id.menu_other_app) {
             var intent = new Intent(Intent.ACTION_SHOW_APP_INFO);
-            intent.putExtra(Intent.EXTRA_PACKAGE_NAME, module.packageName);
+            intent.putExtra(Intent.EXTRA_PACKAGE_NAME, selectedModule.packageName);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
                 startActivity(intent);
@@ -321,17 +302,17 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
             }
             return true;
         } else if (itemId == R.id.menu_app_info) {
-            AppHelper.startActivityAsUser(this, (new Intent(ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", module.packageName, null))), selectedModuleUser);
+            ConfigManager.startActivityAsUserWithFeature(new Intent(ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", selectedModule.packageName, null)), selectedModule.userId);
             return true;
         } else if (itemId == R.id.menu_uninstall) {
             new AlertDialog.Builder(this)
-                    .setTitle(module.getAppName())
+                    .setTitle(selectedModule.getAppName())
                     .setMessage(R.string.module_uninstall_message)
                     .setPositiveButton(android.R.string.ok, (dialog, which) ->
                             workHandler.post(() -> {
-                                boolean success = ConfigManager.uninstallPackage(module.packageName, module.userId);
+                                boolean success = ConfigManager.uninstallPackage(selectedModule.packageName, selectedModule.userId);
                                 runOnUiThread(() -> {
-                                    String text = success ? getString(R.string.module_uninstalled, module.getAppName()) : getString(R.string.module_uninstall_failed);
+                                    String text = success ? getString(R.string.module_uninstalled, selectedModule.getAppName()) : getString(R.string.module_uninstall_failed);
                                     if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                                         Snackbar.make(binding.snackbar, text, Snackbar.LENGTH_SHORT).show();
                                     } else {
@@ -339,7 +320,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
                                     }
                                 });
                                 if (success)
-                                    moduleUtil.reloadSingleModule(module.packageName, module.userId);
+                                    moduleUtil.reloadSingleModule(selectedModule.packageName, selectedModule.userId);
                             }))
                     .setNegativeButton(android.R.string.cancel, null)
                     .show();
@@ -347,12 +328,12 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         } else if (itemId == R.id.menu_repo) {
             Intent intent = new Intent();
             intent.setClass(this, RepoItemActivity.class);
-            intent.putExtra("modulePackageName", module.packageName);
-            intent.putExtra("moduleName", module.getAppName());
+            intent.putExtra("modulePackageName", selectedModule.packageName);
+            intent.putExtra("moduleName", selectedModule.getAppName());
             startActivity(intent);
             return true;
         } else if (item.getGroupId() == 1) {
-            installModuleToUser(module, itemId);
+            installModuleToUser(selectedModule, itemId);
             return true;
         }
         return super.onContextItemSelected(item);
@@ -407,20 +388,18 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         private final ConcurrentLinkedQueue<ModuleUtil.InstalledModule> searchList = new ConcurrentLinkedQueue<>();
         private final List<ModuleUtil.InstalledModule> showList = new ArrayList<>();
         private final int userId;
-        private final UserHandle userHandle;
         private final boolean isPick;
         private boolean isLoaded;
         private View.OnClickListener onPickListener;
 
         private Predicate<ModuleUtil.InstalledModule> customFilter = m -> true;
 
-        ModuleAdapter(int userId, UserHandle userHandle) {
-            this(userId, userHandle, false);
+        ModuleAdapter(int userId) {
+            this(userId, false);
         }
 
-        ModuleAdapter(int userId, UserHandle userHandle, boolean isPick) {
+        ModuleAdapter(int userId, boolean isPick) {
             this.userId = userId;
-            this.userHandle = userHandle;
             this.isPick = isPick;
         }
 
@@ -490,42 +469,38 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
             }
             holder.appDescription.setText(sb);
 
-            holder.itemView.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
-                getMenuInflater().inflate(R.menu.context_menu_modules, menu);
-                menu.setHeaderTitle(item.getAppName());
-                Intent intent = AppHelper.getSettingsIntent(item.packageName, item.userId, pm);
-                if (intent == null) {
-                    menu.removeItem(R.id.menu_launch);
-                }
-                if (RepoLoader.getInstance().getOnlineModule(item.packageName) == null) {
-                    menu.removeItem(R.id.menu_repo);
-                }
-                if (userHandle == null) {
-                    menu.removeItem(R.id.menu_app_info);
-                }
-                if (item.userId == 0) {
-                    for (int profile : ConfigManager.getUsers()) {
-                        if (ModuleUtil.getInstance().getModule(item.packageName, profile) == null) {
-                            menu.add(1, profile, 0, getString(R.string.install_to_user, profile));
-                        }
-                    }
-                }
-            });
-
             if (!isPick) {
                 holder.root.setAlpha(moduleUtil.isModuleEnabled(item.packageName) ? 1.0f : .5f);
                 holder.itemView.setOnClickListener(v -> {
                     Intent intent = new Intent(ModulesActivity.this, AppListActivity.class);
                     intent.putExtra("modulePackageName", item.packageName);
                     intent.putExtra("moduleUserId", item.userId);
-                    intent.putExtra("userHandle", userHandle);
                     startActivity(intent);
                 });
-
                 holder.itemView.setOnLongClickListener(v -> {
                     selectedModule = item;
-                    selectedModuleUser = userHandle;
                     return false;
+                });
+                holder.itemView.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
+                    getMenuInflater().inflate(R.menu.context_menu_modules, menu);
+                    menu.setHeaderTitle(item.getAppName());
+                    Intent intent = AppHelper.getSettingsIntent(item.packageName, item.userId);
+                    if (intent == null) {
+                        menu.removeItem(R.id.menu_launch);
+                    }
+                    if (RepoLoader.getInstance().getOnlineModule(item.packageName) == null) {
+                        menu.removeItem(R.id.menu_repo);
+                    }
+                    if (item.userId == 0) {
+                        int[] users = ConfigManager.getUsers();
+                        if (users != null) {
+                            for (int profile : users) {
+                                if (ModuleUtil.getInstance().getModule(item.packageName, profile) == null) {
+                                    menu.add(1, profile, 0, getString(R.string.install_to_user, profile));
+                                }
+                            }
+                        }
+                    }
                 });
                 holder.appVersion.setVisibility(View.VISIBLE);
                 holder.appVersion.setText(item.versionName);
@@ -563,9 +538,7 @@ public class ModulesActivity extends BaseActivity implements ModuleUtil.ModuleLi
         }
 
         public List<ModuleUtil.InstalledModule> snapshot() {
-            List<ModuleUtil.InstalledModule> list = new ArrayList<>();
-            list.addAll(searchList);
-            return list;
+            return new ArrayList<>(searchList);
         }
 
         public void refresh() {

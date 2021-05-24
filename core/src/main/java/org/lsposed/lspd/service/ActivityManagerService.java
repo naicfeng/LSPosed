@@ -19,10 +19,16 @@
 
 package org.lsposed.lspd.service;
 
+import static org.lsposed.lspd.service.ServiceManager.TAG;
+
 import android.app.IActivityManager;
 import android.app.IApplicationThread;
+import android.app.IServiceConnection;
+import android.app.ProfilerInfo;
 import android.content.IIntentReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.UserInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -30,12 +36,11 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
 
-import static org.lsposed.lspd.service.ServiceManager.TAG;
-
 public class ActivityManagerService {
     private static IActivityManager am = null;
-
     private static IBinder binder = null;
+    private static IApplicationThread thread = null;
+    private static IBinder token = null;
 
     private static final IBinder.DeathRecipient deathRecipient = new IBinder.DeathRecipient() {
         @Override
@@ -44,6 +49,8 @@ public class ActivityManagerService {
             binder.unlinkToDeath(this, 0);
             binder = null;
             am = null;
+            thread = null;
+            token = null;
         }
     };
 
@@ -61,16 +68,16 @@ public class ActivityManagerService {
         return am;
     }
 
-    public static int broadcastIntentWithFeature(IApplicationThread caller, String callingFeatureId,
+    public static int broadcastIntentWithFeature(String callingFeatureId,
                                                  Intent intent, String resolvedType, IIntentReceiver resultTo, int resultCode,
                                                  String resultData, Bundle map, String[] requiredPermissions,
                                                  int appOp, Bundle options, boolean serialized, boolean sticky, int userId) throws RemoteException {
         IActivityManager am = getActivityManager();
-        if (am == null) return -1;
+        if (am == null || thread == null) return -1;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return am.broadcastIntentWithFeature(caller, callingFeatureId, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
+            return am.broadcastIntentWithFeature(thread, callingFeatureId, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
         } else {
-            return am.broadcastIntent(caller, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
+            return am.broadcastIntent(thread, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
         }
     }
 
@@ -84,5 +91,62 @@ public class ActivityManagerService {
         IActivityManager am = getActivityManager();
         if (am == null) return false;
         return am.startUserInBackground(userId);
+    }
+
+    public static Intent registerReceiver(String callerPackage,
+                                          String callingFeatureId, IIntentReceiver receiver, IntentFilter filter,
+                                          String requiredPermission, int userId, int flags) throws RemoteException {
+        IActivityManager am = getActivityManager();
+        if (am == null || thread == null) return null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return am.registerReceiverWithFeature(thread, callerPackage, callingFeatureId, receiver, filter, requiredPermission, userId, flags);
+        } else {
+            return am.registerReceiver(thread, callerPackage, receiver, filter, requiredPermission, userId, flags);
+        }
+    }
+
+    public static int bindService(Intent service,
+                                  String resolvedType, IServiceConnection connection, int flags,
+                                  String callingPackage, int userId) throws RemoteException {
+
+        IActivityManager am = getActivityManager();
+        if (am == null || thread == null) return -1;
+        return am.bindService(thread, token, service, resolvedType, connection, flags, callingPackage, userId);
+    }
+
+    public static boolean unbindService(IServiceConnection connection) throws RemoteException {
+        IActivityManager am = getActivityManager();
+        if (am == null) return false;
+        return am.unbindService(connection);
+    }
+
+    public static int startActivityAsUserWithFeature(String callingPackage,
+                                                     String callingFeatureId, Intent intent, String resolvedType,
+                                                     IBinder resultTo, String resultWho, int requestCode, int flags,
+                                                     ProfilerInfo profilerInfo, Bundle options, int userId) throws RemoteException {
+        IActivityManager am = getActivityManager();
+        if (am == null || thread == null) return -1;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return am.startActivityAsUserWithFeature(thread, callingPackage, callingFeatureId, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
+        } else {
+            return am.startActivityAsUser(thread, callingPackage, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
+        }
+    }
+
+    public static void onSystemServerContext(IApplicationThread thread, IBinder token) {
+        ActivityManagerService.thread = thread;
+        ActivityManagerService.token = token;
+    }
+
+    public static boolean switchUser(int userid) throws RemoteException {
+        IActivityManager am = getActivityManager();
+        if (am == null) return false;
+        return am.switchUser(userid);
+    }
+
+    public static UserInfo getCurrentUser() throws RemoteException {
+        IActivityManager am = getActivityManager();
+        if (am == null) return null;
+        return am.getCurrentUser();
     }
 }
