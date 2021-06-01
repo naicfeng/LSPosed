@@ -35,7 +35,7 @@
     <string name="module_repo_summary">모듈 저장소 (Alpha)</string>
     <string name="about_view_source_code"><![CDATA[%1$s에서 소스 코드 보기<br/>%2$s 채널에 가입하십시오.]]></string>
     <string name="about_translators">번역가: %s</string>
-    
+
     <string name="activated">활성화됨</string>
     <string name="not_installed">설치되지 않음</string>
     <string name="partial_activated">부분적으로 활성화됨</string>
@@ -86,12 +86,12 @@
     <string name="module_uninstall_message">이 모듈을 제거하시겠습니까?</string>
     <string name="module_uninstalled">%1$s 제거됨</string>
     <string name="module_uninstall_failed">제거 실패</string>
-    
-    <string name="module_installed">%2$d 사용자에 %1$s 추가</string>
+
+    <string name="module_installed">%2$s 사용자에 %1$s 추가</string>
     <string name="module_install_failed">모듈 추가 실패</string>
     <string name="user_title">사용자 %d</string>
-    <string name="install_to_user">%d 사용자에게 설치</string>
-    <string name="install_to_user_message">%2$d 사용자에게 %1$s을(를) 설치하시겠습니까? 수동으로 설치하는 것이 좋습니다. LSPosed를 통해 강제로 설치하면 문제가 발생할 수 있습니다.</string>
+    <string name="install_to_user">%s 사용자에게 설치</string>
+    <string name="install_to_user_message">%2$s 사용자에게 %1$s을(를) 설치하시겠습니까? 수동으로 설치하는 것이 좋습니다. LSPosed를 통해 강제로 설치하면 문제가 발생할 수 있습니다.</string>
 
     <!-- AppListActivity -->
     <string name="compile_speed">다시 최적화</string>
@@ -130,7 +130,6 @@
     <string name="force_stop_dlg_text">앱을 강제로 중지하면 잘못된 동작이 발생할 수 있습니다.</string>
     <string name="reboot_required">이 변경 내용을 적용하려면 재부팅해야 합니다.</string>
     <string name="reboot">재부팅</string>
-    <string name="menu_filter">필터…</string>
 
     <!-- ModulesActivity and AppListActivity -->
     <string name="module_app_info">앱 정보</string>

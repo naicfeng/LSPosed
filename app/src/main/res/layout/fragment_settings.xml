@@ -37,31 +37,17 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
             app:subtitleTextAppearance="@android:style/TextAppearance.Material.Widget.Toolbar.Subtitle"
             app:titleTextAppearance="@android:style/TextAppearance.Material.Widget.Toolbar.Title"
             app:popupTheme="?actionBarPopupTheme" />
 
     </rikka.material.widget.AppBarLayout>
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/progress"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:hideAnimationBehavior="outward"
-        android:layout_marginTop="?actionBarSize"
-        app:layout_fitsSystemWindowsInsets="top" />
+        android:layout_height="match_parent" />
 
-    <org.lsposed.manager.ui.widget.EmptyStateRecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingTop="?actionBarSize"
-        app:borderTopVisibility="whenTop"
-        app:borderTopDrawable="@null"
-        app:borderBottomVisibility="never"
-        app:fitsSystemWindowsInsets="top|bottom" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

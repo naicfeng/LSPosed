@@ -20,19 +20,18 @@
 
 package org.lsposed.manager.util;
 
+import android.app.Activity;
 import android.net.Uri;
 
 import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import androidx.browser.customtabs.CustomTabsIntent;
-
-import org.lsposed.manager.ui.activity.base.BaseActivity;
 
 import rikka.core.res.ResourcesKt;
 import rikka.core.util.ResourceUtils;
 
 public final class NavUtil {
 
-    public static void startURL(BaseActivity activity, Uri uri) {
+    public static void startURL(Activity activity, Uri uri) {
         CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
         customTabsIntent.setShowTitle(true);
         CustomTabColorSchemeParams params = new CustomTabColorSchemeParams.Builder()
@@ -46,7 +45,7 @@ public final class NavUtil {
         customTabsIntent.build().launchUrl(activity, uri);
     }
 
-    public static void startURL(BaseActivity activity, String url) {
+    public static void startURL(Activity activity, String url) {
         startURL(activity, Uri.parse(url));
     }
 }

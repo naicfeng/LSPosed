@@ -98,11 +98,23 @@ public class ActivityManagerService {
                                           String requiredPermission, int userId, int flags) throws RemoteException {
         IActivityManager am = getActivityManager();
         if (am == null || thread == null) return null;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S || (Build.VERSION.SDK_INT == Build.VERSION_CODES.R && Build.VERSION.PREVIEW_SDK_INT != 0))
+                return am.registerReceiverWithFeature(thread, callerPackage, callingFeatureId, "null", receiver, filter, requiredPermission, userId, flags);
+        } catch (Throwable ignored) {
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return am.registerReceiverWithFeature(thread, callerPackage, callingFeatureId, receiver, filter, requiredPermission, userId, flags);
         } else {
             return am.registerReceiver(thread, callerPackage, receiver, filter, requiredPermission, userId, flags);
         }
+    }
+
+    public static void finishReceiver(IBinder who, int resultCode, String resultData, Bundle map,
+                                      boolean abortBroadcast, int flags) throws RemoteException {
+        IActivityManager am = getActivityManager();
+        if (am == null || thread == null) return;
+        am.finishReceiver(who, resultCode, resultData, map, abortBroadcast, flags);
     }
 
     public static int bindService(Intent service,

@@ -40,7 +40,7 @@ public class InstallerVerifier {
 
     public static boolean verifyInstallerSignature(ApplicationInfo appInfo) {
         ApkVerifier verifier = new ApkVerifier.Builder(new File(appInfo.sourceDir))
-                .setMinCheckedPlatformVersion(26)
+                .setMinCheckedPlatformVersion(27)
                 .build();
         try {
             ApkVerifier.Result result = verifier.verify();

@@ -22,8 +22,23 @@ import com.android.build.gradle.internal.dsl.BuildType
 import java.nio.file.Paths
 
 plugins {
+    id("org.gradle.idea")
     id("com.android.application")
+    id("androidx.navigation.safeargs")
     kotlin("android")
+}
+
+// workaround for AS.
+val dataBinding = file("${project.buildDir}/generated/data_binding_base_class_source_out/debug/out")
+sourceSets {
+    create("dataBinding") {
+        java.srcDir(dataBinding)
+    }
+}
+idea {
+    module {
+        generatedSourceDirs.add(dataBinding)
+    }
 }
 
 val androidTargetSdkVersion: Int by rootProject.extra
@@ -183,19 +198,22 @@ dependencies {
     val glideVersion = "4.12.0"
     val markwonVersion = "4.6.2"
     val okhttpVersion = "4.9.1"
+    val navVersion = "2.3.5"
     annotationProcessor("com.github.bumptech.glide:compiler:$glideVersion")
     implementation("androidx.activity:activity:1.2.3")
     implementation("androidx.browser:browser:1.3.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
     implementation("androidx.core:core:1.5.0")
     implementation("androidx.fragment:fragment:1.3.4")
+    implementation("androidx.navigation:navigation-fragment:$navVersion")
+    implementation("androidx.navigation:navigation-ui:$navVersion")
     implementation("androidx.recyclerview:recyclerview:1.2.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.caverock:androidsvg-aar:1.4")
     implementation("com.github.bumptech.glide:glide:$glideVersion")
     implementation("com.github.bumptech.glide:okhttp3-integration:$glideVersion")
     implementation("com.google.android.material:material:1.3.0")
-    implementation("com.google.code.gson:gson:2.8.6")
+    implementation("com.google.code.gson:gson:2.8.7")
     implementation("com.takisoft.preferencex:preferencex:1.1.0")
     implementation("com.takisoft.preferencex:preferencex-colorpicker:1.1.0")
     implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
@@ -205,7 +223,7 @@ dependencies {
     implementation("dev.rikka.rikkax.core:core:1.3.2")
     implementation("dev.rikka.rikkax.insets:insets:1.1.0")
     implementation("dev.rikka.rikkax.material:material:1.6.5")
-    implementation("dev.rikka.rikkax.preference:simplemenu-preference:1.0.2")
+    implementation("dev.rikka.rikkax.preference:simplemenu-preference:1.0.3")
     implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.1")
     implementation("dev.rikka.rikkax.widget:borderview:1.0.1")
     implementation("dev.rikka.rikkax.widget:switchbar:1.0.2")

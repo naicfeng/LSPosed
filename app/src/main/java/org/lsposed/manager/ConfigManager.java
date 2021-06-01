@@ -27,7 +27,8 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 
-import org.lsposed.lspd.Application;
+import org.lsposed.lspd.models.Application;
+import org.lsposed.lspd.models.UserInfo;
 import org.lsposed.lspd.utils.ParceledListSlice;
 import org.lsposed.manager.adapters.ScopeAdapter;
 import org.lsposed.manager.receivers.LSPManagerServiceClient;
@@ -232,7 +233,7 @@ public class ConfigManager {
         }
     }
 
-    public static int[] getUsers() {
+    public static List<UserInfo> getUsers() {
         try {
             return LSPManagerServiceClient.getUsers();
         } catch (RemoteException | NullPointerException e) {

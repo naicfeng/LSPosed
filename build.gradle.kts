@@ -25,8 +25,9 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.0-beta02")
+        classpath("com.android.tools.build:gradle:7.0.0-beta03")
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:2.3.5")
         classpath(kotlin("gradle-plugin", version = "1.4.32"))
     }
 }
@@ -37,7 +38,7 @@ val commitCount = Git(repo).log().add(refId).call().count()
 
 val defaultManagerPackageName by extra("org.lsposed.manager")
 val verCode by extra(commitCount + 800)
-val verName by extra("v1.4.2")
+val verName by extra("v1.4.4")
 val androidTargetSdkVersion by extra(30)
 val androidMinSdkVersion by extra(27)
 val androidBuildToolsVersion by extra("30.0.3")

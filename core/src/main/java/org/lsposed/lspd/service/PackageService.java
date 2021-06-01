@@ -46,8 +46,8 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
-import org.lsposed.lspd.Application;
 import org.lsposed.lspd.BuildConfig;
+import org.lsposed.lspd.models.Application;
 import org.lsposed.lspd.util.InstallerVerifier;
 import org.lsposed.lspd.utils.ParceledListSlice;
 
@@ -112,9 +112,9 @@ public class PackageService {
         IPackageManager pm = getPackageManager();
         Map<Integer, PackageInfo> res = new HashMap<>();
         if (pm == null) return res;
-        for (int userId : UserService.getUsers()) {
-            var info = pm.getPackageInfo(packageName, flags, userId);
-            if (info != null && info.applicationInfo != null) res.put(userId, info);
+        for (var user : UserService.getUsers()) {
+            var info = pm.getPackageInfo(packageName, flags, user.id);
+            if (info != null && info.applicationInfo != null) res.put(user.id, info);
         }
         return res;
     }
@@ -125,18 +125,12 @@ public class PackageService {
         return pm.getApplicationInfo(packageName, flags, userId);
     }
 
-    public static String[] getPackagesForUid(int uid) throws RemoteException {
-        IPackageManager pm = getPackageManager();
-        if (pm == null) return new String[0];
-        return pm.getPackagesForUid(uid);
-    }
-
     public static ParceledListSlice<PackageInfo> getInstalledPackagesFromAllUsers(int flags, boolean filterNoProcess) throws RemoteException {
         List<PackageInfo> res = new ArrayList<>();
         IPackageManager pm = getPackageManager();
         if (pm == null) return ParceledListSlice.emptyList();
-        for (int userId : UserService.getUsers()) {
-            res.addAll(pm.getInstalledPackages(flags, userId).getList());
+        for (var user : UserService.getUsers()) {
+            res.addAll(pm.getInstalledPackages(flags, user.id).getList());
         }
         if (filterNoProcess) {
             res = res.stream().filter(packageInfo -> {
@@ -299,13 +293,17 @@ public class PackageService {
 
             // Install manager
             IPackageInstaller installerService = pm.getPackageInstaller();
-            PackageInstaller installer;
+            PackageInstaller installer = null;
             // S Preview
             if (Build.VERSION.SDK_INT > 30 || Build.VERSION.SDK_INT == 30 && Build.VERSION.PREVIEW_SDK_INT != 0) {
-                Constructor<PackageInstaller> installerConstructor = PackageInstaller.class.getConstructor(IPackageInstaller.class, String.class, String.class, int.class);
-                installerConstructor.setAccessible(true);
-                installer = installerConstructor.newInstance(installerService, null, null, 0);
-            } else {
+                try {
+                    Constructor<PackageInstaller> installerConstructor = PackageInstaller.class.getConstructor(IPackageInstaller.class, String.class, String.class, int.class);
+                    installerConstructor.setAccessible(true);
+                    installer = installerConstructor.newInstance(installerService, null, null, 0);
+                } catch (Throwable ignored) {
+                }
+            }
+            if (installer == null) {
                 Constructor<PackageInstaller> installerConstructor = PackageInstaller.class.getConstructor(IPackageInstaller.class, String.class, int.class);
                 installerConstructor.setAccessible(true);
                 installer = installerConstructor.newInstance(installerService, null, 0);

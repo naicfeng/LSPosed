@@ -13,13 +13,14 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
-  ~
+  ~     
   ~ Copyright (C) 2020 EdXposed Contributors
   ~ Copyright (C) 2021 LSPosed Contributors
   -->
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/snackbar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -37,16 +38,51 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
             app:subtitleTextAppearance="@android:style/TextAppearance.Material.Widget.Toolbar.Subtitle"
             app:titleTextAppearance="@android:style/TextAppearance.Material.Widget.Toolbar.Title"
             app:popupTheme="?actionBarPopupTheme" />
 
     </rikka.material.widget.AppBarLayout>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/container"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="?actionBarSize"
+        app:fitsSystemWindowsInsets="top"
+        tools:ignore="MissingPrefix">
 
+        <rikka.widget.switchbar.SwitchBar
+            android:id="@+id/master_switch"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:switchOnText="@string/enable_module"
+            app:switchOffText="@string/enable_module" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:hideAnimationBehavior="outward" />
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/swipeRefreshLayout">
+
+            <org.lsposed.manager.ui.widget.EmptyStateRecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:scrollbars="none"
+                app:borderTopVisibility="whenTop"
+                app:borderTopDrawable="@null"
+                app:borderBottomVisibility="never"
+                app:fitsSystemWindowsInsets="bottom" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

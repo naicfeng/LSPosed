@@ -1,7 +1,8 @@
 package org.lsposed.lspd;
 
 import org.lsposed.lspd.utils.ParceledListSlice;
-import org.lsposed.lspd.Application;
+import org.lsposed.lspd.models.UserInfo;
+import org.lsposed.lspd.models.Application;
 
 
 interface ILSPManagerService {
@@ -47,7 +48,7 @@ interface ILSPManagerService {
 
     boolean isSepolicyLoaded() = 26;
 
-    int[] getUsers() = 27;
+    List<UserInfo> getUsers() = 27;
 
     int installExistingPackageAsUser(String packageName, int userId) = 28;
 
