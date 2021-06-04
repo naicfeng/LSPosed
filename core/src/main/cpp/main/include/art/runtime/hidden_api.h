@@ -40,6 +40,7 @@ namespace art {
 
         inline void
         maybeSetTrusted(JNIEnv *env, jclass clazz, jobject class_loader, jobject j_cookie) {
+            if (env->ExceptionCheck()) return;
             static auto get_parent = env->GetMethodID(env->FindClass("java/lang/ClassLoader"),
                                                       "getParent", "()Ljava/lang/ClassLoader;");
             for (auto current = lspd::Context::GetInstance()->GetCurrentClassLoader();
@@ -114,7 +115,7 @@ namespace art {
                 }
         );
 
-        static void DisableHiddenApi(void *handle) {
+        static void DisableHiddenApi(const SandHook::ElfImg &handle) {
 
             const int api_level = lspd::GetAndroidApiLevel();
             if (api_level < __ANDROID_API_P__) {
