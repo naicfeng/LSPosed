@@ -18,6 +18,7 @@
  */
 
 import com.android.build.api.variant.impl.ApplicationVariantImpl
+import com.android.build.api.component.analytics.AnalyticsEnabledApplicationVariant
 import com.android.build.gradle.internal.dsl.BuildType
 import java.nio.file.Paths
 
@@ -25,7 +26,6 @@ plugins {
     id("org.gradle.idea")
     id("com.android.application")
     id("androidx.navigation.safeargs")
-    kotlin("android")
 }
 
 // workaround for AS.
@@ -143,7 +143,9 @@ android {
 }
 
 androidComponents.onVariants { v ->
-    val variant = v as ApplicationVariantImpl
+    val variant: ApplicationVariantImpl =
+        if (v is ApplicationVariantImpl) v
+        else (v as AnalyticsEnabledApplicationVariant).delegate as ApplicationVariantImpl
     variant.outputs.forEach {
         it.outputFileName.set("LSPosedManager-${verName}-${verCode}-${variant.name}.apk")
     }
@@ -207,7 +209,7 @@ dependencies {
     implementation("androidx.fragment:fragment:1.3.4")
     implementation("androidx.navigation:navigation-fragment:$navVersion")
     implementation("androidx.navigation:navigation-ui:$navVersion")
-    implementation("androidx.recyclerview:recyclerview:1.2.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.caverock:androidsvg-aar:1.4")
     implementation("com.github.bumptech.glide:glide:$glideVersion")
@@ -224,7 +226,7 @@ dependencies {
     implementation("dev.rikka.rikkax.insets:insets:1.1.0")
     implementation("dev.rikka.rikkax.material:material:1.6.5")
     implementation("dev.rikka.rikkax.preference:simplemenu-preference:1.0.3")
-    implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.1")
+    implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.2")
     implementation("dev.rikka.rikkax.widget:borderview:1.0.1")
     implementation("dev.rikka.rikkax.widget:switchbar:1.0.2")
     implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.0.1")
@@ -236,7 +238,7 @@ dependencies {
     implementation("io.noties.markwon:image-glide:$markwonVersion")
     implementation("io.noties.markwon:linkify:$markwonVersion")
     implementation("me.zhanghai.android.appiconloader:appiconloader-glide:1.3.1")
-    implementation("me.zhanghai.android.fastscroll:library:1.1.5")
+    implementation("me.zhanghai.android.fastscroll:library:1.1.6")
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:2.0")
     implementation(project(":manager-service"))
 }

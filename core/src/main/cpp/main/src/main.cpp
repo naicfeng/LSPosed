@@ -115,11 +115,14 @@ namespace lspd {
     };
 }
 
+#define quote(s) #s
+#define str(s) quote(s)
+
 RIRU_EXPORT RiruVersionedModuleInfo *init(Riru *riru) {
     LOGD("using riru %d", riru->riruApiVersion);
     LOGD("module path: %s", riru->magiskModulePath);
     lspd::magiskPath = riru->magiskModulePath;
-    if (!lspd::isDebug && lspd::magiskPath.find(MODULE_NAME) == std::string::npos) {
+    if (!lspd::isDebug && lspd::magiskPath.find(str(MODULE_NAME)) == std::string::npos) {
         LOGE("who am i");
         return nullptr;
     }

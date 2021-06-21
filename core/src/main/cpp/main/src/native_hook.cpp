@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 #include <art/runtime/runtime.h>
-#include <dl_util.h>
 #include <art/runtime/jni_env_ext.h>
 #include <dobby.h>
 #include "symbol_cache.h"
@@ -47,7 +46,7 @@ namespace lspd {
             return;
         }
         LOGD("Start to install inline hooks");
-        SandHook::ElfImg &handle_libart = *art_img;
+        const auto &handle_libart = *art_img;
         if (!handle_libart.isValid()) {
             LOGE("Failed to fetch libart.so");
         }
