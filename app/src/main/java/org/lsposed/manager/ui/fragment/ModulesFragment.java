@@ -20,10 +20,10 @@
 package org.lsposed.manager.ui.fragment;
 
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
-
 import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -40,6 +40,7 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -87,6 +88,8 @@ import org.lsposed.manager.util.ModuleUtil;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -96,17 +99,19 @@ import rikka.insets.WindowInsetsHelperKt;
 import rikka.recyclerview.RecyclerViewKt;
 import rikka.widget.borderview.BorderRecyclerView;
 
-public class ModulesFragment extends BaseFragment implements ModuleUtil.ModuleListener {
-
+public class ModulesFragment extends BaseFragment implements ModuleUtil.ModuleListener, RepoLoader.Listener {
     private static final Handler workHandler;
     private static final PackageManager pm = App.getInstance().getPackageManager();
     private static final ModuleUtil moduleUtil = ModuleUtil.getInstance();
+    private static final RepoLoader repoLoader = RepoLoader.getInstance();
 
     protected FragmentPagerBinding binding;
     protected SearchView searchView;
     private SearchView.OnQueryTextListener searchListener;
     private final ArrayList<ModuleAdapter> adapters = new ArrayList<>();
     private final ArrayList<String> tabTitles = new ArrayList<>();
+
+    private final Map<String, Pair<Integer, String>> latestVersion = new ConcurrentHashMap<>();
 
     private ModuleUtil.InstalledModule selectedModule;
 
@@ -119,7 +124,6 @@ public class ModulesFragment extends BaseFragment implements ModuleUtil.ModuleLi
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        moduleUtil.addListener(this);
         searchListener = new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -133,6 +137,21 @@ public class ModulesFragment extends BaseFragment implements ModuleUtil.ModuleLi
                 return false;
             }
         };
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        moduleUtil.addListener(this);
+        repoLoader.addListener(this);
+        repoLoaded();
+    }
+
+    @Override
+    public void onDetach() {
+        moduleUtil.removeListener(this);
+        repoLoader.removeListener(this);
+        super.onDetach();
     }
 
     @Nullable
@@ -339,6 +358,28 @@ public class ModulesFragment extends BaseFragment implements ModuleUtil.ModuleLi
         binding = null;
     }
 
+    @Override
+    synchronized public void repoLoaded() {
+        latestVersion.clear();
+        for (var module : RepoLoader.getInstance().getOnlineModules()) {
+            var release = module.getLatestRelease();
+            if (release == null || release.isEmpty()) continue;
+            var splits = release.split("-", 2);
+            if (splits.length < 2) continue;
+            int verCode;
+            String verName;
+            try {
+                verCode = Integer.parseInt(splits[0]);
+                verName = splits[1];
+            } catch (NumberFormatException ignored) {
+                continue;
+            }
+            String pkgName = module.getName();
+            latestVersion.put(pkgName, new Pair<>(verCode, verName));
+        }
+        requireActivity().runOnUiThread(() -> adapters.forEach(ModuleAdapter::notifyDataSetChanged));
+    }
+
     public static class ModuleListFragment extends Fragment {
         @Nullable
         @Override
@@ -486,6 +527,24 @@ public class ModulesFragment extends BaseFragment implements ModuleUtil.ModuleLi
                     sb.setSpan(styleSpan, sb.length() - warningText.length(), sb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 }
                 sb.setSpan(foregroundColorSpan, sb.length() - warningText.length(), sb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            }
+
+            if (latestVersion.containsKey(item.packageName)) {
+                var ver = latestVersion.get(item.packageName);
+                if (ver != null && ver.first > item.versionCode) {
+                    sb.append("\n");
+                    String recommended = getString(R.string.update_available, ver.second);
+                    sb.append(recommended);
+                    final ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourcesKt.resolveColor(requireActivity().getTheme(), R.attr.colorAccent));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        final TypefaceSpan typefaceSpan = new TypefaceSpan(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+                        sb.setSpan(typefaceSpan, sb.length() - recommended.length(), sb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    } else {
+                        final StyleSpan styleSpan = new StyleSpan(Typeface.BOLD);
+                        sb.setSpan(styleSpan, sb.length() - recommended.length(), sb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    }
+                    sb.setSpan(foregroundColorSpan, sb.length() - recommended.length(), sb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                }
             }
             holder.appDescription.setText(sb);
 

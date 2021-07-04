@@ -17,10 +17,11 @@
  * Copyright (C) 2021 LSPosed Contributors
  */
 
-import com.android.build.api.variant.impl.ApplicationVariantImpl
 import com.android.build.api.component.analytics.AnalyticsEnabledApplicationVariant
+import com.android.build.api.variant.impl.ApplicationVariantImpl
 import com.android.build.gradle.internal.dsl.BuildType
 import java.nio.file.Paths
+import java.time.Instant
 
 plugins {
     id("org.gradle.idea")
@@ -74,20 +75,10 @@ android {
         versionCode = verCode
         versionName = verName
         resourceConfigurations += arrayOf(
-            "en",
-            "zh-rCN",
-            "zh-rTW",
-            "zh-rHK",
-            "ru",
-            "uk",
-            "nl",
-            "ko",
-            "fr",
-            "de",
-            "it",
-            "pt",
-            "es",
+            "en", "zh-rCN", "zh-rTW", "zh-rHK", "ru", "uk", "nl", "ko", "fr", "de",
+            "it", "pt", "es",
         )
+        buildConfigField("long", "BUILD_TIME", Instant.now().epochSecond.toString())
     }
 
     compileOptions {
@@ -97,7 +88,6 @@ android {
 
     lint {
         disable += "MissingTranslation"
-        disable += "ExtraTranslation"
         isAbortOnError = true
         isCheckReleaseBuilds = false
     }
@@ -198,7 +188,6 @@ tasks.whenTaskAdded {
 
 dependencies {
     val glideVersion = "4.12.0"
-    val markwonVersion = "4.6.2"
     val okhttpVersion = "4.9.1"
     val navVersion = "2.3.5"
     annotationProcessor("com.github.bumptech.glide:compiler:$glideVersion")
@@ -206,7 +195,7 @@ dependencies {
     implementation("androidx.browser:browser:1.3.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
     implementation("androidx.core:core:1.5.0")
-    implementation("androidx.fragment:fragment:1.3.4")
+    implementation("androidx.fragment:fragment:1.3.5")
     implementation("androidx.navigation:navigation-fragment:$navVersion")
     implementation("androidx.navigation:navigation-ui:$navVersion")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
@@ -230,13 +219,6 @@ dependencies {
     implementation("dev.rikka.rikkax.widget:borderview:1.0.1")
     implementation("dev.rikka.rikkax.widget:switchbar:1.0.2")
     implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.0.1")
-    implementation("io.noties.markwon:core:$markwonVersion")
-    implementation("io.noties.markwon:ext-strikethrough:$markwonVersion")
-    implementation("io.noties.markwon:ext-tables:$markwonVersion")
-    implementation("io.noties.markwon:ext-tasklist:$markwonVersion")
-    implementation("io.noties.markwon:html:$markwonVersion")
-    implementation("io.noties.markwon:image-glide:$markwonVersion")
-    implementation("io.noties.markwon:linkify:$markwonVersion")
     implementation("me.zhanghai.android.appiconloader:appiconloader-glide:1.3.1")
     implementation("me.zhanghai.android.fastscroll:library:1.1.6")
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:2.0")

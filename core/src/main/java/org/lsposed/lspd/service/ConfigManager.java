@@ -22,6 +22,7 @@ package org.lsposed.lspd.service;
 import static org.lsposed.lspd.service.ServiceManager.TAG;
 
 import android.content.ContentValues;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -64,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.ZipFile;
 
 // This config manager assume uid won't change when our service is off.
 // Otherwise, user should maintain it manually.
@@ -101,7 +103,29 @@ public class ConfigManager {
     private static final File modulesLog = new File(logPath, "modules.log");
     private static final File oldModulesLog = new File(logPath, "modules.old.log");
     private static final File verboseLogPath = new File(logPath, "all.log");
-    private static FileLock locker = null;
+
+    static class FileLocker {
+        private final FileChannel lockChannel;
+        private final FileLock locker;
+
+        FileLocker(@NonNull FileChannel lockChannel) throws IOException {
+            this.lockChannel = lockChannel;
+            this.locker = lockChannel.tryLock();
+        }
+
+        boolean isValid() {
+            return this.locker != null && this.locker.isValid();
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            this.locker.release();
+            this.lockChannel.close();
+        }
+    }
+
+    static FileLocker locker = null;
+
 
     static {
         try {
@@ -187,8 +211,8 @@ public class ConfigManager {
 
         try {
             var lockChannel = FileChannel.open(lockPath.toPath(), openOptions, permissions);
-            locker = lockChannel.tryLock();
-            return locker != null && locker.isValid();
+            locker = new FileLocker(lockChannel);
+            return locker.isValid();
         } catch (Throwable e) {
             return false;
         }
@@ -477,14 +501,27 @@ public class ConfigManager {
         }
     }
 
-    public boolean updateModuleApkPath(String packageName, String apkPath) {
+    public boolean updateModuleApkPath(String packageName, ApplicationInfo info) {
+        String[] apks;
+        if (info.splitSourceDirs != null) {
+            apks = Arrays.copyOf(info.splitSourceDirs, info.splitSourceDirs.length + 1);
+            apks[info.splitSourceDirs.length] = info.sourceDir;
+        } else apks = new String[]{info.sourceDir};
+        var apkPath = Arrays.stream(apks).filter(apk -> {
+            try (var zip = new ZipFile(apk)) {
+                return zip.getEntry("assets/xposed_init") != null;
+            } catch (IOException e) {
+                return false;
+            }
+        }).findFirst();
+        if (!apkPath.isPresent()) return false;
         if (db.inTransaction()) {
             Log.w(TAG, "update module apk path should not be called inside transaction");
             return false;
         }
         ContentValues values = new ContentValues();
         values.put("module_pkg_name", packageName);
-        values.put("apk_path", apkPath);
+        values.put("apk_path", apkPath.get());
         int count = (int) db.insertWithOnConflict("modules", null, values, SQLiteDatabase.CONFLICT_IGNORE);
         if (count < 0) {
             count = db.updateWithOnConflict("modules", values, "module_pkg_name=?", new String[]{packageName}, SQLiteDatabase.CONFLICT_IGNORE);
@@ -605,8 +642,8 @@ public class ConfigManager {
         return true;
     }
 
-    public boolean enableModule(String packageName, String apkPath) {
-        if (!updateModuleApkPath(packageName, apkPath)) return false;
+    public boolean enableModule(String packageName, ApplicationInfo info) {
+        if (!updateModuleApkPath(packageName, info)) return false;
         int mid = getModuleId(packageName);
         if (mid == -1) return false;
         try {

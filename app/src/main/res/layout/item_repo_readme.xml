@@ -35,10 +35,11 @@
         app:borderTopDrawable="@null"
         app:borderBottomVisibility="never">
 
-        <TextView
+        <org.lsposed.manager.ui.widget.ScrollWebView
             android:id="@+id/readme"
             android:padding="16dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:scrollbars="none" />
     </rikka.widget.borderview.BorderNestedScrollView>
 </FrameLayout>

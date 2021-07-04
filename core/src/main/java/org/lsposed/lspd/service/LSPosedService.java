@@ -84,7 +84,7 @@ public class LSPosedService extends ILSPosedService.Stub {
         ApplicationInfo applicationInfo = null;
         if (moduleName != null) {
             try {
-                applicationInfo = PackageService.getApplicationInfo(moduleName, PackageManager.GET_META_DATA, 0);
+                applicationInfo = PackageService.getApplicationInfo(moduleName, PackageManager.GET_META_DATA | PackageService.MATCH_ALL_FLAGS, 0);
             } catch (Throwable ignored) {
             }
         }
@@ -113,8 +113,8 @@ public class LSPosedService extends ILSPosedService.Stub {
                 }
                 // when package is changed, we may need to update cache (module cache or process cache)
                 if (isXposedModule) {
-                    ConfigManager.getInstance().updateModuleApkPath(moduleName, applicationInfo.sourceDir);
-                    Log.d(TAG, "Updated module apk path: " + moduleName);
+                    var ret = ConfigManager.getInstance().updateModuleApkPath(moduleName, applicationInfo);
+                    if (ret) Log.i(TAG, "Updated module apk path: " + moduleName);
                 } else if (ConfigManager.getInstance().isUidHooked(uid)) {
                     // it will automatically remove obsolete app from database
                     ConfigManager.getInstance().updateAppCache();

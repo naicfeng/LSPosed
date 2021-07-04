@@ -19,16 +19,23 @@
 
 package org.lsposed.manager.ui.fragment;
 
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ClickableSpan;
-import android.text.util.Linkify;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,6 +50,7 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import org.lsposed.manager.App;
 import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.FragmentPagerBinding;
 import org.lsposed.manager.databinding.ItemRepoLoadmoreBinding;
@@ -56,35 +64,43 @@ import org.lsposed.manager.repo.model.OnlineModule;
 import org.lsposed.manager.repo.model.Release;
 import org.lsposed.manager.repo.model.ReleaseAsset;
 import org.lsposed.manager.ui.widget.LinkifyTextView;
-import org.lsposed.manager.util.GlideApp;
 import org.lsposed.manager.util.LinearLayoutManagerFix;
 import org.lsposed.manager.util.NavUtil;
 import org.lsposed.manager.util.chrome.CustomTabsURLSpan;
-import org.lsposed.manager.util.chrome.LinkTransformationMethod;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import io.noties.markwon.Markwon;
-import io.noties.markwon.SoftBreakAddsNewLinePlugin;
-import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
-import io.noties.markwon.ext.tables.TablePlugin;
-import io.noties.markwon.ext.tasklist.TaskListPlugin;
-import io.noties.markwon.html.HtmlPlugin;
-import io.noties.markwon.image.glide.GlideImagesPlugin;
-import io.noties.markwon.linkify.LinkifyPlugin;
-import io.noties.markwon.utils.NoCopySpannableFactory;
 import rikka.recyclerview.RecyclerViewKt;
 import rikka.widget.borderview.BorderNestedScrollView;
 import rikka.widget.borderview.BorderRecyclerView;
 import rikka.widget.borderview.BorderView;
 
 public class RepoItemFragment extends BaseFragment implements RepoLoader.Listener {
+    private static final String HTML_TEMPLATE = readWebviewHTML("template.html");
+    private static final String HTML_TEMPLATE_DARK = readWebviewHTML("template_dark.html");
     FragmentPagerBinding binding;
-    private Markwon markwon;
     private OnlineModule module;
     private ReleaseAdapter releaseAdapter;
+
+    private static String readWebviewHTML(String name) {
+        try {
+            var input = App.getInstance().getAssets().open("webview/" + name);
+            var result = new ByteArrayOutputStream(1024);
+            var buffer = new byte[1024];
+            for (int length; (length = input.read(buffer)) != -1; ) {
+                result.write(buffer, 0, length);
+            }
+            return result.toString(StandardCharsets.UTF_8.name());
+        } catch (IOException e) {
+            Log.e(App.TAG, "read webview HTML", e);
+            return "<html><body>@body@</body></html>";
+        }
+    }
 
     @Nullable
     @Override
@@ -121,18 +137,45 @@ public class RepoItemFragment extends BaseFragment implements RepoLoader.Listene
         RepoLoader.getInstance().addListener(this);
         super.onCreate(savedInstanceState);
 
-        markwon = Markwon.builder(requireActivity())
-                .usePlugin(StrikethroughPlugin.create())
-                .usePlugin(TablePlugin.create(requireActivity()))
-                .usePlugin(TaskListPlugin.create(requireActivity()))
-                .usePlugin(HtmlPlugin.create())
-                .usePlugin(GlideImagesPlugin.create(GlideApp.with(this)))
-                .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS, true))
-                .usePlugin(SoftBreakAddsNewLinePlugin.create())
-                .build();
         String modulePackageName = getArguments().getString("modulePackageName");
         module = RepoLoader.getInstance().getOnlineModule(modulePackageName);
 
+    }
+
+    private void renderGithubMarkdown(WebView view, String text) {
+        try {
+            view.setBackgroundColor(Color.TRANSPARENT);
+            var setting = view.getSettings();
+            setting.setOffscreenPreRaster(true);
+            setting.setDomStorageEnabled(true);
+            setting.setAppCacheEnabled(true);
+            setting.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+            setting.setAllowContentAccess(false);
+            setting.setAllowFileAccessFromFileURLs(true);
+            setting.setAllowFileAccess(false);
+            setting.setGeolocationEnabled(false);
+            setting.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+            setting.setTextZoom(80);
+            String body;
+            int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+                body = HTML_TEMPLATE_DARK.replace("@body@", text);
+            } else {
+                body = HTML_TEMPLATE.replace("@body@", text);
+            }
+            view.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                    Intent i = new Intent(Intent.ACTION_VIEW, request.getUrl());
+                    startActivity(i);
+                    return true;
+                }
+            });
+            view.loadDataWithBaseURL("https://github.com", body, "text/html",
+                    StandardCharsets.UTF_8.name(), null);
+        } catch (Throwable e) {
+            Log.e(App.TAG, "render readme", e);
+        }
     }
 
     @Override
@@ -142,11 +185,6 @@ public class RepoItemFragment extends BaseFragment implements RepoLoader.Listene
             NavUtil.startURL(requireActivity(), "https://modules.lsposed.org/module/" + module.getName());
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void repoLoaded() {
-
     }
 
     @Override
@@ -306,10 +344,7 @@ public class RepoItemFragment extends BaseFragment implements RepoLoader.Listene
             } else {
                 Release release = items.get(position);
                 holder.title.setText(release.getName());
-                holder.description.setTransformationMethod(new LinkTransformationMethod(requireActivity()));
-                holder.description.setSpannableFactory(NoCopySpannableFactory.getInstance());
-                markwon.setMarkdown(holder.description, release.getDescription());
-                holder.description.setMovementMethod(null);
+                renderGithubMarkdown(holder.description, release.getDescriptionHTML());
                 holder.openInBrowser.setOnClickListener(v -> NavUtil.startURL(requireActivity(), release.getUrl()));
                 List<ReleaseAsset> assets = release.getReleaseAssets();
                 if (assets != null && !assets.isEmpty()) {
@@ -323,14 +358,6 @@ public class RepoItemFragment extends BaseFragment implements RepoLoader.Listene
                 } else {
                     holder.viewAssets.setVisibility(View.GONE);
                 }
-                holder.itemView.setOnClickListener(v -> {
-                    ClickableSpan span = holder.description.getCurrentSpan();
-                    holder.description.clearCurrentSpan();
-
-                    if (span instanceof CustomTabsURLSpan) {
-                        span.onClick(v);
-                    }
-                });
             }
         }
 
@@ -346,7 +373,7 @@ public class RepoItemFragment extends BaseFragment implements RepoLoader.Listene
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView title;
-            LinkifyTextView description;
+            WebView description;
             MaterialButton openInBrowser;
             MaterialButton viewAssets;
             CircularProgressIndicator progress;
@@ -391,10 +418,10 @@ public class RepoItemFragment extends BaseFragment implements RepoLoader.Listene
         public void onBindViewHolder(@NonNull PagerAdapter.ViewHolder holder, int position) {
             switch (position) {
                 case 0:
-                    holder.textView.setTransformationMethod(new LinkTransformationMethod(requireActivity()));
                     holder.scrollView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> binding.appBar.setRaised(!top));
                     holder.scrollView.setTag(position);
-                    markwon.setMarkdown(holder.textView, module.getReadme());
+                    if (module != null)
+                        renderGithubMarkdown(holder.webView, module.getReadmeHTML());
                     break;
                 case 1:
                 case 2:
@@ -426,7 +453,7 @@ public class RepoItemFragment extends BaseFragment implements RepoLoader.Listene
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView textView;
+            WebView webView;
             BorderNestedScrollView scrollView;
             BorderRecyclerView recyclerView;
 
@@ -438,7 +465,7 @@ public class RepoItemFragment extends BaseFragment implements RepoLoader.Listene
         class ReadmeViewHolder extends PagerAdapter.ViewHolder {
             public ReadmeViewHolder(ItemRepoReadmeBinding binding) {
                 super(binding.getRoot());
-                textView = binding.readme;
+                webView = binding.readme;
                 scrollView = binding.scrollView;
             }
         }
