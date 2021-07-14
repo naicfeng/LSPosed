@@ -122,7 +122,7 @@ public class App extends Application {
         DayNightDelegate.setApplicationContext(this);
         DayNightDelegate.setDefaultNightMode(ThemeUtil.getDarkTheme());
         RepoLoader.getInstance().loadRemoteData();
-        loadRemoteVersion();
+//        loadRemoteVersion();
     }
 
     @NonNull
