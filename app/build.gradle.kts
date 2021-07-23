@@ -201,9 +201,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.slidingpanelayout:slidingpanelayout:1.2.0-alpha03")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("com.caverock:androidsvg-aar:1.4")
     implementation("com.github.bumptech.glide:glide:$glideVersion")
-    implementation("com.github.bumptech.glide:okhttp3-integration:$glideVersion")
     implementation("com.google.android.material:material:1.4.0")
     implementation("com.google.code.gson:gson:2.8.7")
     implementation("com.takisoft.preferencex:preferencex:1.1.0")
@@ -221,7 +219,7 @@ dependencies {
     implementation("dev.rikka.rikkax.widget:switchbar:1.0.2")
     implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.0.1")
     implementation("me.zhanghai.android.appiconloader:appiconloader-glide:1.3.1")
-    implementation("me.zhanghai.android.fastscroll:library:1.1.6")
+    implementation("me.zhanghai.android.fastscroll:library:1.1.7")
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:2.0")
     implementation(project(":manager-service"))
 }

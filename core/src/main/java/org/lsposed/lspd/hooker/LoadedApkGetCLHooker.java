@@ -32,6 +32,7 @@ import org.lsposed.lspd.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -90,13 +91,18 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
                 hookNewXSP(lpparam);
             }
 
-            IBinder binder = loadedApk.getApplicationInfo() != null ? serviceClient.requestManagerBinder(loadedApk.getApplicationInfo().packageName) : null;
-            if (binder != null) {
-                if (InstallerVerifier.verifyInstallerSignature(loadedApk.getApplicationInfo())) {
-                    InstallerVerifier.hookXposedInstaller(lpparam.classLoader, binder);
-                } else {
-                    InstallerVerifier.hookXposedInstaller(classLoader);
-                }
+            var binder = new ArrayList<IBinder>();
+            var blocked = false;
+            var info = loadedApk.getApplicationInfo();
+            if (info != null) {
+                var packageName = info.packageName;
+                var path = info.sourceDir;
+                blocked = serviceClient.requestManagerBinder(packageName, path, binder);
+            }
+            if (binder.size() != 0 && binder.get(0) != null) {
+                InstallerVerifier.hookXposedInstaller(lpparam.classLoader, binder.get(0));
+            } else if (blocked) {
+                InstallerVerifier.hookXposedInstaller(classLoader);
             } else {
                 XC_LoadPackage.callAll(lpparam);
             }

@@ -1,15 +1,16 @@
 package org.lsposed.lspd.service;
 
 interface ILSPApplicationService {
-    IBinder requestModuleBinder() = 2;
+    IBinder requestModuleBinder();
 
-    IBinder requestManagerBinder(String packageName) = 3;
+    //TODO: after array copy bug fixed, use array instead of list
+    boolean requestManagerBinder(String packageName, String path, out List<IBinder> binder);
 
-    boolean isResourcesHookEnabled() = 5;
+    boolean isResourcesHookEnabled();
 
-    Map getModulesList(String processName) = 6;
+    Map getModulesList(String processName);
 
-    String getPrefsPath(String packageName) = 7;
+    String getPrefsPath(String packageName);
 
-    ParcelFileDescriptor getModuleLogger() = 9;
+    ParcelFileDescriptor getModuleLogger();
 }

@@ -5,6 +5,7 @@ import android.os.ParcelFileDescriptor;
 
 import org.lsposed.lspd.service.ILSPApplicationService;
 
+import java.util.List;
 import java.util.Map;
 
 abstract public class ApplicationServiceClient implements ILSPApplicationService {
@@ -15,7 +16,7 @@ abstract public class ApplicationServiceClient implements ILSPApplicationService
     abstract public IBinder requestModuleBinder();
 
     @Override
-    abstract public IBinder requestManagerBinder(String packageName);
+    abstract public boolean requestManagerBinder(String packageName, String path, List<IBinder> binder);
 
     @Override
     abstract public boolean isResourcesHookEnabled();
