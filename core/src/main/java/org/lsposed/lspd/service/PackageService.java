@@ -49,7 +49,6 @@ import androidx.annotation.NonNull;
 import org.lsposed.lspd.BuildConfig;
 import org.lsposed.lspd.models.Application;
 import org.lsposed.lspd.util.InstallerVerifier;
-import org.lsposed.lspd.utils.ParceledListSlice;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,9 +64,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 
 import hidden.HiddenApiBridge;
+import io.github.xposed.xposedservice.utils.ParceledListSlice;
 
 public class PackageService {
 
@@ -134,14 +133,14 @@ public class PackageService {
             res.addAll(pm.getInstalledPackages(flags, user.id).getList());
         }
         if (filterNoProcess) {
-            res = res.stream().filter(packageInfo -> {
+            res.removeIf(packageInfo -> {
                 try {
                     PackageInfo pkgInfo = getPackageInfoWithComponents(packageInfo.packageName, MATCH_ALL_FLAGS, packageInfo.applicationInfo.uid / 100000);
-                    return !fetchProcesses(pkgInfo).isEmpty();
+                    return fetchProcesses(pkgInfo).isEmpty();
                 } catch (RemoteException e) {
-                    return true;
+                    return false;
                 }
-            }).collect(Collectors.toList());
+            });
         }
         return new ParceledListSlice<>(res);
     }
@@ -209,7 +208,7 @@ public class PackageService {
 
             }
         }
-        if (pkgInfo == null || pkgInfo.applicationInfo == null || (!pkgInfo.packageName.equals("android") && (pkgInfo.applicationInfo.sourceDir == null || pkgInfo.applicationInfo.deviceProtectedDataDir == null || !new File(pkgInfo.applicationInfo.sourceDir).exists() || !new File(pkgInfo.applicationInfo.deviceProtectedDataDir).exists())))
+        if (pkgInfo.applicationInfo == null ||(!pkgInfo.packageName.equals("android") && (pkgInfo.applicationInfo.sourceDir == null || !new File(pkgInfo.applicationInfo.sourceDir).exists() || (!pm.isPackageAvailable(packageName, userId) && !pm.getApplicationHiddenSettingAsUser(packageName, userId)))))
             return null;
         return pkgInfo;
     }

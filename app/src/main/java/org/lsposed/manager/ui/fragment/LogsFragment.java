@@ -62,9 +62,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -80,29 +80,31 @@ public class LogsFragment extends BaseFragment {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private FragmentLogsBinding binding;
     private LinearLayoutManagerFix layoutManager;
-    ActivityResultLauncher<String> saveLogsLauncher = registerForActivityResult(new ActivityResultContracts.CreateDocument(),
+    private final ActivityResultLauncher<String> saveLogsLauncher = registerForActivityResult(
+            new ActivityResultContracts.CreateDocument(),
             uri -> {
-                if (uri != null) {
-                    try {
-                        // grantUriPermission might throw RemoteException on MIUI
-                        requireContext().grantUriPermission(BuildConfig.APPLICATION_ID, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
-                        try (var os = requireContext().getContentResolver().openOutputStream(uri)) {
-                            ParcelFileDescriptor parcelFileDescriptor = ConfigManager.getLogs(verbose);
-                            if (parcelFileDescriptor == null) {
-                                return;
-                            }
-                            try (var is = new FileInputStream(parcelFileDescriptor.getFileDescriptor())) {
-                                FileUtils.copy(is, os);
-                            }
-                        } catch (Exception e) {
-                            Snackbar.make(binding.snackbar, getResources().getString(R.string.logs_save_failed) + "\n" + e.getMessage(), Snackbar.LENGTH_LONG).show();
-                        }
-                    });
+                if (uri == null) return;
+                try {
+                    // grantUriPermission might throw RemoteException on MIUI
+                    requireContext().grantUriPermission(BuildConfig.APPLICATION_ID, uri,
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+                AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                    var parcelFileDescriptor = ConfigManager.getLogs(verbose);
+                    if (parcelFileDescriptor == null) {
+                        return;
+                    }
+                    try (var os = requireContext().getContentResolver().openOutputStream(uri);
+                         var is = new FileInputStream(parcelFileDescriptor.getFileDescriptor())) {
+                        FileUtils.copy(is, os);
+                    } catch (IOException e) {
+                        var str = getResources().getString(R.string.logs_save_failed);
+                        Snackbar.make(binding.snackbar, str + "\n" + e.getMessage(),
+                                Snackbar.LENGTH_LONG).show();
+                    }
+                });
             });
 
     @Nullable
@@ -242,13 +244,11 @@ public class LogsFragment extends BaseFragment {
         if (parcelFileDescriptor == null) {
             return;
         }
-        Calendar now = Calendar.getInstance();
+        LocalDateTime now = LocalDateTime.now();
         String filename = String.format(Locale.US,
-                "LSPosed_%s_%04d%02d%02d_%02d%02d%02d.log",
+                "LSPosed_%s_%s.log",
                 verbose ? "Verbose" : "Modules",
-                now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1,
-                now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE), now.get(Calendar.SECOND));
+                now.toString());
         File cacheFile = new File(requireActivity().getCacheDir(), filename);
         try (var os = new FileOutputStream(cacheFile); var is = new FileInputStream(parcelFileDescriptor.getFileDescriptor())) {
             FileUtils.copy(is, os);
@@ -267,13 +267,11 @@ public class LogsFragment extends BaseFragment {
     }
 
     private void save() {
-        Calendar now = Calendar.getInstance();
+        LocalDateTime now = LocalDateTime.now();
         String filename = String.format(Locale.US,
-                "LSPosed_%s_%04d%02d%02d_%02d%02d%02d.log",
+                "LSPosed_%s_%s.log",
                 verbose ? "Verbose" : "Modules",
-                now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1,
-                now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE), now.get(Calendar.SECOND));
+                now.toString());
         saveLogsLauncher.launch(filename);
     }
 

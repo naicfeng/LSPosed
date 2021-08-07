@@ -1,14 +1,7 @@
 -keep class org.lsposed.manager.Constants {
     public static void showErrorToast(int);
+    public static void setBinder(android.os.IBinder);
 }
--keepclasseswithmembers class org.lsposed.manager.receivers.LSPManagerServiceClient {
-    private static android.os.IBinder binder;
-}
-
--keepclassmembers class * implements android.os.Parcelable {
-    public static final ** CREATOR;
-}
-
 -assumenosideeffects class kotlin.jvm.internal.Intrinsics {
     public static void check*(...);
     public static void throw*(...);
@@ -20,7 +13,7 @@
 }
 
 -repackageclasses
-# temporarily disable it: https://issuetracker.google.com/issues/155606069 
+# temporarily disable it: https://issuetracker.google.com/issues/155606069
 # -allowaccessmodification
 -overloadaggressively
 
