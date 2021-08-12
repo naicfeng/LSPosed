@@ -27,7 +27,9 @@ import android.app.ActivityThread;
 import android.app.IApplicationThread;
 import android.content.Context;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Process;
 import android.os.RemoteException;
@@ -91,25 +93,10 @@ public class BridgeService {
                 Log.w(TAG, "clear ServiceManager: " + Log.getStackTraceString(e));
             }
 
-            try {
-                //noinspection JavaReflectionMemberAccess
-                Field field = ActivityThread.class.getDeclaredField("sPackageManager");
-                field.setAccessible(true);
-                field.set(null, null);
-
-                //noinspection JavaReflectionMemberAccess
-                field = ActivityThread.class.getDeclaredField("sPermissionManager");
-                field.setAccessible(true);
-                field.set(null, null);
-                Log.i(TAG, "clear ActivityThread");
-            } catch (Throwable e) {
-                Log.w(TAG, "clear ActivityThread: " + Log.getStackTraceString(e));
-            }
-
             bridgeService.unlinkToDeath(this, 0);
             bridgeService = null;
             listener.onSystemServerDied();
-            new Thread(() -> sendToBridge(serviceBinder, true)).start();
+            new Handler(Looper.getMainLooper()).post(() -> sendToBridge(serviceBinder, true));
         }
     };
 

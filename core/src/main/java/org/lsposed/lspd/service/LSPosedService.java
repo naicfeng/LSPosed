@@ -19,7 +19,7 @@
 
 package org.lsposed.lspd.service;
 
-import static org.lsposed.lspd.service.ConfigManager.PER_USER_RANGE;
+import static org.lsposed.lspd.service.PackageService.PER_USER_RANGE;
 import static org.lsposed.lspd.service.ServiceManager.TAG;
 
 import android.app.IApplicationThread;
@@ -79,7 +79,7 @@ public class LSPosedService extends ILSPosedService.Stub {
         if (userId == USER_NULL) userId = uid % PER_USER_RANGE;
 
         Uri uri = intent.getData();
-        String moduleName = (uri != null) ? uri.getSchemeSpecificPart() : null;
+        String moduleName = (uri != null) ? uri.getSchemeSpecificPart() : ConfigManager.getInstance().getModule(uid);
 
         ApplicationInfo applicationInfo = null;
         if (moduleName != null) {
@@ -100,7 +100,8 @@ public class LSPosedService extends ILSPosedService.Stub {
                 // for module, remove module
                 // because we only care about when the apk is gone
                 if (moduleName != null)
-                    ConfigManager.getInstance().removeModule(moduleName);
+                    if (ConfigManager.getInstance().removeModule(moduleName))
+                        isXposedModule = true;
                 break;
             }
             case Intent.ACTION_PACKAGE_ADDED:
@@ -113,8 +114,7 @@ public class LSPosedService extends ILSPosedService.Stub {
                 }
                 // when package is changed, we may need to update cache (module cache or process cache)
                 if (isXposedModule) {
-                    var ret = ConfigManager.getInstance().updateModuleApkPath(moduleName, applicationInfo);
-                    if (ret) Log.i(TAG, "Updated module apk path: " + moduleName);
+                    ConfigManager.getInstance().updateCache();
                 } else if (ConfigManager.getInstance().isUidHooked(uid)) {
                     // it will automatically remove obsolete app from database
                     ConfigManager.getInstance().updateAppCache();
@@ -124,7 +124,7 @@ public class LSPosedService extends ILSPosedService.Stub {
             case Intent.ACTION_UID_REMOVED: {
                 // when a package is removed (rather than hide) for a single user
                 // (apk may still be there because of multi-user)
-                if (ConfigManager.getInstance().isModule(uid)) {
+                if (isXposedModule) {
                     // it will automatically remove obsolete scope from database
                     ConfigManager.getInstance().updateCache();
                 } else if (ConfigManager.getInstance().isUidHooked(uid)) {
@@ -135,8 +135,10 @@ public class LSPosedService extends ILSPosedService.Stub {
             }
         }
         if (isXposedModule) {
+            Log.d(TAG, "module " + moduleName + " changed, dispatching to manager");
             boolean enabled = Arrays.asList(ConfigManager.getInstance().enabledModules()).contains(moduleName);
-            Intent broadcastIntent = new Intent(enabled ? "org.lsposed.action.MODULE_UPDATED" : "org.lsposed.action.MODULE_NOT_ACTIVATAED");
+            boolean removed = intent.getAction().equals(Intent.ACTION_PACKAGE_FULLY_REMOVED) || intent.getAction().equals(Intent.ACTION_UID_REMOVED);
+            Intent broadcastIntent = new Intent(enabled || removed ? "org.lsposed.action.MODULE_UPDATED" : "org.lsposed.action.MODULE_NOT_ACTIVATAED");
             broadcastIntent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             broadcastIntent.addFlags(0x01000000);
             broadcastIntent.addFlags(0x00400000);
@@ -199,6 +201,7 @@ public class LSPosedService extends ILSPosedService.Stub {
         } catch (Throwable e) {
             Log.e(TAG, "register package receiver", e);
         }
+        Log.d(TAG, "registered package receiver");
     }
 
     private void registerBootReceiver() {
@@ -220,10 +223,12 @@ public class LSPosedService extends ILSPosedService.Stub {
         } catch (Throwable e) {
             Log.e(TAG, "register boot receiver", e);
         }
+        Log.d(TAG, "registered boot receiver");
     }
 
     @Override
     public void dispatchSystemServerContext(IBinder activityThread, IBinder activityToken) throws RemoteException {
+        Log.d(TAG, "received system context");
         ActivityManagerService.onSystemServerContext(IApplicationThread.Stub.asInterface(activityThread), activityToken);
         registerBootReceiver();
         registerPackageReceiver();

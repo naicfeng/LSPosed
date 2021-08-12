@@ -19,6 +19,8 @@
 
 package org.lsposed.lspd.service;
 
+import static org.lsposed.lspd.service.PackageService.MATCH_ALL_FLAGS;
+import static org.lsposed.lspd.service.PackageService.PER_USER_RANGE;
 import static org.lsposed.lspd.service.ServiceManager.TAG;
 
 import android.content.ContentValues;
@@ -47,12 +49,14 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.lsposed.lspd.BuildConfig;
 import org.lsposed.lspd.models.Application;
 import org.lsposed.lspd.models.Module;
-import org.lsposed.lspd.models.ModuleConfig;
+import org.lsposed.lspd.models.PreLoadedApk;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.channels.Channels;
@@ -77,7 +81,6 @@ import java.util.zip.ZipFile;
 // This config manager assume uid won't change when our service is off.
 // Otherwise, user should maintain it manually.
 public class ConfigManager {
-    public static final int PER_USER_RANGE = 100000;
 
     private static final String[] MANAGER_PERMISSIONS_TO_GRANT = new String[]{
             "android.permission.INTERACT_ACROSS_USERS",
@@ -200,11 +203,8 @@ public class ConfigManager {
 
     private final Map<ProcessScope, List<Module>> cachedScope = new ConcurrentHashMap<>();
 
-    // apkPath, dexes
-    private final Map<String, SharedMemory[]> cachedDexes = new ConcurrentHashMap<>();
-
-    // appId, packageName
-    private final Map<Integer, String> cachedModule = new ConcurrentHashMap<>();
+    // packageName, Module
+    private final Map<String, Module> cachedModule = new ConcurrentHashMap<>();
 
     // packageName, userId, group, key, value
     private final Map<Pair<String, Integer>, Map<String, ConcurrentHashMap<String, Object>>> cachedConfig = new ConcurrentHashMap<>();
@@ -215,10 +215,8 @@ public class ConfigManager {
         }
         if (sync) {
             cacheModules();
-            cacheScopes();
         } else {
             cacheHandler.post(this::cacheModules);
-            cacheHandler.post(this::cacheScopes);
         }
     }
 
@@ -256,14 +254,22 @@ public class ConfigManager {
             int apkPathIdx = cursor.getColumnIndex("apk_path");
             int pkgNameIdx = cursor.getColumnIndex("module_pkg_name");
             while (cursor.moveToNext()) {
-                var module = new Module();
-                var config = new ModuleConfig();
                 var path = cursor.getString(apkPathIdx);
-                config.preLoadedDexes = getModuleDexes(path);
-                module.name = cursor.getString(pkgNameIdx);
-                module.apk = path;
-                module.config = config;
-                modules.add(module);
+                var packageName = cursor.getString(pkgNameIdx);
+                var m = cachedModule.computeIfAbsent(packageName, p -> {
+                    var module = new Module();
+                    var file = loadModule(path);
+                    if (file == null) {
+                        Log.w(TAG, "Can not load " + path + ", skip!");
+                        return null;
+                    }
+                    module.packageName = cursor.getString(pkgNameIdx);
+                    module.apkPath = path;
+                    module.file = file;
+                    module.appId = -1;
+                    return module;
+                });
+                if (m != null) modules.add(m);
             }
         }
         return modules;
@@ -331,11 +337,14 @@ public class ConfigManager {
         new Thread(() -> {
             if (PackageService.installManagerIfAbsent(manager, new File(basePath, "manager.apk"))) {
                 updateManager(BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME);
+            } else {
+                Log.w(TAG, "Can not install manager");
             }
         }).start();
     }
 
     public synchronized void updateManager(@NonNull String packageName) {
+        Log.i(TAG, "Now manager is " + packageName);
         writeText(managerPath, packageName);
         manager = packageName;
         updateManager();
@@ -433,55 +442,69 @@ public class ConfigManager {
         if (!packageStarted) return;
         if (lastModuleCacheTime >= requestModuleCacheTime) return;
         else lastModuleCacheTime = SystemClock.elapsedRealtime();
-        cachedModule.clear();
-        try (Cursor cursor = db.query(true, "modules INNER JOIN scope ON scope.mid = modules.mid", new String[]{"module_pkg_name", "user_id"},
+        try (Cursor cursor = db.query(true, "modules", new String[]{"module_pkg_name", "apk_path"},
                 "enabled = 1", null, null, null, null, null)) {
             if (cursor == null) {
                 Log.e(TAG, "db cache failed");
                 return;
             }
             int pkgNameIdx = cursor.getColumnIndex("module_pkg_name");
-            int userIdIdx = cursor.getColumnIndex("user_id");
-            // packageName, userId, packageInfo
-            Map<String, Map<Integer, PackageInfo>> modules = new HashMap<>();
+            int apkPathIdx = cursor.getColumnIndex("apk_path");
             Set<String> obsoleteModules = new HashSet<>();
-            Set<Application> obsoleteScopes = new HashSet<>();
+            // packageName, apkPath
+            Map<String, String> obsoletePaths = new HashMap<>();
+            cachedModule.values().removeIf(m -> m.apkPath == null || !new File(m.apkPath).exists());
             while (cursor.moveToNext()) {
                 String packageName = cursor.getString(pkgNameIdx);
-                int userId = cursor.getInt(userIdIdx);
-                var pkgInfo = modules.computeIfAbsent(packageName, m -> {
-                    try {
-                        return PackageService.getPackageInfoFromAllUsers(m, 0);
-                    } catch (Throwable e) {
-                        Log.e(TAG, Log.getStackTraceString(e));
-                        return Collections.emptyMap();
-                    }
-                });
-                if (pkgInfo.isEmpty()) {
-                    obsoleteModules.add(packageName);
-                } else if (!pkgInfo.containsKey(userId)) {
-                    var module = new Application();
-                    module.packageName = packageName;
-                    module.userId = userId;
-                    obsoleteScopes.add(module);
-                } else {
-                    var info = pkgInfo.get(userId);
-                    assert info != null;
-                    cachedModule.computeIfAbsent(info.applicationInfo.uid % PER_USER_RANGE, k -> info.packageName);
+                String apkPath = cursor.getString(apkPathIdx);
+                // if still present after removeIf, this package did not change.
+                var oldModule = cachedModule.get(packageName);
+                if (oldModule != null && oldModule.appId != -1) {
+                    Log.d(TAG, packageName + " did not change, skip caching it");
+                    continue;
                 }
+                PackageInfo pkgInfo = null;
+                try {
+                    pkgInfo = PackageService.getPackageInfo(packageName, MATCH_ALL_FLAGS, 0);
+                } catch (Throwable e) {
+                    Log.w(TAG, "get package info of " + packageName, e);
+                }
+                if (pkgInfo == null || pkgInfo.applicationInfo == null) {
+                    obsoleteModules.add(packageName);
+                    continue;
+                }
+                // cache from system server, keep it and set only the appId
+                if (oldModule != null) {
+                    oldModule.appId = pkgInfo.applicationInfo.uid;
+                    continue;
+                }
+                var path = apkPath;
+                if (path == null || !new File(path).exists()) {
+                    path = getModuleApkPath(pkgInfo.applicationInfo);
+                    if (path == null) obsoleteModules.add(packageName);
+                    else obsoletePaths.put(packageName, path);
+                }
+                var file = loadModule(path);
+                if (file == null) {
+                    Log.w(TAG, "failed to load module " + packageName);
+                    obsoleteModules.add(packageName);
+                    continue;
+                }
+                var module = new Module();
+                module.apkPath = path;
+                module.packageName = packageName;
+                module.file = file;
+                module.appId = pkgInfo.applicationInfo.uid;
+                cachedModule.put(packageName, module);
             }
-            for (var obsoleteModule : obsoleteModules) {
-                removeModuleWithoutCache(obsoleteModule);
-            }
-            for (var obsoleteScope : obsoleteScopes) {
-                removeModuleScopeWithoutCache(obsoleteScope);
-            }
-            cleanModuleDexes();
+            obsoleteModules.forEach(this::removeModuleWithoutCache);
+            obsoletePaths.forEach(this::updateModuleApkPath);
         }
         Log.d(TAG, "cached modules");
-        for (int uid : cachedModule.keySet()) {
-            Log.d(TAG, cachedModule.get(uid) + "/" + uid);
+        for (String module : cachedModule.keySet()) {
+            Log.d(TAG, module);
         }
+        cacheScopes();
     }
 
     private synchronized void cacheScopes() {
@@ -490,43 +513,58 @@ public class ConfigManager {
         if (lastScopeCacheTime >= requestScopeCacheTime) return;
         else lastScopeCacheTime = SystemClock.elapsedRealtime();
         cachedScope.clear();
-        try (Cursor cursor = db.query("scope INNER JOIN modules ON scope.mid = modules.mid", new String[]{"app_pkg_name", "module_pkg_name", "user_id", "apk_path"},
+        try (Cursor cursor = db.query("scope INNER JOIN modules ON scope.mid = modules.mid", new String[]{"app_pkg_name", "module_pkg_name", "user_id"},
                 "enabled = 1", null, null, null, null)) {
-            if (cursor == null) {
-                Log.e(TAG, "db cache failed");
-                return;
-            }
             int appPkgNameIdx = cursor.getColumnIndex("app_pkg_name");
             int modulePkgNameIdx = cursor.getColumnIndex("module_pkg_name");
             int userIdIdx = cursor.getColumnIndex("user_id");
-            int apkPathIdx = cursor.getColumnIndex("apk_path");
-            HashSet<Application> obsoletePackages = new HashSet<>();
+
+            final var obsoletePackages = new HashSet<Application>();
+            final var obsoleteModules = new HashSet<Application>();
+            final var moduleAvailability = new HashMap<Pair<String, Integer>, Boolean>();
             while (cursor.moveToNext()) {
                 Application app = new Application();
                 app.packageName = cursor.getString(appPkgNameIdx);
                 app.userId = cursor.getInt(userIdIdx);
+                var modulePackageName = cursor.getString(modulePkgNameIdx);
+
+                // check if module is present in this user
+                if (!moduleAvailability.computeIfAbsent(new Pair<>(modulePackageName, app.userId), n -> {
+                    var available = false;
+                    try {
+                        available = PackageService.isPackageAvailable(n.first, n.second, true) && cachedModule.containsKey(modulePackageName);
+                    } catch (Throwable e) {
+                        Log.w(TAG, "check package availability ", e);
+                    }
+                    if (!available) {
+                        var obsoleteModule = new Application();
+                        obsoleteModule.packageName = modulePackageName;
+                        obsoleteModule.userId = app.userId;
+                        obsoleteModules.add(obsoleteModule);
+                    }
+                    return available;
+                })) continue;
+
                 // system server always loads database
                 if (app.packageName.equals("android")) continue;
-                String apk_path = cursor.getString(apkPathIdx);
-                String module_pkg = cursor.getString(modulePkgNameIdx);
+
                 try {
                     List<ProcessScope> processesScope = getAssociatedProcesses(app);
                     if (processesScope.isEmpty()) {
                         obsoletePackages.add(app);
                         continue;
                     }
+                    var module = cachedModule.get(modulePackageName);
                     for (ProcessScope processScope : processesScope) {
-                        var module = new Module();
-                        var config = new ModuleConfig();
-                        config.preLoadedDexes = getModuleDexes(apk_path);
-                        module.name = module_pkg;
-                        module.apk = apk_path;
-                        module.config = config;
-                        cachedScope.computeIfAbsent(processScope, ignored -> new LinkedList<>()).add(module);
-                        if (module_pkg.equals(app.packageName)) {
+                        cachedScope.computeIfAbsent(processScope,
+                                ignored -> new LinkedList<>()).add(module);
+                        // Always allow the module to inject itself
+                        if (modulePackageName.equals(app.packageName)) {
                             var appId = processScope.uid % PER_USER_RANGE;
                             for (var user : UserService.getUsers()) {
-                                cachedScope.computeIfAbsent(new ProcessScope(processScope.processName, user.id * PER_USER_RANGE + appId),
+                                var moduleUid = user.id * PER_USER_RANGE + appId;
+                                var moduleSelf = new ProcessScope(processScope.processName, moduleUid);
+                                cachedScope.computeIfAbsent(moduleSelf,
                                         ignored -> new LinkedList<>()).add(module);
                             }
                         }
@@ -539,51 +577,72 @@ public class ConfigManager {
                 Log.d(TAG, "removing obsolete package: " + obsoletePackage.packageName + "/" + obsoletePackage.userId);
                 removeAppWithoutCache(obsoletePackage);
             }
+            for (Application obsoleteModule : obsoleteModules) {
+                Log.d(TAG, "removing obsolete module: " + obsoleteModule.packageName + "/" + obsoleteModule.userId);
+                removeModuleScopeWithoutCache(obsoleteModule);
+            }
         }
         Log.d(TAG, "cached Scope");
         cachedScope.forEach((ps, modules) -> {
             Log.d(TAG, ps.processName + "/" + ps.uid);
-            modules.forEach(module -> Log.d(TAG, "\t" + module.name));
+            modules.forEach(module -> Log.d(TAG, "\t" + module.packageName));
         });
     }
 
-    private SharedMemory[] loadModuleDexes(String path) {
-        var sharedMemories = new ArrayList<SharedMemory>();
-        try (var apkFile = new ZipFile(path)) {
-            int secondary = 2;
-            for (var dexFile = apkFile.getEntry("classes.dex"); dexFile != null;
-                 dexFile = apkFile.getEntry("classes" + secondary + ".dex"), secondary++) {
-                try (var in = apkFile.getInputStream(dexFile)) {
-                    var memory = SharedMemory.create(null, in.available());
-                    var byteBuffer = memory.mapReadWrite();
-                    Channels.newChannel(in).read(byteBuffer);
-                    SharedMemory.unmap(byteBuffer);
-                    memory.setProtect(OsConstants.PROT_READ);
-                    sharedMemories.add(memory);
-                } catch (IOException | ErrnoException e) {
-                    Log.w(TAG, "Can not load " + dexFile + " in " + path, e);
-                }
+    private void readDexes(ZipFile apkFile, List<SharedMemory> preLoadedDexes) {
+        int secondary = 2;
+        for (var dexFile = apkFile.getEntry("classes.dex"); dexFile != null;
+             dexFile = apkFile.getEntry("classes" + secondary + ".dex"), secondary++) {
+            try (var in = apkFile.getInputStream(dexFile)) {
+                var memory = SharedMemory.create(null, in.available());
+                var byteBuffer = memory.mapReadWrite();
+                Channels.newChannel(in).read(byteBuffer);
+                SharedMemory.unmap(byteBuffer);
+                memory.setProtect(OsConstants.PROT_READ);
+                preLoadedDexes.add(memory);
+            } catch (IOException | ErrnoException e) {
+                Log.w(TAG, "Can not load " + dexFile + " in " + apkFile, e);
+            }
+        }
+    }
+
+    private void readName(ZipFile apkFile, String initName, List<String> names) {
+        var initEntry = apkFile.getEntry(initName);
+        if (initEntry == null) return;
+        try (var in = apkFile.getInputStream(initEntry)) {
+            var reader = new BufferedReader(new InputStreamReader(in));
+            String name;
+            while ((name = reader.readLine()) != null) {
+                name = name.trim();
+                if (name.isEmpty() || name.startsWith("#")) continue;
+                names.add(name);
             }
         } catch (IOException e) {
-            Log.e(TAG, "Can not open " + path, e);
+            Log.e(TAG, "Can not open " + initEntry, e);
         }
-        return sharedMemories.toArray(new SharedMemory[0]);
     }
 
-    private SharedMemory[] getModuleDexes(String path) {
-        return cachedDexes.computeIfAbsent(path, this::loadModuleDexes);
-    }
-
-    private void cleanModuleDexes() {
-        cachedDexes.entrySet().removeIf(entry -> {
-            var path = entry.getKey();
-            var dexes = entry.getValue();
-            if (!new File(path).exists()) {
-                Arrays.stream(dexes).parallel().forEach(SharedMemory::close);
-                return true;
-            }
-            return false;
-        });
+    @Nullable
+    private PreLoadedApk loadModule(String path) {
+        if (path == null) return null;
+        var file = new PreLoadedApk();
+        var preLoadedDexes = new ArrayList<SharedMemory>();
+        var moduleClassNames = new ArrayList<String>(1);
+        var moduleLibraryNames = new ArrayList<String>(1);
+        try (var apkFile = new ZipFile(path)) {
+            readDexes(apkFile, preLoadedDexes);
+            readName(apkFile, "assets/xposed_init", moduleClassNames);
+            readName(apkFile, "assets/native_init", moduleLibraryNames);
+        } catch (IOException e) {
+            Log.e(TAG, "Can not open " + path, e);
+            return null;
+        }
+        if (preLoadedDexes.isEmpty()) return null;
+        if (moduleClassNames.isEmpty()) return null;
+        file.preLoadedDexes = preLoadedDexes;
+        file.moduleClassNames = moduleClassNames;
+        file.moduleLibraryNames = moduleLibraryNames;
+        return file;
     }
 
     // This is called when a new process created, use the cached result
@@ -622,27 +681,36 @@ public class ConfigManager {
         }
     }
 
-    public boolean updateModuleApkPath(String packageName, ApplicationInfo info) {
+    @Nullable
+    public String getModuleApkPath(ApplicationInfo info) {
         String[] apks;
         if (info.splitSourceDirs != null) {
             apks = Arrays.copyOf(info.splitSourceDirs, info.splitSourceDirs.length + 1);
             apks[info.splitSourceDirs.length] = info.sourceDir;
         } else apks = new String[]{info.sourceDir};
-        var apkPath = Arrays.stream(apks).filter(apk -> {
+        var apkPath = Arrays.stream(apks).parallel().filter(apk -> {
+            if (apk == null) {
+                Log.w(TAG, info.packageName + " has null apk path???");
+                return false;
+            }
             try (var zip = new ZipFile(apk)) {
                 return zip.getEntry("assets/xposed_init") != null;
             } catch (IOException e) {
                 return false;
             }
         }).findFirst();
-        if (!apkPath.isPresent()) return false;
+        return apkPath.orElse(null);
+    }
+
+    public boolean updateModuleApkPath(String packageName, String apkPath) {
+        if (apkPath == null) return false;
         if (db.inTransaction()) {
             Log.w(TAG, "update module apk path should not be called inside transaction");
             return false;
         }
         ContentValues values = new ContentValues();
         values.put("module_pkg_name", packageName);
-        values.put("apk_path", apkPath.get());
+        values.put("apk_path", apkPath);
         int count = (int) db.insertWithOnConflict("modules", null, values, SQLiteDatabase.CONFLICT_IGNORE);
         if (count < 0) {
             count = db.updateWithOnConflict("modules", values, "module_pkg_name=?", new String[]{packageName}, SQLiteDatabase.CONFLICT_IGNORE);
@@ -712,11 +780,13 @@ public class ConfigManager {
         }
     }
 
-    public void removeModule(String packageName) {
+    public boolean removeModule(String packageName) {
         if (removeModuleWithoutCache(packageName)) {
             // called by oneway binder
             updateCaches(true);
+            return true;
         }
+        return false;
     }
 
     private boolean removeModuleWithoutCache(String packageName) {
@@ -764,7 +834,7 @@ public class ConfigManager {
     }
 
     public boolean enableModule(String packageName, ApplicationInfo info) {
-        if (!updateModuleApkPath(packageName, info)) return false;
+        if (!updateModuleApkPath(packageName, getModuleApkPath(info))) return false;
         int mid = getModuleId(packageName);
         if (mid == -1) return false;
         try {
@@ -856,8 +926,7 @@ public class ConfigManager {
     }
 
     public boolean shouldBlock(String packageName) {
-        return packageName.equals("io.github.lsposed.manager") ||
-                packageName.equals(BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME);
+        return packageName.equals("io.github.lsposed.manager") || isManager(packageName);
     }
 
     public String getPrefsPath(String fileName, int uid) {
@@ -876,12 +945,17 @@ public class ConfigManager {
         });
     }
 
-    public boolean isModule(int uid) {
-        return cachedModule.containsKey(uid % PER_USER_RANGE);
+    // this is slow, avoid using it
+    public String getModule(int uid) {
+        for (var module : cachedModule.values()) {
+            if (module.appId == uid % PER_USER_RANGE) return module.packageName;
+        }
+        return null;
     }
 
     public boolean isModule(int uid, String name) {
-        return name.equals(cachedModule.getOrDefault(uid % PER_USER_RANGE, null));
+        var module = cachedModule.getOrDefault(name, null);
+        return module != null && module.appId == uid % PER_USER_RANGE;
     }
 
     private void recursivelyChown(File file, int uid, int gid) throws ErrnoException {
@@ -893,8 +967,7 @@ public class ConfigManager {
         }
     }
 
-    public boolean ensureModulePrefsPermission(int uid) {
-        String packageName = cachedModule.get(uid);
+    public boolean ensureModulePrefsPermission(int uid, String packageName) {
         if (packageName == null) return false;
         File path = new File(getPrefsPath(packageName, uid));
         try {
