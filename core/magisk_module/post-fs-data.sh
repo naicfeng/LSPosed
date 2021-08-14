@@ -137,4 +137,4 @@ if [ ! -z "${MISC_PATH}" ]; then
 fi
 
 rm -f "/data/local/tmp/lspd.dex"
-"$MODDIR/lspd"
+unshare -m sh -c "$MODDIR/lspd &"
