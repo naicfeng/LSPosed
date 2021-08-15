@@ -21,8 +21,8 @@
 <resources>
     <!-- MainActivity -->
     <string name="info">Informazioni</string>
-    <string name="Install">Installa</string>
-    <string name="InstallDetail">Premi per installare LSPosed</string>
+    <string name="install">Installa</string>
+    <string name="install_summary">Premi per installare LSPosed</string>
     <string name="Modules">Moduli</string>
     <plurals name="modules_enabled_count">
         <item quantity="one">%d modulo abilitato</item>
@@ -57,8 +57,8 @@
     <!-- LogsActivity -->
     <string name="menuSend">Invia</string>
     <string name="menuSaveToSd">Salva</string>
-    <string name="nav_item_logs">Log verboso</string>
-    <string name="nav_item_logs_err">Log moduli</string>
+    <string name="nav_item_logs_lsp">Log verboso</string>
+    <string name="nav_item_logs_module">Log moduli</string>
     <string name="dont_show_again">Non mostrare di nuovo</string>
     <string name="logs_save_failed">Impossibile effettuare il salvataggio:</string>
     <string name="menuClearLog">Cancella il log ora</string>
@@ -103,13 +103,9 @@
     <string name="compile_failed">Ottimizzazione non riuscita o il valore restituito è vuoto.</string>
     <string name="compile_failed_with_info">Ottimizzazione fallita: </string>
     <string name="sort_by_name">Ordina per nome dell\'applicazione</string>
-    <string name="sort_by_name_reverse">Ordina per nome dell\'applicazione (inverso)</string>
     <string name="sort_by_package_name">Ordina per nome del pacchetto</string>
-    <string name="sort_by_package_name_reverse">Ordina per nome del pacchetto (inverso)</string>
     <string name="sort_by_install_time">Ordina per data di installazione</string>
-    <string name="sort_by_install_time_reverse">Ordina per data di installazione (inverso)</string>
     <string name="sort_by_update_time">Ordina per data di aggiornamento</string>
-    <string name="sort_by_update_time_reverse">Ordina per data di aggiornamento (inverso)</string>
     <string name="menu_show_system_apps">Applicazioni di sistema</string>
     <string name="menu_sort">Ordina…</string>
     <string name="enable_module">Abilita modulo</string>
@@ -186,7 +182,7 @@
     <string name="lsposed_not_active">LSPosed non è attualmente installato o attivo.</string>
     <string name="verbose_log_not_avaliable">Il log verboso non è disponibile. Se l\'hai appena abilitato senza riavviare, riprova dopo il riavvio.</string>
     <string name="NotInstall">Non installato</string>
-    <string name="NotInstallDetail">LSPosed non è installato</string>
+    <string name="not_install_summary">LSPosed non è installato</string>
     <string name="translators"><![CDATA[<a href="https://twitter.com/alex193a">alex193a</a>, <a href="https://github.com/Fs00">Fs00</a>]]></string>
     <string name="copy_toast_msg">Copiato</string>
     <string name="list_empty">¯\\\\_(ツ)_\\/¯\nNon c\'è nulla qui</string>

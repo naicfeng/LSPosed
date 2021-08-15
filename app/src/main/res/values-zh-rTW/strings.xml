@@ -21,8 +21,8 @@
 <resources>
     <!-- MainActivity -->
     <string name="info">資訊</string>
-    <string name="Install">安裝</string>
-    <string name="InstallDetail">點選安裝 LSPosed</string>
+    <string name="install">安裝</string>
+    <string name="install_summary">點選安裝 LSPosed</string>
     <string name="Modules">模組</string>
     <plurals name="modules_enabled_count">
 
@@ -57,8 +57,8 @@
     <!-- LogsActivity -->
     <string name="menuSend">傳送</string>
     <string name="menuSaveToSd">儲存</string>
-    <string name="nav_item_logs">詳細日誌</string>
-    <string name="nav_item_logs_err">模組日誌</string>
+    <string name="nav_item_logs_lsp">詳細日誌</string>
+    <string name="nav_item_logs_module">模組日誌</string>
     <string name="dont_show_again">不再提醒</string>
     <string name="logs_save_failed">儲存失敗：</string>
     <string name="menuClearLog">立即清理日誌</string>
@@ -103,15 +103,12 @@
     <string name="compile_failed">最佳化失敗或返回值為空</string>
     <string name="compile_failed_with_info">最佳化失敗：</string>
     <string name="sort_by_name">程式名稱</string>
-    <string name="sort_by_name_reverse">程式名稱（遞減）</string>
     <string name="sort_by_package_name">包體名稱</string>
-    <string name="sort_by_package_name_reverse">包體名稱（遞減）</string>
     <string name="sort_by_install_time">安裝時間</string>
-    <string name="sort_by_install_time_reverse">安裝時間（遞減）</string>
     <string name="sort_by_update_time">更新時間</string>
-    <string name="sort_by_update_time_reverse">更新時間（遞減）</string>
+    <string name="sort_reverse">遞減</string>
     <string name="menu_show_system_apps">系統程式</string>
-    <string name="menu_sort">排序……</string>
+    <string name="menu_sort">排序</string>
     <string name="enable_module">啟用模組</string>
     <string name="no_scope_selected">未選擇任何程式。是否繼續？</string>
     <string name="menu_show_games">遊戲</string>
@@ -125,7 +122,7 @@
     <string name="update_available">可用更新：%1$s</string>
     <string name="module_disabled_no_selection">由於未選擇任何程式，模組 %s 已被停用。</string>
     <string name="android_framework">系統框架</string>
-    <string name="menu_backup_and_restore">備份……</string>
+    <string name="menu_backup_and_restore">備份</string>
     <string name="menu_backup">備份</string>
     <string name="menu_restore">還原</string>
     <string name="force_stop">強制停止</string>
@@ -133,7 +130,7 @@
     <string name="force_stop_dlg_text">如果您強行停止應用程式，可能導致行為異常。</string>
     <string name="reboot_required">需要重新啟動手機才能套用此修改</string>
     <string name="reboot">重新啟動</string>
-    <string name="menu_hide">隱藏…</string>
+    <string name="menu_hide">隱藏</string>
 
     <!-- ModulesActivity and AppListActivity -->
     <string name="modules_other_app">在其他應用程式中檢視</string>
@@ -186,7 +183,7 @@
     <string name="lsposed_not_active">LSPosed 未正確安裝或啟用。</string>
     <string name="verbose_log_not_avaliable">詳細日誌不可用，如果您只是啟用了它而沒有重新啟動，請在重新啟動後再試一次。</string>
     <string name="NotInstall">尚未安裝</string>
-    <string name="NotInstallDetail">未安裝 LSPosed</string>
+    <string name="not_install_summary">未安裝 LSPosed</string>
     <string name="translators"><![CDATA[<a href="https://github.com/tony8077616">孟武.尼德霍格.龍</a>、<a href="https://github.com/david082321">david082321</a>]]></string>
     <string name="copy_toast_msg">已複製</string>
     <string name="list_empty">¯\\\\_(ツ)_\/¯\n空空如也</string>
