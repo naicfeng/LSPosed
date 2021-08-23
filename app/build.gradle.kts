@@ -62,7 +62,7 @@ android {
         versionName = verName
         resourceConfigurations += arrayOf(
             "en", "zh-rCN", "zh-rTW", "zh-rHK", "ru", "uk", "nl", "ko", "fr", "de",
-            "it", "pt", "es", "jp",
+            "it", "pt", "es", "ja"
         )
         buildConfigField("long", "BUILD_TIME", Instant.now().epochSecond.toString())
     }
@@ -176,11 +176,11 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment:$navVersion")
     implementation("androidx.navigation:navigation-ui:$navVersion")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.slidingpanelayout:slidingpanelayout:1.2.0-alpha03")
+    implementation("androidx.slidingpanelayout:slidingpanelayout:1.2.0-alpha04")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.github.bumptech.glide:glide:$glideVersion")
-    implementation("com.google.android.material:material:1.4.0")
-    implementation("com.google.code.gson:gson:2.8.7")
+    implementation("com.google.android.material:material:1.5.0-alpha02")
+    implementation("com.google.code.gson:gson:2.8.8")
     implementation("com.takisoft.preferencex:preferencex:1.1.0")
     implementation("com.takisoft.preferencex:preferencex-colorpicker:1.1.0")
     implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
@@ -195,7 +195,7 @@ dependencies {
     implementation("dev.rikka.rikkax.widget:borderview:1.0.1")
     implementation("dev.rikka.rikkax.widget:switchbar:1.0.2")
     implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.0.1")
-    implementation("me.zhanghai.android.appiconloader:appiconloader-glide:1.3.1")
+    implementation("me.zhanghai.android.appiconloader:appiconloader:1.3.1")
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:2.0")
     implementation(project(":manager-service"))
 }

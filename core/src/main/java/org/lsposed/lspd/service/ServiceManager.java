@@ -37,18 +37,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import hidden.HiddenApiBridge;
 
 public class ServiceManager {
+    public static final String TAG = "LSPosedService";
+    private static final ConcurrentHashMap<String, LSPModuleService> moduleServices = new ConcurrentHashMap<>();
+    private static final File globalNamespace = new File("/proc/1/root");
+    @SuppressWarnings("FieldCanBeLocal")
     private static LSPosedService mainService = null;
-    final private static ConcurrentHashMap<String, LSPModuleService> moduleServices = new ConcurrentHashMap<>();
     private static LSPApplicationService applicationService = null;
     private static LSPManagerService managerService = null;
     private static LSPSystemServerService systemServerService = null;
-    public static final String TAG = "LSPosedService";
-    private static final File globalNamespace = new File("/proc/1/root");
+    private static LogcatService logcatService = null;
 
     private static void waitSystemService(String name) {
         while (android.os.ServiceManager.getService(name) == null) {
             try {
                 Log.i(TAG, "service " + name + " is not started, wait 1s.");
+                //noinspection BusyWait
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Log.i(TAG, Log.getStackTraceString(e));
@@ -62,7 +65,7 @@ public class ServiceManager {
 
     // call by ourselves
     public static void start(String[] args) {
-        if (!ConfigManager.getInstance().tryLock()) System.exit(0);
+        if (!ConfigFileManager.tryLock()) System.exit(0);
 
         for (String arg : args) {
             if (arg.equals("--from-service")) {
@@ -76,6 +79,12 @@ public class ServiceManager {
             Log.e(TAG, "Uncaught exception", e);
             System.exit(1);
         });
+
+        logcatService = new LogcatService();
+        logcatService.start();
+        if (ConfigManager.getInstance().verboseLog()) {
+            logcatService.startVerbose();
+        }
 
         Process.setThreadPriority(Process.THREAD_PRIORITY_FOREGROUND);
         Looper.prepareMainLooper();
@@ -115,12 +124,6 @@ public class ServiceManager {
             }
         });
 
-        try {
-            ConfigManager.grantManagerPermission();
-        } catch (Throwable e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
-
         Looper.loop();
         throw new RuntimeException("Main thread loop unexpectedly exited");
     }
@@ -141,6 +144,10 @@ public class ServiceManager {
 
     public static LSPManagerService getManagerService() {
         return managerService;
+    }
+
+    public static LogcatService getLogcatService() {
+        return logcatService;
     }
 
     public static boolean systemServerRequested() {

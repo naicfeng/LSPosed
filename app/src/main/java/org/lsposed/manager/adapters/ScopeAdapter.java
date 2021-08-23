@@ -295,7 +295,7 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
             ConfigManager.startActivityAsUserWithFeature(new Intent(ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", info.packageName, null)), module.userId);
         } else if (itemId == R.id.menu_force_stop) {
             if (info.packageName.equals("android")) {
-                ConfigManager.reboot(false, null, false);
+                ConfigManager.reboot(false);
             } else {
                 new AlertDialog.Builder(activity)
                         .setTitle(R.string.force_stop_dlg_title)
@@ -387,7 +387,7 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
             if (!android) sb.append("\n");
             String recommended = activity.getString(R.string.requested_by_module);
             sb.append(recommended);
-            final ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourcesKt.resolveColor(activity.getTheme(), R.attr.colorAccent));
+            final ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourcesKt.resolveColor(activity.getTheme(), androidx.appcompat.R.attr.colorAccent));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 final TypefaceSpan typefaceSpan = new TypefaceSpan(Typeface.create("sans-serif-medium", Typeface.NORMAL));
                 sb.setSpan(typefaceSpan, sb.length() - recommended.length(), sb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -422,6 +422,7 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
             if (enabled) holder.checkbox.toggle();
         });
         holder.itemView.setOnLongClickListener(v -> {
+            fragment.searchView.clearFocus();
             selectedInfo = appInfo.applicationInfo;
             return false;
         });
@@ -452,9 +453,7 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
         }
         loadAppListHandler.removeMessages(0);
         if (!force) {
-            fragment.binding.progress.setVisibility(View.INVISIBLE);
             fragment.binding.progress.setIndeterminate(true);
-            fragment.binding.progress.setVisibility(View.VISIBLE);
         }
         enabled = moduleUtil.isModuleEnabled(module.packageName);
         fragment.binding.masterSwitch.setOnCheckedChangeListener(null);
@@ -479,7 +478,7 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
             buttonView.setChecked(!isChecked);
         } else if (appInfo.packageName.equals("android")) {
             Snackbar.make(fragment.binding.snackbar, R.string.reboot_required, Snackbar.LENGTH_SHORT)
-                    .setAction(R.string.reboot, v -> ConfigManager.reboot(false, null, false))
+                    .setAction(R.string.reboot, v -> ConfigManager.reboot(false))
                     .show();
         }
     }
@@ -623,6 +622,7 @@ public class ScopeAdapter extends RecyclerView.Adapter<ScopeAdapter.ViewHolder> 
     }
 
     public void onBackPressed() {
+        fragment.searchView.clearFocus();
         if (!refreshing && fragment.binding.masterSwitch.isChecked() && checkedList.isEmpty()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setMessage(!recommendedList.isEmpty() ? R.string.no_scope_selected_has_recommended : R.string.no_scope_selected);

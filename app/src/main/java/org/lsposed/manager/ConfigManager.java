@@ -60,7 +60,7 @@ public class ConfigManager {
             return LSPManagerServiceHolder.getService().getXposedVersionName();
         } catch (RemoteException e) {
             Log.e(App.TAG, Log.getStackTraceString(e));
-            return null;
+            return "";
         }
     }
 
@@ -193,7 +193,9 @@ public class ConfigManager {
 
     public static PackageInfo getPackageInfo(String packageName, int flags, int userId) throws PackageManager.NameNotFoundException {
         try {
-            return LSPManagerServiceHolder.getService().getPackageInfo(packageName, flags, userId);
+            var info = LSPManagerServiceHolder.getService().getPackageInfo(packageName, flags, userId);
+            if (info == null) throw new PackageManager.NameNotFoundException();
+            return info;
         } catch (RemoteException e) {
             Log.e(App.TAG, Log.getStackTraceString(e));
             throw new PackageManager.NameNotFoundException();
@@ -210,9 +212,9 @@ public class ConfigManager {
         }
     }
 
-    public static boolean reboot(boolean confirm, String reason, boolean wait) {
+    public static boolean reboot(boolean shutdown) {
         try {
-            LSPManagerServiceHolder.getService().reboot(confirm, reason, wait);
+            LSPManagerServiceHolder.getService().reboot(shutdown);
             return true;
         } catch (RemoteException e) {
             Log.e(App.TAG, Log.getStackTraceString(e));
@@ -296,5 +298,15 @@ public class ConfigManager {
             Log.e(App.TAG, Log.getStackTraceString(e));
         }
         return list;
+    }
+
+    public static boolean setHiddenIcon(boolean hide) {
+        try {
+            LSPManagerServiceHolder.getService().setHiddenIcon(hide);
+            return true;
+        } catch (RemoteException e) {
+            Log.e(App.TAG, Log.getStackTraceString(e));
+            return false;
+        }
     }
 }

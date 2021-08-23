@@ -58,7 +58,7 @@ dependencies {
     implementation("dev.rikka.ndk:riru:26.0.0")
     implementation("dev.rikka.ndk.thirdparty:cxx:1.1.0")
     implementation("io.github.vvb2060.ndk:dobby:1.2")
-    implementation("com.android.tools.build:apksig:7.0.0")
+    implementation("com.android.tools.build:apksig:7.0.1")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("de.upb.cs.swt:axml:2.1.1")
     compileOnly("androidx.annotation:annotation:1.2.0")
@@ -246,14 +246,21 @@ androidComponents.onVariants { v ->
 val adb: String = androidComponents.sdkComponents.adb.get().asFile.absolutePath
 val killLspd = task("killLspd", Exec::class) {
     commandLine(adb, "shell", "su", "-c", "killall -w lspd")
+    isIgnoreExitValue = true
 }
 val pushLspd = task("pushLspd", Exec::class) {
     dependsOn("mergeDexDebug")
     workingDir("$buildDir/intermediates/dex/debug/mergeDexDebug")
     commandLine(adb, "push", "classes.dex", "/data/local/tmp/lspd.dex")
 }
+val pushLspdNative = task("pushLspdNative", Exec::class) {
+    dependsOn("mergeDebugNativeLibs")
+    workingDir("$buildDir/intermediates/merged_native_libs/debug/out/lib/arm64-v8a")
+    commandLine(adb, "push", "libdaemon.so", "/data/local/tmp/libdaemon.so")
+}
 task("reRunLspd", Exec::class) {
     dependsOn(pushLspd)
+    dependsOn(pushLspdNative)
     dependsOn(killLspd)
     commandLine(adb, "shell", "su", "-c", "sh /data/adb/modules/riru_lsposed/service.sh&")
     isIgnoreExitValue = true
