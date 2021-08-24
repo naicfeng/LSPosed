@@ -145,6 +145,7 @@ public class SettingsFragment extends BaseFragment {
             SwitchPreference prefVerboseLogs = findPreference("disable_verbose_log");
             if (prefVerboseLogs != null) {
 //                prefVerboseLogs.setEnabled(installed);
+                prefVerboseLogs.setEnable(false);
                 prefVerboseLogs.setChecked(!installed || !ConfigManager.isVerboseLogEnabled());
                 prefVerboseLogs.setOnPreferenceChangeListener((preference, newValue) ->
                         ConfigManager.setVerboseLogEnabled(!(boolean) newValue));

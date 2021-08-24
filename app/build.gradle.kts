@@ -74,8 +74,8 @@ android {
 
     lint {
         disable += "MissingTranslation"
-        isAbortOnError = true
-        isCheckReleaseBuilds = false
+        abortOnError = true
+        checkReleaseBuilds = false
     }
 
     packagingOptions {
@@ -166,7 +166,7 @@ tasks.whenTaskAdded {
 dependencies {
     val glideVersion = "4.12.0"
     val okhttpVersion = "4.9.1"
-    val navVersion = "2.3.5"
+    val navVersion = "2.4.0-alpha07"
     annotationProcessor("com.github.bumptech.glide:compiler:$glideVersion")
     implementation("androidx.activity:activity:1.3.1")
     implementation("androidx.browser:browser:1.3.0")
@@ -189,7 +189,7 @@ dependencies {
     implementation("dev.rikka.rikkax.appcompat:appcompat:1.2.0-rc01")
     implementation("dev.rikka.rikkax.core:core:1.3.2")
     implementation("dev.rikka.rikkax.insets:insets:1.1.0")
-    implementation("dev.rikka.rikkax.material:material:1.6.5")
+    implementation("dev.rikka.rikkax.material:material:1.6.6")
     implementation("dev.rikka.rikkax.preference:simplemenu-preference:1.0.3")
     implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.2")
     implementation("dev.rikka.rikkax.widget:borderview:1.0.1")
