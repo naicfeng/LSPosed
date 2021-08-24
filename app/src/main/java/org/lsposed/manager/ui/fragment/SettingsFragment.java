@@ -146,7 +146,8 @@ public class SettingsFragment extends BaseFragment {
             if (prefVerboseLogs != null) {
 //                prefVerboseLogs.setEnabled(installed);
                 prefVerboseLogs.setEnabled(false);
-                prefVerboseLogs.setChecked(!installed || !ConfigManager.isVerboseLogEnabled());
+                prefVerboseLogs.setChecked(true);
+//                prefVerboseLogs.setChecked(!installed || !ConfigManager.isVerboseLogEnabled());
                 prefVerboseLogs.setOnPreferenceChangeListener((preference, newValue) ->
                         ConfigManager.setVerboseLogEnabled(!(boolean) newValue));
             }

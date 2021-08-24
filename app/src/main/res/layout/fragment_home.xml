@@ -227,7 +227,7 @@
                             android:textColor="@android:color/darker_gray" />
                     </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
-
+<!--
                 <LinearLayout
                     android:id="@+id/logs"
                     android:layout_width="match_parent"
@@ -254,7 +254,7 @@
                         android:text="@string/Logs"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
                 </LinearLayout>
-
+-->
                 <LinearLayout
                     android:id="@+id/settings"
                     android:layout_width="match_parent"

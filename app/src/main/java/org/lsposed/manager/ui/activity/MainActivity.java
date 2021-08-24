@@ -106,10 +106,10 @@ public class MainActivity extends BaseActivity {
                     if (!ConfigManager.isBinderAlive()) break;
                     navController.navigate(R.id.action_modules_fragment);
                     break;
-                case "logs":
-                    if (!ConfigManager.isBinderAlive()) break;
-                    navController.navigate(R.id.action_logs_fragment);
-                    break;
+//                case "logs":
+//                    if (!ConfigManager.isBinderAlive()) break;
+//                    navController.navigate(R.id.action_logs_fragment);
+//                    break;
                 case "repo":
                     if (!ConfigManager.isBinderAlive() && !ConfigManager.isMagiskInstalled()) break;
                     navController.navigate(R.id.action_repo_fragment);

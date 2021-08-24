@@ -91,7 +91,7 @@ public class HomeFragment extends BaseFragment {
         });
         binding.modules.setOnClickListener(new StartFragmentListener(R.id.action_modules_fragment, true));
         binding.download.setOnClickListener(new StartFragmentListener(R.id.action_repo_fragment, false));
-        binding.logs.setOnClickListener(new StartFragmentListener(R.id.action_logs_fragment, true));
+//        binding.logs.setOnClickListener(new StartFragmentListener(R.id.action_logs_fragment, true));
         binding.settings.setOnClickListener(new StartFragmentListener(R.id.action_settings_fragment, false));
         binding.about.setOnClickListener(v -> {
             DialogAboutBinding binding = DialogAboutBinding.inflate(LayoutInflater.from(requireActivity()), null, false);
