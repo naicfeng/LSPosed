@@ -808,6 +808,8 @@ public class ConfigManager {
     }
 
     public void setVerboseLog(boolean on) {
+        verboseLog = on;
+        updateModulePrefs("lspd", 0, "config", "enable_verbose_log", false);
 /*
         var logcatService = ServiceManager.getLogcatService();
         if (on) {
@@ -831,6 +833,7 @@ public class ConfigManager {
 
     public ParcelFileDescriptor getModulesLog() {
         return null;
+/*
         try {
             var modulesLog = ServiceManager.getLogcatService().getModulesLog();
             if (modulesLog == null) return null;
@@ -839,10 +842,12 @@ public class ConfigManager {
             Log.e(TAG, Log.getStackTraceString(e));
             return null;
         }
+*/
     }
 
     public ParcelFileDescriptor getVerboseLog() {
         return null;
+/*
         try {
             var verboseLog = ServiceManager.getLogcatService().getVerboseLog();
             if (verboseLog == null) return null;
@@ -851,10 +856,12 @@ public class ConfigManager {
             Log.e(TAG, Log.getStackTraceString(e));
             return null;
         }
+*/
     }
 
     public boolean clearLogs(boolean verbose) {
         return true;
+/*
         var logcatService = ServiceManager.getLogcatService();
         File logFile = verbose ? logcatService.getVerboseLog() : logcatService.getModulesLog();
         if (logFile == null) return true;
@@ -866,6 +873,7 @@ public class ConfigManager {
             Log.e(TAG, Log.getStackTraceString(e));
             return false;
         }
+*/
     }
 
     public boolean isManager(String packageName) {
