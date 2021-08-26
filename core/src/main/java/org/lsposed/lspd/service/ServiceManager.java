@@ -80,7 +80,7 @@ public class ServiceManager {
             System.exit(1);
         });
 
-//        logcatService = new LogcatService();
+        logcatService = new LogcatService();
 //        logcatService.start();
 
         Process.setThreadPriority(Process.THREAD_PRIORITY_FOREGROUND);
@@ -123,7 +123,7 @@ public class ServiceManager {
 
         // Force logging on boot, now let's see if we need to stop logging
         if (!ConfigManager.getInstance().verboseLog()) {
-            logcatService.stopVerbose();
+//            logcatService.stopVerbose();
         }
 
         Looper.loop();

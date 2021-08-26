@@ -31,9 +31,9 @@ public class LogcatService implements Runnable {
 
     @Override
     public void run() {
-        Log.i(TAG, "start running");
-        runLogcat();
-        Log.i(TAG, "stoped");
+//        Log.i(TAG, "start running");
+//        runLogcat();
+//        Log.i(TAG, "stoped");
     }
 
     @SuppressWarnings("unused")
@@ -60,7 +60,8 @@ public class LogcatService implements Runnable {
     }
 
     public void start() {
-        if (isRunning()) return;
+        return;
+//        if (isRunning()) return;
         thread = new Thread(this);
         thread.setName("logcat");
         thread.setUncaughtExceptionHandler((t, e) -> {

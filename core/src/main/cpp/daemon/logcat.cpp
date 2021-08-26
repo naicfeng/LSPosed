@@ -133,6 +133,7 @@ void Logcat::ProcessBuffer(struct log_msg *buf) {
 }
 
 void Logcat::Run() {
+/*
     constexpr size_t tail_after_crash = 10U;
     size_t tail = 0;
     RefreshFd(true);
@@ -165,6 +166,7 @@ void Logcat::Run() {
         fprintf(modules_file_.get(), "\nLogd maybe crashed, retrying in 1s...\n");
         sleep(1);
     }
+*/
 }
 
 extern "C"
