@@ -35,7 +35,8 @@ public:
     explicit Logcat(JNIEnv *env, jobject thiz, jmethodID method) :
             env_(env), thiz_(thiz), refresh_fd_method_(method) {}
 
-    [[noreturn]] void Run();
+    void Run();
+//    [[noreturn]] void Run();
 
 private:
     inline void RefreshFd(bool is_verbose);
@@ -64,6 +65,7 @@ private:
 };
 
 int Logcat::PrintLogLine(const AndroidLogEntry &entry, FILE *out) {
+    return 0;
     if (!out) return 0;
     constexpr static size_t kMaxTimeBuff = 64;
     struct tm tm{};

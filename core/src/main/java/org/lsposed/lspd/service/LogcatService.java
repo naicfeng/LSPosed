@@ -39,6 +39,7 @@ public class LogcatService implements Runnable {
     @SuppressWarnings("unused")
     private int refreshFd(boolean isVerboseLog) {
         File log;
+        return -1;
         if (isVerboseLog) {
             verboseLog = ConfigFileManager.getNewVerboseLogPath();
             log = verboseLog;
