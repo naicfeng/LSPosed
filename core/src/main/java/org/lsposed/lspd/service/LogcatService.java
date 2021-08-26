@@ -40,6 +40,7 @@ public class LogcatService implements Runnable {
     private int refreshFd(boolean isVerboseLog) {
         File log;
         return -1;
+/*
         if (isVerboseLog) {
             verboseLog = ConfigFileManager.getNewVerboseLogPath();
             log = verboseLog;
@@ -54,6 +55,7 @@ public class LogcatService implements Runnable {
             Log.w(TAG, "someone chattr +i ?", e);
             return -1;
         }
+*/
     }
 
     public boolean isRunning() {
@@ -62,6 +64,7 @@ public class LogcatService implements Runnable {
 
     public void start() {
         return;
+/*
 //        if (isRunning()) return;
         thread = new Thread(this);
         thread.setName("logcat");
@@ -71,6 +74,7 @@ public class LogcatService implements Runnable {
             start();
         });
         thread.start();
+*/
     }
 
     public void startVerbose() {
