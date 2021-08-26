@@ -20,6 +20,8 @@
 package org.lsposed.manager.ui.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -27,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
@@ -36,6 +39,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.Lifecycle;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -46,7 +50,6 @@ import org.lsposed.manager.databinding.FragmentRepoBinding;
 import org.lsposed.manager.databinding.ItemOnlinemoduleBinding;
 import org.lsposed.manager.repo.RepoLoader;
 import org.lsposed.manager.repo.model.OnlineModule;
-import org.lsposed.manager.util.LinearLayoutManagerFix;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -63,6 +66,8 @@ public class RepoFragment extends BaseFragment implements RepoLoader.Listener {
     protected FragmentRepoBinding binding;
     protected SearchView searchView;
     private SearchView.OnQueryTextListener mSearchListener;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private boolean preLoadWebview = true;
 
     private final RepoLoader repoLoader = RepoLoader.getInstance();
     private RepoAdapter adapter;
@@ -96,7 +101,7 @@ public class RepoFragment extends BaseFragment implements RepoLoader.Listener {
         adapter.setHasStableIds(true);
         binding.recyclerView.setAdapter(adapter);
         binding.recyclerView.setHasFixedSize(true);
-        binding.recyclerView.setLayoutManager(new LinearLayoutManagerFix(requireActivity()));
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));
         RecyclerViewKt.fixEdgeEffect(binding.recyclerView, false, true);
         binding.progress.setVisibilityAfterHide(View.GONE);
         repoLoader.addListener(this);
@@ -125,6 +130,18 @@ public class RepoFragment extends BaseFragment implements RepoLoader.Listener {
     public void onResume() {
         super.onResume();
         adapter.initData();
+        if (preLoadWebview) {
+            mHandler.postDelayed(() -> {
+                new WebView(requireContext());
+            }, 500);
+            preLoadWebview = false;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        mHandler.removeCallbacksAndMessages(null);
+        super.onDetach();
     }
 
     @Override
