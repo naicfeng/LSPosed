@@ -21,7 +21,6 @@
 package org.lsposed.manager.ui.fragment;
 
 import static org.lsposed.manager.App.TAG;
-
 import static java.lang.Math.max;
 
 import android.annotation.SuppressLint;
@@ -113,7 +112,7 @@ public class LogsFragment extends BaseFragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 verbose = tab.getPosition() == 1;
-                reloadErrorLog();
+                reloadLogs();
             }
 
             @Override
@@ -138,7 +137,7 @@ public class LogsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        reloadErrorLog();
+        reloadLogs();
     }
 
     @Override
@@ -158,7 +157,7 @@ public class LogsFragment extends BaseFragment {
                 binding.recyclerView.smoothScrollToPosition(max(adapter.getItemCount() - 1, 0));
             }
         } else if (itemId == R.id.menu_refresh) {
-            reloadErrorLog();
+            reloadLogs();
             return true;
         } else if (itemId == R.id.menu_save) {
             save();
@@ -177,7 +176,7 @@ public class LogsFragment extends BaseFragment {
         binding = null;
     }
 
-    private void reloadErrorLog() {
+    private void reloadLogs() {
         ParcelFileDescriptor parcelFileDescriptor = ConfigManager.getLog(verbose);
         if (parcelFileDescriptor != null) {
             new LogsReader().execute(parcelFileDescriptor.getFileDescriptor());
@@ -193,7 +192,7 @@ public class LogsFragment extends BaseFragment {
     private void clear() {
         if (ConfigManager.clearLogs(verbose)) {
             Snackbar.make(binding.snackbar, R.string.logs_cleared, Snackbar.LENGTH_SHORT).show();
-            reloadErrorLog();
+            adapter.clearLogs();
         } else {
             Snackbar.make(binding.snackbar, R.string.logs_clear_failed_2, Snackbar.LENGTH_SHORT).show();
         }
@@ -322,6 +321,11 @@ public class LogsFragment extends BaseFragment {
             this.logs.clear();
             this.logs.addAll(logs);
             notifyDataSetChanged();
+        }
+
+        void clearLogs() {
+            notifyItemRangeRemoved(0, logs.size());
+            logs.clear();
         }
 
         @Override
