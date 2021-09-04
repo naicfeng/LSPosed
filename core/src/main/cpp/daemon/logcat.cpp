@@ -10,7 +10,13 @@
 
 using namespace std::string_view_literals;
 
-constexpr size_t kMaxLogSize = 32 * 1024 * 1024;
+constexpr size_t kMaxLogSize = 4 * 1024 * 1024;
+
+#ifndef NDEBUG
+    constexpr size_t kLogBufferSize = 1 * 1024 * 1024;
+#else
+    constexpr size_t kLogBufferSize = 256 * 1024;
+#endif
 
 constexpr std::array<char, ANDROID_LOG_SILENT + 1> kLogChar = {
         /*ANDROID_LOG_UNKNOWN*/'?',
@@ -47,7 +53,7 @@ private:
 
     void ProcessBuffer(struct log_msg *buf);
 
-    static int PrintLogLine(const AndroidLogEntry &entry, FILE *out);
+    static size_t PrintLogLine(const AndroidLogEntry &entry, FILE *out);
 
     JNIEnv *env_;
     jobject thiz_;
@@ -64,8 +70,9 @@ private:
     bool verbose_ = true;
 };
 
-int Logcat::PrintLogLine(const AndroidLogEntry &entry, FILE *out) {
+size_t Logcat::PrintLogLine(const AndroidLogEntry &entry, FILE *out) {
     return 0;
+/*
     if (!out) return 0;
     constexpr static size_t kMaxTimeBuff = 64;
     struct tm tm{};
@@ -83,12 +90,15 @@ int Logcat::PrintLogLine(const AndroidLogEntry &entry, FILE *out) {
     }
     localtime_r(&now, &tm);
     strftime(time_buff.data(), time_buff.size(), "%Y-%m-%dT%H:%M:%S", &tm);
+    // implicitly convert to size_t and intentionally trigger overflow when failed
+    // to generate a new fd
     return fprintf(out, "[ %s.%03ld %8d:%6d:%6d %c/%-15.*s ] %.*s\n",
                    time_buff.data(),
                    nsec / MS_PER_NSEC,
                    entry.uid, entry.pid, entry.tid,
                    kLogChar[entry.priority], static_cast<int>(entry.tagLen),
                    entry.tag, static_cast<int>(message_len), message);
+*/
 }
 
 void Logcat::RefreshFd(bool is_verbose) {
@@ -145,12 +155,12 @@ void Logcat::ProcessBuffer(struct log_msg *buf) {
 void Logcat::Run() {
 /*
     constexpr size_t tail_after_crash = 10U;
-    constexpr size_t kMaxRestartLogdWait = 1024U;
+    constexpr size_t max_restart_logd_wait = 1U << 10;
     size_t tail = 0;
     RefreshFd(true);
     RefreshFd(false);
-    size_t logd_crash_times = 0;
-    size_t logd_restart_wait = 8;
+    size_t logd_crash_count = 0;
+    size_t logd_restart_wait = 1 << 3;
     while (true) {
         std::unique_ptr<logger_list, decltype(&android_logger_list_free)> logger_list{
                 android_logger_list_alloc(0, tail, 0), &android_logger_list_free};
@@ -159,7 +169,7 @@ void Logcat::Run() {
         for (log_id id:{LOG_ID_MAIN, LOG_ID_CRASH}) {
             auto *logger = android_logger_open(logger_list.get(), id);
             if (logger == nullptr) continue;
-            android_logger_set_log_size(logger, kMaxLogSize);
+            android_logger_set_log_size(logger, kLogBufferSize);
         }
 
         struct log_msg msg{};
@@ -175,15 +185,20 @@ void Logcat::Run() {
             if (verbose_print_count_ >= kMaxLogSize) [[unlikely]] RefreshFd(true);
             if (modules_print_count_ >= kMaxLogSize) [[unlikely]] RefreshFd(false);
         }
-        logd_crash_times++;
-        if (logd_crash_times >= logd_restart_wait) {
-                fprintf(verbose_file_.get(), "\nLogd crashed too many times, trying mannually start...\n");
-                fprintf(modules_file_.get(), "\nLogd crashed too many times, trying mannually start...\n");
-                __system_property_set("ctl.restart", "logd");
-                if (logd_restart_wait < kMaxRestartLogdWait) logd_restart_wait *= 2;
-                else logd_crash_times = 0;
+        logd_crash_count++;
+        if (logd_crash_count >= logd_restart_wait) {
+            fprintf(verbose_file_.get(),
+                    "\nLogd crashed too many times, trying manually start...\n");
+            fprintf(modules_file_.get(),
+                    "\nLogd crashed too many times, trying manually start...\n");
+            __system_property_set("ctl.restart", "logd");
+            if (logd_restart_wait < max_restart_logd_wait) {
+                logd_restart_wait <<= 1;
+            } else {
+                logd_crash_count = 0;
+            }
         }
-        
+
         fprintf(verbose_file_.get(), "\nLogd maybe crashed, retrying in 1s...\n");
         fprintf(modules_file_.get(), "\nLogd maybe crashed, retrying in 1s...\n");
         sleep(1);
