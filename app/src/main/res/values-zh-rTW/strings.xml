@@ -33,7 +33,10 @@
     <string name="about_view_source_code"><![CDATA[在 %1$s 檢視原始碼<br/>加入我們的 %2$s 頻道]]></string>
     <string name="about_translators">翻譯者：%s</string>
     <string name="translators"><![CDATA[<a href="https://github.com/tony8077616">孟武.尼德霍格.龍</a>、<a href="https://github.com/david082321">david082321</a>]]></string>
+    <string name="install">安裝</string>
+    <string name="install_summary">點選安裝 LSPosed</string>
     <string name="not_installed">未安裝</string>
+    <string name="not_install_summary">未安裝 LSPosed</string>
     <string name="activated">已啟用</string>
     <string name="partial_activated">部分啟用</string>
     <string name="selinux_policy_not_loaded_summary">SEPolicy 未被正確讀取</string>
@@ -53,6 +56,9 @@
     <string name="info_system_abi">系統架構</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">儲存</string>
+    <string name="nav_item_logs_lsp">LSPosed 日誌</string>
+    <string name="nav_item_logs_module">模組日誌</string>
+    <string name="logs_save_failed2">儲存失敗：\n%s</string>
     <string name="menuClearLog">立即清理日誌</string>
     <string name="logs_cleared">日誌清理成功</string>
     <string name="scroll_top">滑動到最上面</string>
@@ -67,6 +73,8 @@
     <string name="module_is_not_activated_yet_detailed">%s 已安裝，但尚未啟用</string>
     <string name="xposed_module_updated_notification_title">Xposed 模組已更新</string>
     <string name="xposed_module_updated_notification_content">%s 已更新</string>
+    <string name="xposed_module_updated_notification_title_system">Xposed 模組已更新，需要重新啟動。</string>
+    <string name="xposed_module_updated_notification_content_system">%s 已更新，由於作用域包含系統框架，需要重新啟動以套用修改。</string>
     <!-- ModulesActivity -->
     <string name="module_empty_description">（未提供介紹）</string>
     <string name="module_no_ui">該模組未提供使用者介面</string>
@@ -96,6 +104,7 @@
     <string name="sort_by_package_name">包體名稱</string>
     <string name="sort_by_install_time">安裝時間</string>
     <string name="sort_by_update_time">更新時間</string>
+    <string name="sort_reverse">遞減</string>
     <string name="menu_show_system_apps">系統程式</string>
     <string name="menu_sort">排序</string>
     <string name="enable_module">啟用模組</string>
@@ -135,7 +144,9 @@
     <string name="settings_backup_and_restore">備份與還原</string>
     <string name="settings_backup_and_restore_summery">備份或還原模組列表和範圍清單。</string>
     <string name="settings_backup">備份</string>
+    <string name="settings_backup_failed2">備份失敗：\n%s</string>
     <string name="settings_restore">還原</string>
+    <string name="settings_restore_failed2">還原失敗：\n%s</string>
     <string name="group_network">網路</string>
     <string name="dns_over_http">安全 DNS（DoH）</string>
     <string name="dns_over_http_summary">解決某些地區的 DNS 汙染問題</string>
@@ -160,6 +171,9 @@
     <string name="repo_load_failed">模組倉庫載入失敗：%s</string>
     <!-- CrashReportActivity -->
     <string name="app_destroyed">此應用程式可能已毀損，請從官方來源下載該應用程式的最新版本。</string>
+    <string name="outdated_core">LSPosed 應用程式的版本高於框架。請更新 LSPosed 框架。</string>
     <string name="outdated_manager">LSPosed 框架的版本高於應用程式。請從 /data/adb/lspd/manager.apk 更新 LSPosed 應用程式。</string>
+    <string name="manager_crashed">應用程式出現未知錯誤</string>
+    <string name="copy_crash_info">複製錯誤訊息</string>
     <string name="copy_toast_msg">已複製</string>
 </resources>
