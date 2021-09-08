@@ -12,6 +12,7 @@
 
 # LSPosed Framework
 
+
 ![Core](https://github.com/naicfeng/LSPosed/workflows/Core/badge.svg) ![Manager](https://github.com/naicfeng/LSPosed/workflows/Manager/badge.svg) 
 
 
@@ -63,6 +64,10 @@ We use our own module repository. We welcome developers to submit modules to our
 - Telegram: [@LSPosed](http://t.me/LSPosed)
 
 Notice: These community group don't accept any bug report, please use [Get help](#get-help) to report.
+
+## Translation Contribute
+
+You can contribute translation [here](https://lsposed.crowdin.com/lsposed).
 
 ## Credits 
 

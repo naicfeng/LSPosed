@@ -14,15 +14,20 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
   ~
+  ~ Copyright (C) 2020 EdXposed Contributors
   ~ Copyright (C) 2021 LSPosed Contributors
   -->
 
-<resources>
-    <color name="color_primary">@color/color_primary_dark</color>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <color name="ic_launcher_foreground">@color/material_pink_300</color>
-    <color name="ic_launcher_background">@color/material_light_blue_50</color>
+    <item
+        android:id="@+id/menu_refresh"
+        android:title="@string/refresh" />
+    <item
+        android:id="@+id/menu_info"
+        android:title="@string/info" />
+    <item
+        android:id="@+id/menu_about"
+        android:title="@string/About" />
 
-    <color name="home_secondary_outline_ambient_shadow_color">@color/material_grey_700</color>
-    <color name="home_secondary_outline_spot_shadow_color">@color/material_grey_600</color>
-</resources>
+</menu>

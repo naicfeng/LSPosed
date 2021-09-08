@@ -29,7 +29,6 @@ import android.system.Os;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.preference.PreferenceManager;
 
 import com.google.gson.JsonParser;
@@ -197,6 +196,8 @@ public class App extends Application {
     }
 
     public static boolean needUpdate() {
+        return false;
+/*
         var pref = getPreferences();
         if (!pref.getBoolean("checked", false)) return false;
         var now = Instant.now();
@@ -210,5 +211,6 @@ public class App extends Application {
             return code > BuildConfig.VERSION_CODE;
         }
         return buildTime.atOffset(ZoneOffset.UTC).plusDays(30).toInstant().isBefore(now);
+*/
     }
 }
