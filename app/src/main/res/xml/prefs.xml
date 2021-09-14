@@ -30,6 +30,27 @@
             android:title="@string/dns_over_http" />
     </com.takisoft.preferencex.PreferenceCategory>
 
+    <com.takisoft.preferencex.PreferenceCategory android:title="@string/settings_language">
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="SYSTEM"
+            android:entries="@array/language"
+            android:entryValues="@array/language_value"
+            android:icon="@drawable/ic_baseline_translate_24"
+            android:summary="%s"
+            android:key="language"
+            android:title="@string/settings_language" />
+
+        <Preference
+            android:key="translation_contributors"
+            android:title="@string/settings_translation_contributors"
+            app:enableCopying="true" />
+
+        <Preference
+            android:key="translation"
+            android:title="@string/settings_translation" />
+    </com.takisoft.preferencex.PreferenceCategory>
+
     <com.takisoft.preferencex.PreferenceCategory android:title="@string/settings_group_theme">
         <SwitchPreference
             android:defaultValue="true"
@@ -85,17 +106,5 @@
         <Preference
             android:key="restore"
             android:title="@string/settings_restore" />
-    </com.takisoft.preferencex.PreferenceCategory>
-
-    <com.takisoft.preferencex.PreferenceCategory
-        android:key="settings_group_system"
-        android:title="@string/settings_group_system">
-        <SwitchPreference
-            android:defaultValue="true"
-            android:enabled="false"
-            android:key="show_hidden_icon_apps_enabled"
-            android:persistent="false"
-            android:summary="@string/settings_show_hidden_icon_apps_enabled_summary"
-            android:title="@string/settings_show_hidden_icon_apps_enabled" />
     </com.takisoft.preferencex.PreferenceCategory>
 </PreferenceScreen>

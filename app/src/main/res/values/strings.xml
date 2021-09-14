@@ -33,8 +33,7 @@
     <string name="module_repo">Repository</string>
     <string name="module_repo_summary">Module repository (Beta)</string>
     <string name="about_view_source_code"><![CDATA[View source code at %1$s<br/>Join our %2$s channel]]></string>
-    <string name="about_translators">Translators: %s</string>
-    <string name="translators"><![CDATA[<a href="https://github.com/LSPosed/LSPosed">LSPosed</a>]]></string>
+    <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself.">null</string>
 
     <string name="install">Install</string>
     <string name="install_summary">Tap to install LSPosed</string>
@@ -166,6 +165,11 @@
     <string name="settings_show_hidden_icon_apps_enabled">Force apps to show launcher icons</string>
     <string name="settings_show_hidden_icon_apps_enabled_summary">After Android 10, apps are not allowed to hide their launcher icons. Turn off the toggle to disable this system feature.</string>
     <string name="settings_group_system">System</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_translation_contributors">Translation contributors</string>
+    <string name="settings_translation">Participate in translation</string>
+    <string name="settings_translation_summary">Help us translate %s into your language</string>
+    <string name="settings_translation_summary_percentage">" (%s are translated)"</string>
 
     <!-- Module Repo -->
     <string name="module_readme">Readme</string>
@@ -186,6 +190,7 @@
     <string name="outdated_core">LSPosed app is newer than framework. Please update LSPosed framework.</string>
     <string name="outdated_manager">LSPosed framework is newer than app. Please update the app from /data/adb/lspd/manager.apk manually.</string>
     <string name="manager_crashed">Manager crashed</string>
-    <string name="copy_crash_info">Copy crash info</string>
-    <string name="copy_toast_msg">Copied</string>
+    <string name="manager_crashed_info">report this to </string>
+    <string name="send_crash_info">Send crash info</string>
+    <string name="crash_info_copied">Crash info copied to clipboard</string>
 </resources>

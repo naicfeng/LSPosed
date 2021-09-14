@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Process;
 import android.system.Os;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -39,15 +40,18 @@ import org.lsposed.manager.ui.activity.CrashReportActivity;
 import org.lsposed.manager.util.DoHDNS;
 import org.lsposed.manager.util.theme.ThemeUtil;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import okhttp3.Cache;
 import okhttp3.Call;
@@ -57,8 +61,26 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import rikka.material.app.DayNightDelegate;
+import rikka.material.app.LocaleDelegate;
 
 public class App extends Application {
+    public static final FutureTask<String> HTML_TEMPLATE = new FutureTask<>(() -> readWebviewHTML("template.html"));
+    public static final FutureTask<String> HTML_TEMPLATE_DARK = new FutureTask<>(() -> readWebviewHTML("template_dark.html"));
+
+    private static String readWebviewHTML(String name) {
+        try {
+            var input = App.getInstance().getAssets().open("webview/" + name);
+            var result = new ByteArrayOutputStream(1024);
+            var buffer = new byte[1024];
+            for (int length; (length = input.read(buffer)) != -1; ) {
+                result.write(buffer, 0, length);
+            }
+            return result.toString(StandardCharsets.UTF_8.name());
+        } catch (IOException e) {
+            Log.e(App.TAG, "read webview HTML", e);
+            return "<html><body>@body@</body></html>";
+        }
+    }
 
     static {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -130,8 +152,13 @@ public class App extends Application {
         }
         DayNightDelegate.setApplicationContext(this);
         DayNightDelegate.setDefaultNightMode(ThemeUtil.getDarkTheme());
+        LocaleDelegate.setDefaultLocale(getLocale());
+
 //        loadRemoteVersion();
         RepoLoader.getInstance().loadRemoteData();
+
+        executorService.submit(HTML_TEMPLATE);
+        executorService.submit(HTML_TEMPLATE_DARK);
     }
 
     @NonNull
@@ -212,5 +239,13 @@ public class App extends Application {
         }
         return buildTime.atOffset(ZoneOffset.UTC).plusDays(30).toInstant().isBefore(now);
 */
+    }
+
+    public static Locale getLocale() {
+        String tag = getPreferences().getString("language", null);
+        if (TextUtils.isEmpty(tag) || "SYSTEM".equals(tag)) {
+            return Locale.getDefault();
+        }
+        return Locale.forLanguageTag(tag);
     }
 }
