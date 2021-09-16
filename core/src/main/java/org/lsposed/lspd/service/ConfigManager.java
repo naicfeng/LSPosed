@@ -244,15 +244,6 @@ public class ConfigManager {
         }
     }
 
-    public void ensureManager() {
-        if (!PackageService.isAlive()) return;
-        new Thread(() -> {
-            if (PackageService.installManagerIfAbsent(manager, ConfigFileManager.managerApkPath)) {
-                updateManager();
-            }
-        }).start();
-    }
-
     static ConfigManager getInstance() {
         if (instance == null)
             instance = new ConfigManager();
@@ -536,9 +527,7 @@ public class ConfigManager {
 
     // This is called when a new process created, use the cached result
     public boolean shouldSkipProcess(ProcessScope scope) {
-        return !cachedScope.containsKey(scope) &&
-                !isManager(scope.uid) &&
-                !shouldBlock(scope.processName);
+        return !cachedScope.containsKey(scope) && !isManager(scope.uid);
     }
 
     public boolean isUidHooked(int uid) {
@@ -798,6 +787,15 @@ public class ConfigManager {
 //        return verboseLog;
     }
 
+    public ParcelFileDescriptor getManagerApk() {
+        try {
+            return ConfigFileManager.getManagerApk();
+        } catch (Throwable e) {
+            Log.e(TAG, "failed to open manager apk", e);
+            return null;
+        }
+    }
+
     public ParcelFileDescriptor getModulesLog() {
         return null;
 /*
@@ -850,10 +848,6 @@ public class ConfigManager {
 
     public boolean isManager(int uid) {
         return uid == managerUid;
-    }
-
-    public boolean shouldBlock(String packageName) {
-        return packageName.equals("io.github.lsposed.manager") || isManager(packageName);
     }
 
     public String getPrefsPath(String fileName, int uid) {
