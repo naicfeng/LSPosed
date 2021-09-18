@@ -4,13 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [ LSPosed ]
-    paths-ignore:
-    - 'app/**'
-    - '.github/workflows/manager.yml'
-  pull_request:
-    paths-ignore:
-    - 'app/**'
-    - '.github/workflows/manager.yml'
 
 jobs:
   build:
