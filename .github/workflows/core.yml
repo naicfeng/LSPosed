@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [ LSPosed ]
+  pull_request:
 
 jobs:
   build:
@@ -96,7 +97,9 @@ jobs:
 #      uses: actions/upload-artifact@v2
 #      with:
 #        name: mappings
-#        path: "core/build/outputs/mapping/release"
+#        path: |
+#          core/build/outputs/mapping/release
+#          app/build/outputs/mapping/release
 #    - name: Post to channel
 #      if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
 #      env:
