@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 
 import org.lsposed.lspd.BuildConfig;
 
+import java.io.FileDescriptor;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
@@ -31,6 +32,7 @@ public class ActivityController extends IActivityController.Stub {
     private static Constructor<?> myActivityControllerConstructor = null;
     private static Method myActivityControllerRunner = null;
     private static boolean inited = false;
+    private static int fdSize = -1;
 
     private static IActivityController controller = null;
 
@@ -46,6 +48,10 @@ public class ActivityController extends IActivityController.Stub {
             myActivityControllerConstructor.setAccessible(true);
             myActivityControllerRunner = myActivityControllerClass.getDeclaredMethod("run");
             myActivityControllerRunner.setAccessible(true);
+            var tmp = Parcel.obtain();
+            tmp.writeFileDescriptor(FileDescriptor.in);
+            fdSize = tmp.dataPosition();
+            tmp.recycle();
             inited = true;
         } catch (Throwable e) {
             Log.e(TAG, "Failed to init ActivityController", e);
@@ -62,50 +68,53 @@ public class ActivityController extends IActivityController.Stub {
         return instance;
     }
 
-    static boolean replaceShellCommand(IBinder am, Parcel data) {
+    static boolean replaceShellCommand(IBinder am, Parcel data, Parcel reply) {
         if (!inited) return false;
         try {
-            var in = data.readFileDescriptor();
-            var out = data.readFileDescriptor();
-            var err = data.readFileDescriptor();
+            data.setDataPosition(fdSize * 3);
             String[] args = data.createStringArray();
-            ShellCallback shellCallback = ShellCallback.CREATOR.createFromParcel(data);
-            ResultReceiver resultReceiver = ResultReceiver.CREATOR.createFromParcel(data);
 
             if (args.length > 0 && "monitor".equals(args[0])) {
-                new ShellCommand() {
-                    @Override
-                    public int onCommand(String cmd) {
-                        final PrintWriter pw = getOutPrintWriter();
-                        String opt;
-                        String gdbPort = null;
-                        boolean monkey = false;
-                        while ((opt = getNextOption()) != null) {
-                            if (opt.equals("--gdb")) {
-                                gdbPort = getNextArgRequired();
-                            } else if (opt.equals("-m")) {
-                                monkey = true;
-                            } else {
-                                getErrPrintWriter().println("Error: Unknown option: " + opt);
-                                return -1;
+                data.setDataPosition(0);
+                try (var in = data.readFileDescriptor();
+                     var out = data.readFileDescriptor();
+                     var err = data.readFileDescriptor()) {
+                    data.createStringArray();
+                    ShellCallback shellCallback = ShellCallback.CREATOR.createFromParcel(data);
+                    ResultReceiver resultReceiver = ResultReceiver.CREATOR.createFromParcel(data);
+                    new ShellCommand() {
+                        @Override
+                        public int onCommand(String cmd) {
+                            final PrintWriter pw = getOutPrintWriter();
+                            String opt;
+                            String gdbPort = null;
+                            boolean monkey = false;
+                            while ((opt = getNextOption()) != null) {
+                                if (opt.equals("--gdb")) {
+                                    gdbPort = getNextArgRequired();
+                                } else if (opt.equals("-m")) {
+                                    monkey = true;
+                                } else {
+                                    getErrPrintWriter().println("Error: Unknown option: " + opt);
+                                    return -1;
+                                }
                             }
+
+                            return replaceMyControllerActivity(am, pw, getRawInputStream(), gdbPort, monkey);
                         }
 
-                        return replaceMyControllerActivity(am, pw, getRawInputStream(), gdbPort, monkey);
-                    }
+                        @Override
+                        public void onHelp() {
 
-                    @Override
-                    public void onHelp() {
-
-                    }
-                }.exec((Binder) am, in.getFileDescriptor(), out.getFileDescriptor(), err.getFileDescriptor(), args, shellCallback, resultReceiver);
-                if (in != null) in.detachFd();
-                if (out != null) out.detachFd();
-                if (err != null) err.detachFd();
+                        }
+                    }.exec((Binder) am, in.getFileDescriptor(), out.getFileDescriptor(), err.getFileDescriptor(), args, shellCallback, resultReceiver);
+                } catch (Throwable e) {
+                    Log.e(TAG, "replace shell command", e);
+                } finally {
+                    if (reply != null) reply.writeNoException();
+                }
                 return true;
             }
-        } catch (Throwable e) {
-            Log.e(TAG, "replace shell command", e);
         } finally {
             data.setDataPosition(0);
         }
