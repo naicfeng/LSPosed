@@ -38,11 +38,16 @@ public class LogcatService implements Runnable {
         return -1;
 /*
         try {
-            File log = isVerboseLog ? (verboseLog = ConfigFileManager.getNewVerboseLogPath()) :
-                    (modulesLog = ConfigFileManager.getNewModulesLogPath());
+            File log = isVerboseLog ? ConfigFileManager.getNewVerboseLogPath() : ConfigFileManager.getNewModulesLogPath();
             Log.i(TAG, "New " + (isVerboseLog ? "verbose" : "modules") + " log file: " + log);
-            return ParcelFileDescriptor.open(log, mode).detachFd();
+            int fd = ParcelFileDescriptor.open(log, mode).detachFd();
+            var fdFile = new File("/proc/self/fd/" + fd);
+            if (isVerboseLog) verboseLog = fdFile;
+            else modulesLog = fdFile;
+            return fd;
         } catch (IOException e) {
+            if (isVerboseLog) verboseLog = null;
+            else modulesLog = null;
             Log.w(TAG, "someone chattr +i ?", e);
             return -1;
         }
