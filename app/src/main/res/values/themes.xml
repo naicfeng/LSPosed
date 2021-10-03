@@ -27,16 +27,11 @@
         <item name="colorSecondary">?colorPrimary</item>
         <item name="colorSecondaryVariant">?colorPrimary</item>
         <item name="colorOnSecondary">@android:color/white</item>
-        <item name="colorSurface">@android:color/white</item>
+        <item name="colorTertiary">?colorPrimary</item>
+        <item name="colorOnTertiary">@android:color/white</item>
         <item name="colorError">@color/material_red_500</item>
         <item name="colorNormal">@color/material_green_500</item>
         <item name="colorInstall">@color/material_blue_500</item>
-
-        <item name="actionBarStyle">@style/Widget.Material.ActionBar.Surface</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.ActionBar</item>
-        <item name="toolbarStyle">@style/Widget.Material.Toolbar</item>
-
-        <item name="appBarStyle">@style/Widget.AppBar.Surface.Raisable</item>
 
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
@@ -55,16 +50,11 @@
         <item name="colorSecondary">?colorPrimary</item>
         <item name="colorSecondaryVariant">?colorPrimary</item>
         <item name="colorOnSecondary">@android:color/black</item>
-        <item name="colorSurface">@color/google_grey_900</item>
+        <item name="colorTertiary">?colorPrimary</item>
+        <item name="colorOnTertiary">@android:color/black</item>
         <item name="colorError">@color/material_red_200</item>
         <item name="colorNormal">@color/material_green_200</item>
         <item name="colorInstall">@color/material_blue_200</item>
-
-        <item name="actionBarStyle">@style/Widget.Material.ActionBar.Surface</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.ActionBar</item>
-        <item name="toolbarStyle">@style/Widget.Material.Toolbar</item>
-
-        <item name="appBarStyle">@style/Widget.AppBar.Surface.Raisable</item>
 
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
@@ -76,45 +66,6 @@
     </style>
 
     <style name="Theme" parent="Base.AppTheme" />
-
-    <style name="Widget.AppBar" parent="">
-        <item name="android:background">?toolbarColor</item>
-        <item name="android:theme">?actionBarTheme</item>
-        <item name="android:stateListAnimator">@animator/raise_animator</item>
-        <item name="android:elevation">2dp</item>
-    </style>
-
-    <style name="Widget.Material.Toolbar" parent="Widget.MaterialComponents.Toolbar">
-        <item name="android:background">?android:colorBackground</item>
-    </style>
-
-    <style name="Widget.AppBar.Surface">
-        <item name="android:background">?android:colorBackground</item>
-        <item name="android:stateListAnimator">@animator/alpha_animator</item>
-        <item name="android:elevation">@dimen/app_bar_elevation</item>
-    </style>
-
-    <style name="Widget.AppBar.Surface.Raisable">
-        <item name="android:elevation">0dp</item>
-        <item name="android:stateListAnimator">@animator/raise_animator</item>
-    </style>
-
-    <style name="ThemeOverlay.ActionBar" parent="ThemeOverlay.MaterialComponents.ActionBar">
-        <item name="elevation">0dp</item>
-        <item name="titleTextAppearance">
-            @android:style/TextAppearance.Material.Widget.Toolbar.Title
-        </item>
-        <item name="subtitleTextAppearance">
-            @android:style/TextAppearance.Material.Widget.Toolbar.Subtitle
-        </item>
-    </style>
-
-    <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="iconPadding">0dp</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
-        <item name="android:minWidth">48dp</item>
-    </style>
 
     <style name="DeviceInfoDialogLabel">
         <item name="android:textAlignment">viewStart</item>
@@ -128,35 +79,36 @@
         <item name="android:paddingBottom">24dp</item>
     </style>
 
-    <style name="HomeItem">
+    <style name="HomeCard" parent="Widget.Material3.CardView.Elevated">
         <item name="android:layout_marginHorizontal">16dp</item>
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
-        <item name="cardCornerRadius">8dp</item>
         <item name="cardPreventCornerOverlap">false</item>
     </style>
 
-    <style name="HomeItem.Primary">
+    <style name="HomeCard.Primary">
         <item name="android:layout_marginTop">16dp</item>
         <item name="cardElevation">@dimen/home_primary_elevation</item>
     </style>
 
-    <style name="HomeItem.Secondary">
+    <style name="HomeCard.Secondary">
         <item name="cardElevation">@dimen/home_secondary_elevation</item>
-        <item name="android:outlineAmbientShadowColor" tools:targetApi="p">
-            @color/home_secondary_outline_ambient_shadow_color
-        </item>
-        <item name="android:outlineSpotShadowColor" tools:targetApi="p">
-            @color/home_secondary_outline_spot_shadow_color
-        </item>
+        <item name="android:outlineAmbientShadowColor" tools:targetApi="p">?attr/colorSurface</item>
+        <item name="android:outlineSpotShadowColor" tools:targetApi="p">?attr/colorSurface</item>
     </style>
 
-    <style name="HomeItem.Tertiary">
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:background">@drawable/item_background_round_nopadding</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:padding">16dp</item>
+    <style name="HomeCard.Tertiary">
+        <item name="android:stateListAnimator">@null</item>
+        <item name="cardBackgroundColor">@android:color/transparent</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+
+    <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="iconPadding">0dp</item>
+        <item name="android:paddingLeft">@dimen/mtrl_btn_icon_btn_padding_left</item>
+        <item name="android:paddingRight">@dimen/mtrl_btn_icon_btn_padding_left</item>
+        <item name="android:minWidth">36dp</item>
     </style>
 
 </resources>

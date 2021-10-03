@@ -624,10 +624,16 @@ public class ConfigManager {
         }
     }
 
-    public boolean setModuleScope(String packageName, List<Application> scopes) {
+    public boolean setModuleScope(String packageName, List<Application> scopes) throws RemoteException {
         if (scopes == null) return false;
         int mid = getModuleId(packageName);
-        if (mid == -1) return false;
+        if (mid == -1) {
+            var info = PackageService.getPackageInfo(packageName, MATCH_ALL_FLAGS, 0);
+            if (info != null && updateModuleApkPath(packageName, getModuleApkPath(info.applicationInfo), false)) {
+                mid = getModuleId(packageName);
+                if (mid == -1) return false;
+            } else return false;
+        }
         Application self = new Application();
         self.packageName = packageName;
         self.userId = 0;
@@ -670,7 +676,10 @@ public class ConfigManager {
     public boolean removeModule(String packageName) {
         if (removeModuleWithoutCache(packageName)) {
             // called by oneway binder
-            updateCaches(true);
+            // Called only when the application is completely uninstalled
+            // If it's a module we need to return as soon as possible to broadcast to the manager
+            // for updating the module status
+            updateCaches(false);
             return true;
         }
         return false;
