@@ -54,6 +54,11 @@
     <string name="info_system_version">Versi sistem</string>
     <string name="info_device">Perangkat</string>
     <string name="info_system_abi">Sistem ABI</string>
+    <string name="parasitic_recommend">Parasitic Manager Direkomendasikan</string>
+    <string name="parasitic_recommend_summary">LSPosed sekarang mendukung parasitisasi sistem untuk menghindari deteksi. Anda dapat menghapus instalan manajer dengan aman setelah berhasil membuat pintasan manajer parasit. Bagaimanapun, Anda dapat menginstal kembali manajer dari /data/adb/lspd/manager.apk.</string>
+    <string name="create_shortcut">Buat pintasan</string>
+    <string name="never_show">Jangan pernah ditampilkan</string>
+    <string name="failed_to_create_shortcut">Gagal membuat pintasan: %1$s</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Simpan</string>
     <string name="nav_item_logs_lsp">Log LSPosed</string>
@@ -175,7 +180,6 @@
     <string name="module_release_no_more">Tidak ada rilis</string>
     <string name="repo_load_failed">Gagal memuat repo modul: %s</string>
     <!-- CrashReportActivity -->
-    <string name="app_destroyed">Aplikasi ini berbahaya, silakan unduh versi terbaru aplikasi ini dari sumber resmi.</string>
     <string name="outdated_core">Aplikasi LSPosed lebih baru dari kerangka kerja. Harap perbarui kerangka kerja LSPosed.</string>
     <string name="outdated_manager">Kerangka kerja LSPosed lebih baru dari aplikasi. Harap perbarui aplikasi dari /data/adb/lspd/manager.apk secara manual.</string>
     <string name="manager_crashed">Manajer rusak</string>

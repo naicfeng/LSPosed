@@ -59,6 +59,11 @@
     <string name="info_system_version">إصدار النظام</string>
     <string name="info_device">الجهاز</string>
     <string name="info_system_abi">نظام ABI</string>
+    <string name="parasitic_recommend">مدير طفيلي موصى به</string>
+    <string name="parasitic_recommend_summary">يدعم LSPosed الآن تطهير النظام لتجنب الكشف. يمكنك إلغاء تثبيت المدير بأمان بعد إنشاء اختصار للمدير الطفيلي بنجاح. في كل الأحوال، يمكنك تثبيت المدير مرة أخرى من /data/adb/lspd/manager.apk.</string>
+    <string name="create_shortcut">إنشاء إختصار</string>
+    <string name="never_show">لا تظهر أبداً</string>
+    <string name="failed_to_create_shortcut">فشل إنشاء اختصار: %1$s</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">حفظ</string>
     <string name="nav_item_logs_lsp">سجلات LSPosed</string>
@@ -180,7 +185,6 @@
     <string name="module_release_no_more">لا مزيد من الإصدار</string>
     <string name="repo_load_failed">فشل تحميل مستودع الوحدة: %s</string>
     <!-- CrashReportActivity -->
-    <string name="app_destroyed">قد يتم تدمير هذا التطبيق، يرجى تحميل أحدث إصدار من هذا التطبيق من المصدر الرسمي.</string>
     <string name="outdated_core">تطبيق LSPosed أحدث من الإطار. الرجاء تحديث إطار LSPosd.</string>
     <string name="outdated_manager">إطار LSPosed أحدث من التطبيق. الرجاء تحديث التطبيق من /data/adb/lspd/manager.apk يدويا.</string>
     <string name="manager_crashed">تعطل المدير</string>

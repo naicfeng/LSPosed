@@ -42,11 +42,14 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.SELinux;
 import android.os.SystemProperties;
+import android.system.ErrnoException;
+import android.system.Os;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -56,6 +59,7 @@ import org.lsposed.lspd.ILSPManagerService;
 import org.lsposed.lspd.models.Application;
 import org.lsposed.lspd.models.UserInfo;
 import org.lsposed.lspd.util.FakeContext;
+import android.os.Handler;
 import org.lsposed.lspd.util.Utils;
 
 import java.io.File;
@@ -81,7 +85,15 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     public static final String CHANNEL_NAME = "LSPosed Manager";
     public static final int CHANNEL_IMP = NotificationManager.IMPORTANCE_HIGH;
 
+    private static final HandlerThread worker = new HandlerThread("manager worker");
+    private static final Handler workerHandler;
+
     private static Intent managerIntent = null;
+
+    static {
+        worker.start();
+        workerHandler = new Handler(worker.getLooper());
+    }
 
     public class ManagerGuard implements IBinder.DeathRecipient {
         private final @NonNull
@@ -166,7 +178,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                 var intent = PackageService.getLaunchIntentForPackage(BuildConfig.MANAGER_INJECTED_PKG_NAME);
                 if (intent == null) {
                     var pkgInfo = PackageService.getPackageInfo(BuildConfig.MANAGER_INJECTED_PKG_NAME, PackageManager.GET_ACTIVITIES, 0);
-                    if (pkgInfo.activities != null && pkgInfo.activities.length > 0) {
+                    if (pkgInfo != null && pkgInfo.activities != null && pkgInfo.activities.length > 0) {
                         for (var activityInfo : pkgInfo.activities) {
                             if (activityInfo.processName.equals(activityInfo.packageName)) {
                                 intent = new Intent();
@@ -177,10 +189,12 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                         }
                     }
                 }
-                if (intent.getCategories() != null) intent.getCategories().clear();
-                intent.addCategory("org.lsposed.manager.LAUNCH_MANAGER");
-                intent.setPackage(BuildConfig.MANAGER_INJECTED_PKG_NAME);
-                managerIntent = (Intent) intent.clone();
+                if (intent != null) {
+                    if (intent.getCategories() != null) intent.getCategories().clear();
+                    intent.addCategory("org.lsposed.manager.LAUNCH_MANAGER");
+                    intent.setPackage(BuildConfig.MANAGER_INJECTED_PKG_NAME);
+                    managerIntent = (Intent) intent.clone();
+                }
             }
         } catch (Throwable e) {
             Log.e(TAG, "get Intent", e);
@@ -261,9 +275,14 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         }
     }
 
-    public static void createOrUpdateShortcut() {
+
+    public static void createOrUpdateShortcut(boolean force) {
+        workerHandler.post(()->createOrUpdateShortcutInternal(force));
+    }
+
+    private synchronized static void createOrUpdateShortcutInternal(boolean force) {
         try {
-            if (ConfigManager.getInstance().isManagerInstalled()) {
+            if (!force && ConfigManager.getInstance().isManagerInstalled()) {
                 Log.d(TAG, "Manager has installed, skip adding shortcut");
                 return;
             }
@@ -312,6 +331,11 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     private void ensureWebViewPermission(File f) {
         if (!f.exists()) return;
         SELinux.setFileContext(f.getAbsolutePath(), "u:object_r:privapp_data_file:s0");
+        try {
+            Os.chown(f.getAbsolutePath(), BuildConfig.MANAGER_INJECTED_UID, BuildConfig.MANAGER_INJECTED_UID);
+        } catch (ErrnoException e) {
+            Log.e(TAG, "chown of webview", e);
+        }
         if (f.isDirectory()) {
             for (var g : f.listFiles()) {
                 ensureWebViewPermission(g);
@@ -322,9 +346,14 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     private void ensureWebViewPermission() {
         try {
             var pkgInfo = PackageService.getPackageInfo(BuildConfig.MANAGER_INJECTED_PKG_NAME, 0, 0);
-            var cacheDir = new File(HiddenApiBridge.ApplicationInfo_credentialProtectedDataDir(pkgInfo.applicationInfo) + "/cache");
+            File cacheDir = null;
+            if (pkgInfo != null) {
+                cacheDir = new File(HiddenApiBridge.ApplicationInfo_credentialProtectedDataDir(pkgInfo.applicationInfo) + "/cache");
+            }
             var webviewDir = new File(cacheDir, "WebView");
+            webviewDir.mkdirs();
             var httpCacheDir = new File(cacheDir, "http_cache");
+            httpCacheDir.mkdirs();
             ensureWebViewPermission(webviewDir);
             ensureWebViewPermission(httpCacheDir);
         } catch (Throwable e) {
@@ -630,8 +659,10 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         args.putString("value", hide ? "0" : "1");
         args.putString("_user", "0");
         try {
-            ActivityManagerService.getContentProvider("settings", 0)
-                    .call("android", null, "settings", "PUT_global", "show_hidden_icon_apps_enabled", args);
+            var contentProvider = ActivityManagerService.getContentProvider("settings", 0);
+            if (contentProvider != null) {
+                contentProvider.call("android", null, "settings", "PUT_global", "show_hidden_icon_apps_enabled", args);
+            }
         } catch (RemoteException | NullPointerException e) {
             Log.w(TAG, "setHiddenIcon: ", e);
         }
@@ -646,5 +677,10 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     public void restartFor(Intent intent) throws RemoteException {
         forceStopPackage(BuildConfig.MANAGER_INJECTED_PKG_NAME, 0);
         stopAndStartActivity(BuildConfig.MANAGER_INJECTED_PKG_NAME, intent, false);
+    }
+
+    @Override
+    public void createShortcut() {
+        createOrUpdateShortcut(true);
     }
 }

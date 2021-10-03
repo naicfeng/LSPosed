@@ -44,6 +44,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.takisoft.preferencex.PreferenceFragmentCompat;
 
 import org.lsposed.manager.App;
+import org.lsposed.manager.BuildConfig;
 import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.FragmentSettingsBinding;
@@ -145,9 +146,9 @@ public class SettingsFragment extends BaseFragment {
             boolean installed = ConfigManager.isBinderAlive();
             SwitchPreference prefVerboseLogs = findPreference("disable_verbose_log");
             if (prefVerboseLogs != null) {
-//                prefVerboseLogs.setEnabled(installed);
                 prefVerboseLogs.setEnabled(false);
                 prefVerboseLogs.setChecked(true);
+//                prefVerboseLogs.setEnabled(!BuildConfig.DEBUG && installed);
 //                prefVerboseLogs.setChecked(!installed || !ConfigManager.isVerboseLogEnabled());
                 prefVerboseLogs.setOnPreferenceChangeListener((preference, newValue) ->
                         ConfigManager.setVerboseLogEnabled(!(boolean) newValue));
@@ -257,7 +258,7 @@ public class SettingsFragment extends BaseFragment {
                 var userLocale = App.getLocale();
                 var entries = new ArrayList<CharSequence>();
                 entries.add(language.getEntries()[0]);
-                var lstLang = getAppLanguages(getContext(), R.string.Settings);
+                var lstLang = getAppLanguages(requireContext(), R.string.Settings);
                 for (var lang : lstLang) {
                     var locale = Locale.forLanguageTag(lang);
                     entries.add(HtmlCompat.fromHtml(String.format("%s - %s",

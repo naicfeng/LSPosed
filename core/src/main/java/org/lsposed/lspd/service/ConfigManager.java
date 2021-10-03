@@ -227,10 +227,14 @@ public class ConfigManager {
             Log.e(TAG, Log.getStackTraceString(e));
         }
 
-        updateManager();
+        updateManager(false);
     }
 
-    public synchronized void updateManager() {
+    public synchronized void updateManager(boolean uninstalled) {
+        if (uninstalled) {
+            managerUid = -1;
+            return;
+        }
         if (!PackageService.isAlive()) return;
         try {
             PackageInfo info = PackageService.getPackageInfo(BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME, 0, 0);
@@ -256,7 +260,7 @@ public class ConfigManager {
                 Log.d(TAG, "pm is ready, updating cache");
                 // must ensure cache is valid for later usage
                 instance.updateCaches(true);
-                instance.updateManager();
+                instance.updateManager(false);
             }
         }
         return instance;
@@ -766,9 +770,9 @@ public class ConfigManager {
     }
 
     public void setVerboseLog(boolean on) {
-        verboseLog = on;
-        updateModulePrefs("lspd", 0, "config", "enable_verbose_log", false);
+        return;
 /*
+        if (BuildConfig.DEBUG) return;
         var logcatService = ServiceManager.getLogcatService();
         if (on) {
             logcatService.startVerbose();
@@ -785,8 +789,7 @@ public class ConfigManager {
     }
 
     public boolean verboseLog() {
-        return false;
-//        return verboseLog;
+        return BuildConfig.DEBUG || verboseLog;
     }
 
     public ParcelFileDescriptor getManagerApk() {
@@ -827,21 +830,8 @@ public class ConfigManager {
     }
 
     public boolean clearLogs(boolean verbose) {
+//        ServiceManager.getLogcatService().refresh(verbose);
         return true;
-/*
-        var logcatService = ServiceManager.getLogcatService();
-        File logFile = verbose ? logcatService.getVerboseLog() : logcatService.getModulesLog();
-        if (logFile == null) return true;
-        try {
-            OutputStream os = new FileOutputStream(logFile);
-            os.close();
-            return true;
-        } catch (IOException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-            return false;
-        }
-        ServiceManager.getLogcatService().refresh(verbose);
-*/
     }
 
     public boolean isManager(int uid) {
