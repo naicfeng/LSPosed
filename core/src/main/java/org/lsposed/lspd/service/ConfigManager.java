@@ -451,6 +451,7 @@ public class ConfigManager {
             final var obsoletePackages = new HashSet<Application>();
             final var obsoleteModules = new HashSet<Application>();
             final var moduleAvailability = new HashMap<Pair<String, Integer>, Boolean>();
+            final var cachedProcessScope = new HashMap<Pair<String, Integer>, List<ProcessScope>>();
             while (cursor.moveToNext()) {
                 Application app = new Application();
                 app.packageName = cursor.getString(appPkgNameIdx);
@@ -478,7 +479,13 @@ public class ConfigManager {
                 if (app.packageName.equals("android")) continue;
 
                 try {
-                    List<ProcessScope> processesScope = getAssociatedProcesses(app);
+                    List<ProcessScope> processesScope = cachedProcessScope.computeIfAbsent(new Pair<>(app.packageName, app.userId), (k) -> {
+                        try {
+                            return getAssociatedProcesses(app);
+                        } catch (RemoteException e) {
+                            return Collections.emptyList();
+                        }
+                    });
                     if (processesScope.isEmpty()) {
                         obsoletePackages.add(app);
                         continue;
@@ -624,16 +631,10 @@ public class ConfigManager {
         }
     }
 
-    public boolean setModuleScope(String packageName, List<Application> scopes) throws RemoteException {
+    public boolean setModuleScope(String packageName, List<Application> scopes) {
         if (scopes == null) return false;
         int mid = getModuleId(packageName);
-        if (mid == -1) {
-            var info = PackageService.getPackageInfo(packageName, MATCH_ALL_FLAGS, 0);
-            if (info != null && updateModuleApkPath(packageName, getModuleApkPath(info.applicationInfo), false)) {
-                mid = getModuleId(packageName);
-                if (mid == -1) return false;
-            } else return false;
-        }
+        if (mid == -1) return false;
         Application self = new Application();
         self.packageName = packageName;
         self.userId = 0;
