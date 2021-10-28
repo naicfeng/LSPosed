@@ -6,6 +6,8 @@ import org.lsposed.lspd.models.Application;
 
 
 interface ILSPManagerService {
+    String getApi() = 1;
+
     ParceledListSlice<PackageInfo> getInstalledPackagesFromAllUsers(int flags, boolean filterNoProcess) = 2;
 
     String[] enabledModules() = 3;
@@ -75,4 +77,6 @@ interface ILSPManagerService {
     oneway void flashZip(String zipPath, in ParcelFileDescriptor outputStream) = 39;
 
     boolean performDexOptMode(String packageName) = 40;
+
+    List<String> getDenyListPackages() = 41;
 }

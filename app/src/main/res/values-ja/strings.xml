@@ -67,7 +67,6 @@
     <string name="logs_cannot_read">ログの読み込みに失敗: \n</string>
     <string name="menuReload">再読込</string>
     <string name="logs_clear_failed_2">ログの消去に失敗</string>
-    <string name="verbose_log_not_avaliable">詳細ログが存在しません。ログ出力有効化に再起動を行っていない場合、再起動して下さい。</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">Xposed モジュールが有効化されていません</string>
     <string name="module_is_not_activated_yet_detailed">%s がインストール済みですが、有効化されていません</string>
@@ -151,6 +150,7 @@
     <string name="dns_over_http">HTTPS 経由の DNS</string>
     <string name="dns_over_http_summary">一部の国向けの DNSポイズニング 回避策</string>
     <string name="theme_color">テーマカラー</string>
+    <string name="theme_color_system">システムアクセントカラー</string>
     <string name="settings_show_hidden_icon_apps_enabled">ランチャーアイコンを強制的に表示</string>
     <string name="settings_show_hidden_icon_apps_enabled_summary">Android 10 以降ではアプリ(特に Xposed モジュール)ではランチャーアイコンを隠すことが出来ません。本機能を無効にするには、トグルをオフにして下さい。</string>
     <string name="settings_group_system">システム</string>
@@ -175,5 +175,6 @@
     <string name="outdated_core">LSPosedアプリはフレームワークより新しいです。LSPosedフレームワークを更新してください。</string>
     <string name="outdated_manager">LSPosed Manager と LSPosed Core のバージョンが一致していません。対応バージョンを再インストールして下さい。</string>
     <string name="manager_crashed">マネージャーがクラッシュしました</string>
+    <string name="send_crash_info">クラッシュ情報をコピーする</string>
     <!-- Colors -->
 </resources>

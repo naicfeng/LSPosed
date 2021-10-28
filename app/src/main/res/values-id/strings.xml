@@ -54,7 +54,7 @@
     <string name="info_system_version">Versi sistem</string>
     <string name="info_device">Perangkat</string>
     <string name="info_system_abi">Sistem ABI</string>
-    <string name="parasitic_recommend">Parasitic Manager Direkomendasikan</string>
+    <string name="parasitic_recommend">Manajer Parasit Direkomendasikan</string>
     <string name="parasitic_recommend_summary">LSPosed sekarang mendukung parasitisasi sistem untuk menghindari deteksi. Anda dapat menghapus instalan manajer dengan aman setelah berhasil membuat pintasan manajer parasit. Bagaimanapun, Anda dapat menginstal kembali manajer dari /data/adb/lspd/manager.apk.</string>
     <string name="create_shortcut">Buat pintasan</string>
     <string name="never_show">Jangan pernah ditampilkan</string>
@@ -72,7 +72,6 @@
     <string name="logs_cannot_read">Tidak dapat membaca log: \n</string>
     <string name="menuReload">Muat ulang</string>
     <string name="logs_clear_failed_2">Gagal menghapus log</string>
-    <string name="verbose_log_not_avaliable">Log lengkap tidak tersedia, jika Anda baru saja mengaktifkannya tanpa reboot, coba lagi setelah reboot.</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">Modul Xposed belum diaktifkan</string>
     <string name="module_is_not_activated_yet_detailed">%s telah terpasang, tetapi belum diaktifkan</string>
@@ -156,6 +155,7 @@
     <string name="dns_over_http">DNS over HTTPS</string>
     <string name="dns_over_http_summary">Mengatasi peracunan DNS di beberapa negara</string>
     <string name="theme_color">Warna tema</string>
+    <string name="theme_color_system">Warna aksen sistem</string>
     <string name="settings_show_hidden_icon_apps_enabled">Paksa aplikasi untuk menampilkan ikon peluncur</string>
     <string name="settings_show_hidden_icon_apps_enabled_summary">Setelah Android 10, aplikasi tidak diizinkan menyembunyikan ikon peluncurnya. Matikan untuk menonaktifkan fitur sistem ini.</string>
     <string name="settings_group_system">Sistem</string>

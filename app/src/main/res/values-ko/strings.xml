@@ -53,6 +53,7 @@
     <string name="menuSaveToSd">저장</string>
     <string name="nav_item_logs_lsp">LSPosed 로그</string>
     <string name="nav_item_logs_module">모듈 로그</string>
+    <string name="logs_save_failed2">복원 실패:\n%s</string>
     <string name="menuClearLog">로그 지우기</string>
     <string name="logs_cleared">로그를 성공적으로 지웠습니다.</string>
     <string name="scroll_top">맨 위로 스크롤</string>
@@ -61,7 +62,6 @@
     <string name="logs_cannot_read">로그를 읽지 못함: \n</string>
     <string name="menuReload">리로드</string>
     <string name="logs_clear_failed_2">로그를 지우지 못했습니다.</string>
-    <string name="verbose_log_not_avaliable">상세 로그를 사용할 수 없습니다. 재부팅하지 않고 방금 사용하도록 설정한 경우 재부팅 후 다시 시도하십시오.</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">LSPosed 모듈이 아직 활성화되지 않았습니다.</string>
     <string name="module_is_not_activated_yet_detailed">%s이(가) 설치되었지만 아직 활성화되지 않았습니다.</string>
@@ -98,7 +98,7 @@
     <string name="sort_by_update_time">업데이트 시간별로 정렬</string>
     <string name="sort_reverse">역순</string>
     <string name="menu_show_system_apps">시스템 앱</string>
-    <string name="menu_sort">정렬…</string>
+    <string name="menu_sort">정렬</string>
     <string name="enable_module">모듈 활성화</string>
     <string name="no_scope_selected">앱을 선택하지 않았습니다. 계속하시겠습니까?</string>
     <string name="menu_show_games">게임</string>
@@ -111,7 +111,7 @@
     <string name="requested_by_module">권장된</string>
     <string name="update_available">업데이트 가능: %1$s</string>
     <string name="module_disabled_no_selection">앱을 선택하지 않았기 때문에 %s 모듈이 비활성화되었습니다.</string>
-    <string name="menu_backup_and_restore">백업…</string>
+    <string name="menu_backup_and_restore">백업</string>
     <string name="menu_backup">백업</string>
     <string name="menu_restore">복원</string>
     <string name="force_stop">강제 중지</string>
@@ -140,6 +140,7 @@
     <string name="dns_over_http">DNS over HTTPS</string>
     <string name="dns_over_http_summary">일부 국가의 DNS 포이즈닝 문제를 해결합니다</string>
     <string name="theme_color">테마 색</string>
+    <string name="theme_color_system">System 강조 색</string>
     <string name="settings_show_hidden_icon_apps_enabled">앱에서 시작 프로그램 아이콘 표시</string>
     <string name="settings_show_hidden_icon_apps_enabled_summary">Android 10 이후 앱(특히 Xposed 모듈)은 시작 프로그램 아이콘을 숨길 수 없습니다. 이 기능을 비활성화하려면 토글을 끄십시오.</string>
     <string name="settings_language">언어</string>

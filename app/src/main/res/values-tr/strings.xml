@@ -61,7 +61,6 @@
     <string name="never_show">Asla gösterme</string>
     <string name="failed_to_create_shortcut">Kısayol oluştururken bir hata oluştu: %1$s</string>
     <string name="update_lsposed">LSPosed\'ı güncelle</string>
-    <string name="update_lsposed_msg">LSPosed\'ın yeni sürümünü kurmak ister misiniz? Tamamlandıktan sonra cihaz yeniden başlatılacak</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Kaydetme</string>
     <string name="nav_item_logs_lsp">LSPosed Günlüğü</string>
@@ -75,7 +74,6 @@
     <string name="logs_cannot_read">Günlük okunamıyor: \n</string>
     <string name="menuReload">Tekrar yükle</string>
     <string name="logs_clear_failed_2">Günlük temizlenemedi</string>
-    <string name="verbose_log_not_avaliable">Ayrıntılı günlük mevcut değil, yeniden başlatmadan etkinleştirdiyseniz, yeniden başlattıktan sonra tekrar deneyin.</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">Xposed modülü henüz etkinleştirilmedi</string>
     <string name="module_is_not_activated_yet_detailed">%s kuruldu, ancak henüz etkinleştirilmedi</string>
@@ -186,7 +184,7 @@
     <string name="outdated_core">LSPosed uygulaması çerçeveden daha yenidir. Lütfen LSPosed çerçevesini güncelleyin.</string>
     <string name="outdated_manager">LSPosed çerçevesi, uygulamadan daha yenidir. Lütfen uygulamayı /data/adb/lspd/manager.apk adresinden manuel olarak güncelleyin.</string>
     <string name="manager_crashed">Yönetici çöktü</string>
-    <string name="manager_crashed_info">bunu şuraya rapor et: </string>
+    <string name="manager_crashed_info">bunu şuraya rapor et </string>
     <string name="send_crash_info">Çökme bilgisi gönder</string>
     <string name="crash_info_copied">Çökme bilgisi panoya kopyalandı</string>
     <!-- Colors -->

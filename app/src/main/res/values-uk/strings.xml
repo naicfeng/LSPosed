@@ -56,6 +56,9 @@
     <string name="info_system_version">Версія системи</string>
     <string name="info_device">Пристрій</string>
     <string name="info_system_abi">Система ABI</string>
+    <string name="parasitic_recommend_summary">LSPosed тепер підтримує системну паразитізацію, щоб уникнути виявлення. Ви можете безпечно видалити менеджера після успішного створення ярлика менеджера паразитів. У будь-якому випадку ви можете встановити менеджер назад з /data/adb/lspd/manager.apk.</string>
+    <string name="create_shortcut">Створити ярлик</string>
+    <string name="failed_to_create_shortcut">Не вдалося створити ярлик: %1$s</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Зберегти</string>
     <string name="nav_item_logs_lsp">Журнали LSPosed</string>
@@ -69,7 +72,6 @@
     <string name="logs_cannot_read">Не вдається прочитати журнал: \n</string>
     <string name="menuReload">Перезавантажити</string>
     <string name="logs_clear_failed_2">Не вдалося очистити журнал</string>
-    <string name="verbose_log_not_avaliable">Детальний журнал не доступний, якщо ви тільки що увімкнули його без перезавантаження, спробуйте ще раз після перезавантаження.</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">Модуль LSPosed ще не активований</string>
     <string name="module_is_not_activated_yet_detailed">%s було встановлено, але ще не активовано</string>
@@ -122,7 +124,7 @@
     <string name="update_available">Доступне оновлення: %1$s</string>
     <string name="module_disabled_no_selection">Модуль %s вимкнено, оскільки жодна програма не вибрана.</string>
     <string name="android_framework">Системний фреймворк</string>
-    <string name="menu_backup_and_restore">Створення резервної копії…</string>
+    <string name="menu_backup_and_restore">Створення резервної копії</string>
     <string name="menu_backup">Створити резервну копію</string>
     <string name="menu_restore">Відновити</string>
     <string name="force_stop">Примусово зупинити</string>
@@ -153,6 +155,7 @@
     <string name="dns_over_http">DNS поверх HTTPS</string>
     <string name="dns_over_http_summary">Вирішення проблем із погіршенням DNS у деяких країнах</string>
     <string name="theme_color">Колір теми</string>
+    <string name="theme_color_system">Колір акцентів системи</string>
     <string name="settings_show_hidden_icon_apps_enabled">Примусово показувати значки запуску</string>
     <string name="settings_show_hidden_icon_apps_enabled_summary">Після Android 10 програмам не дозволяється приховати свої лаунчери. Вимкніть перемикач, щоб вимкнути цю систему функцію.</string>
     <string name="settings_group_system">Система</string>
@@ -160,6 +163,7 @@
     <string name="settings_translation_contributors">Автори перекладу</string>
     <string name="settings_translation">Брати участь в перекладі</string>
     <string name="settings_translation_summary">Допоможіть нам перекласти %s на вашу мову</string>
+    <string name="update_channel_nightly">Нічна збірка</string>
     <!-- Module Repo -->
     <string name="module_readme">Опис</string>
     <string name="module_releases">Релізи</string>
@@ -181,4 +185,6 @@
     <string name="send_crash_info">Надіслати інформацію про помилку</string>
     <string name="crash_info_copied">Інформація про помилку скопійована до буферу обміну</string>
     <!-- Colors -->
+    <string name="expand">розгорнути</string>
+    <string name="collapse">згорнути</string>
 </resources>

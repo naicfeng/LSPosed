@@ -342,6 +342,25 @@ public class ConfigManager {
         }
     }
 
+    public static String getApi() {
+        try {
+            return LSPManagerServiceHolder.getService().getApi();
+        } catch (RemoteException e) {
+            Log.e(App.TAG, Log.getStackTraceString(e));
+            return e.toString();
+        }
+    }
+
+    public static List<String> getDenyListPackages() {
+        List<String> list = new ArrayList<>();
+        try {
+            list.addAll(LSPManagerServiceHolder.getService().getDenyListPackages());
+        } catch (RemoteException e) {
+            Log.e(App.TAG, Log.getStackTraceString(e));
+        }
+        return list;
+    }
+
     public static void flashZip(String zipPath, ParcelFileDescriptor outputStream) {
         try {
             LSPManagerServiceHolder.getService().flashZip(zipPath, outputStream);

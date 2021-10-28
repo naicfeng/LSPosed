@@ -73,7 +73,6 @@
     <string name="logs_cannot_read">Não foi possível ler o registro: \n</string>
     <string name="menuReload">Recarregar</string>
     <string name="logs_clear_failed_2">Falha ao limpar o registro</string>
-    <string name="verbose_log_not_avaliable">O registro detalhado não está disponível, se você apenas ativou sem reiniciar, tente novamente após reiniciar.</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">O módulo do Xposed ainda não está ativo</string>
     <string name="module_is_not_activated_yet_detailed">%s foi instalado, mas ainda não está ativo</string>
@@ -157,6 +156,7 @@
     <string name="dns_over_http">DNS sobre HTTPS</string>
     <string name="dns_over_http_summary">Solução alternativa para envenenamento de DNS em alguns países</string>
     <string name="theme_color">Cor do tema</string>
+    <string name="theme_color_system">Cor de realce do sistema</string>
     <string name="settings_show_hidden_icon_apps_enabled">Forçar apps à exibirem ícones do lançador</string>
     <string name="settings_show_hidden_icon_apps_enabled_summary">Após o Android 10, alguns aplicativos não estão autorizados à ocultarem seus ícones do lançador. Desative esta opção para desligar este recurso do sistema.</string>
     <string name="settings_group_system">Sistema</string>
@@ -164,6 +164,7 @@
     <string name="settings_translation_contributors">Contribuidores de tradução</string>
     <string name="settings_translation">Participar da tradução</string>
     <string name="settings_translation_summary">Ajude-nos a traduzir %s para o seu idioma</string>
+    <string name="update_channel_stable">Estável</string>
     <!-- Module Repo -->
     <string name="module_readme">Leia-me</string>
     <string name="module_releases">Lançamentos</string>
@@ -185,4 +186,9 @@
     <string name="send_crash_info">Enviar informações do erro</string>
     <string name="crash_info_copied">Informações de erro copiadas para a área de transferência</string>
     <!-- Colors -->
+    <string name="color_pixel_blue">Pixel azul</string>
+    <string name="color_red">Vermelho</string>
+    <string name="color_purple">Roxo</string>
+    <string name="color_deep_purple">Roxo escuro</string>
+    <string name="color_light_blue">Azul claro</string>
 </resources>

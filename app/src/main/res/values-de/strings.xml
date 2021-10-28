@@ -61,7 +61,8 @@
     <string name="never_show">Niemals anzeigen</string>
     <string name="failed_to_create_shortcut">Fehler beim Erstellen der Verknüpfung: %1$s</string>
     <string name="update_lsposed">LSPosed aktualisieren</string>
-    <string name="update_lsposed_msg">Möchtest Sie eine neue Version von LSPosed installieren? Das Gerät wird nach Abschluss neu gestartet</string>
+    <string name="update_lsposed_msg">Soll LSPosed aktualisiert werden?
+Gerät wird nach dem Update neu gestartet</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">speichern</string>
     <string name="nav_item_logs_lsp">LSPosed Logs</string>
@@ -75,10 +76,9 @@
     <string name="logs_cannot_read">Protokoll kann nicht gelesen werden: \n</string>
     <string name="menuReload">Erneut laden</string>
     <string name="logs_clear_failed_2">Fehler beim Löschen des Protokolls</string>
-    <string name="verbose_log_not_avaliable">Ausführliches Protokoll ist nicht verfügbar, wenn Sie es nur ohne Neustart aktiviert haben, versuchen Sie es nach dem Neustart erneut.</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">Das LSPosed-Modul wurde noch nicht aktiviert</string>
-    <string name="module_is_not_activated_yet_detailed">%s installiert, aber noch nicht aktiviert</string>
+    <string name="module_is_not_activated_yet_detailed">%s wurde installiert, aber noch nicht aktiviert</string>
     <string name="xposed_module_updated_notification_title">Aktualisiertes LSPosed-Modul</string>
     <string name="xposed_module_updated_notification_content">%s wurde aktualisiert</string>
     <string name="xposed_module_updated_notification_title_system">Xposed-Modul aktualisiert, Systemneustart erforderlich</string>
@@ -114,11 +114,12 @@
     <string name="sort_by_update_time">Nach Aktualisierungszeit sortieren</string>
     <string name="sort_reverse">Umkehren</string>
     <string name="menu_show_system_apps">System-Apps</string>
-    <string name="menu_sort">Sortieren…</string>
+    <string name="menu_sort">Sortieren</string>
     <string name="enable_module">Modul einschalten</string>
     <string name="no_scope_selected">Sie haben keine App ausgewählt. Fortsetzen?</string>
     <string name="menu_show_games">Spiele</string>
     <string name="menu_show_modules">Module</string>
+    <string name="menu_show_denylist">Denylist</string>
     <string name="failed_to_save_scope_list">Das Speichern der Bereichsliste ist fehlgeschlagen</string>
     <string name="app_description">%1$s\nAusführung: %2$s</string>
     <string name="use_recommended">Empfohlen</string>
@@ -128,7 +129,7 @@
     <string name="update_available">Aktualisierung verfügbar: %1$s</string>
     <string name="module_disabled_no_selection">Modul %s ist deaktiviert, da keine App ausgewählt ist.</string>
     <string name="android_framework">System-Framework</string>
-    <string name="menu_backup_and_restore">Back-up…</string>
+    <string name="menu_backup_and_restore">Backup</string>
     <string name="menu_backup">Back-up</string>
     <string name="menu_restore">Wiederherstellen</string>
     <string name="force_stop">Stopp erzwingen</string>
@@ -137,10 +138,12 @@
     <string name="reboot_required">Neustart ist erforderlich, um diese Änderung zu übernehmen</string>
     <string name="reboot">Neustart</string>
     <string name="menu_hide">Verstecken</string>
+    <string name="deny_list">%s ist auf der Denyliste. Dies kann ohne Effekt bleiben.</string>
+    <string name="deny_list_info">Auf der Denyliste</string>
     <!-- ModulesActivity and AppListActivity -->
     <string name="modules_other_app">In anderer App anzeigen</string>
     <string name="module_app_info">App-Information</string>
-    <string name="list_empty">&lt;unk&gt; \\\\_(&lt;unk&gt;)_\/ &lt;unk&gt;\nNichts hier</string>
+    <string name="list_empty">¯\\\\_(ツ)_\/¯\nNichts hier</string>
     <!-- SettingsActivity -->
     <string name="settings_group_framework">Framework</string>
     <string name="settings_enable_resources">Aktivieren Sie die Ressourcen-Hooks</string>
@@ -169,6 +172,10 @@
     <string name="settings_translation_summary">Helfen Sie uns, %s in Ihre Sprache zu übersetzen</string>
     <string name="pref_title_enable_auto_add_shortcut">Verknüpfung automatisch hinzufügen</string>
     <string name="settings_enable_auto_add_shortcut_summary">Keine neuen Verknüpfungen werden hinzugefügt, wenn sie im nicht-parasitären Manager deaktiviert werden</string>
+    <string name="settings_update_channel">Update-Kanal</string>
+    <string name="update_channel_stable">Stabil</string>
+    <string name="update_channel_bate">Beta</string>
+    <string name="update_channel_nightly">Nightly Build</string>
     <!-- Module Repo -->
     <string name="module_readme">Liesmich</string>
     <string name="module_releases">Veröffentlichungen</string>
@@ -211,4 +218,6 @@
     <string name="color_brown">Braun</string>
     <string name="color_grey">Grau</string>
     <string name="color_blue_grey">Blaugrau</string>
+    <string name="expand">ausklappen</string>
+    <string name="collapse">einklappen</string>
 </resources>

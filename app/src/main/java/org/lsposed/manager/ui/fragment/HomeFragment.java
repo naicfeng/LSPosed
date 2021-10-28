@@ -35,16 +35,15 @@ import androidx.core.text.HtmlCompat;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.lsposed.manager.App;
 import org.lsposed.manager.BuildConfig;
 import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.DialogAboutBinding;
 import org.lsposed.manager.databinding.FragmentHomeBinding;
-import org.lsposed.manager.receivers.LSPManagerServiceHolder;
 import org.lsposed.manager.ui.dialog.BlurBehindDialogBuilder;
 import org.lsposed.manager.ui.dialog.FlashDialogBuilder;
 import org.lsposed.manager.ui.dialog.InfoDialogBuilder;
+import org.lsposed.manager.ui.dialog.ShortcutDialogBuilder;
 import org.lsposed.manager.ui.dialog.WarningDialogBuilder;
 import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.NavUtil;
@@ -62,25 +61,7 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (!App.isParasitic() && !App.getPreferences().getBoolean("never_show_shortcut", false) && !App.isParasiticShown() && ConfigManager.isBinderAlive()) {
-            App.setParasiticShown(true);
-            new BlurBehindDialogBuilder(requireActivity())
-                    .setTitle(R.string.parasitic_recommend)
-                    .setMessage(R.string.parasitic_recommend_summary)
-                    .setNegativeButton(R.string.never_show, (dialog, which) -> App.getPreferences().edit().putBoolean("never_show_shortcut", true).apply())
-                    .setNeutralButton(R.string.create_shortcut, (dialog, which) -> {
-                        try {
-                            LSPManagerServiceHolder.getService().createShortcut();
-                        } catch (Throwable e) {
-                            if (binding != null) {
-                                Snackbar.make(binding.snackbar, getString(R.string.failed_to_create_shortcut, e.getMessage()), Snackbar.LENGTH_LONG).show();
-                            }
-                        }
-                    })
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show();
-        }
+        ShortcutDialogBuilder.showIfNeed(requireContext());
     }
 
     @Override
@@ -101,17 +82,19 @@ public class HomeFragment extends BaseFragment {
                     new InfoDialogBuilder(activity).show();
                 }
             } else {
-                if (UpdateUtil.canUpdate()) {
-                    var pref = App.getPreferences();
-                    var zip = pref.getString("zip_file", null);
-                    var notes = pref.getString("release_notes", "");
-                    if (zip != null) {
-                        new FlashDialogBuilder(activity, zip, notes).show();
-                        return;
-                    }
+                if (UpdateUtil.canInstall()) {
+                    new FlashDialogBuilder(activity).show();
+                    return;
                 }
                 NavUtil.startURL(activity, getString(R.string.about_source));
             }
+        });
+        binding.status.setOnLongClickListener(v -> {
+            if (UpdateUtil.canInstall()) {
+                new FlashDialogBuilder(activity).show();
+                return true;
+            }
+            return false;
         });
         binding.modules.setOnClickListener(new StartFragmentListener(R.id.action_modules_fragment, true));
         binding.download.setOnClickListener(new StartFragmentListener(R.id.action_repo_fragment, false));
@@ -152,8 +135,8 @@ public class HomeFragment extends BaseFragment {
     private void updateStates(Activity activity, boolean binderAlive, boolean needUpdate) {
         int cardBackgroundColor;
         if (binderAlive) {
-            StringBuilder sb = new StringBuilder(String.format(Locale.ROOT, "%s (%d) WuYang",
-                    ConfigManager.getXposedVersionName(), ConfigManager.getXposedVersionCode()));
+            StringBuilder sb = new StringBuilder(String.format(Locale.ROOT, "%s (%d) - %s WuYang",
+                    ConfigManager.getXposedVersionName(), ConfigManager.getXposedVersionCode(), ConfigManager.getApi()));
             if (needUpdate) {
                 cardBackgroundColor = ResourceUtils.resolveColor(activity.getTheme(), R.attr.colorInstall);
                 binding.statusTitle.setText(R.string.need_update);

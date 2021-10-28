@@ -56,13 +56,14 @@
     <string name="info_system_version">System version</string>
     <string name="info_device">Device</string>
     <string name="info_system_abi">System ABI</string>
+    <string name="info_api">Injection Interface</string>
     <string name="parasitic_recommend">Parasitic Manager Recommended</string>
     <string name="parasitic_recommend_summary">LSPosed now supports system parasitization to avoid detection. You can safely uninstall the manager after successfully creating a shortcut of the parasitic manager. In any case you can install the manager back from /data/adb/lspd/manager.apk.</string>
     <string name="create_shortcut">Create shortcut</string>
     <string name="never_show">Never show</string>
     <string name="failed_to_create_shortcut">Failed to create shortcut: %1$s</string>
     <string name="update_lsposed">Update LSPosed</string>
-    <string name="update_lsposed_msg">Want to install a new version of LSPosed? The device will reboot after completion</string>
+    <string name="update_lsposed_msg">Confirm to update LSPosed? This device will reboot after update completion</string>
 
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Save</string>
@@ -77,8 +78,7 @@
     <string name="logs_cannot_read">Cannot read log: \n</string>
     <string name="menuReload">Reload</string>
     <string name="logs_clear_failed_2">Failed to clear the log</string>
-    <string name="not_logcat_2">If someone asked you an Logcat, you\'re in the wrong section. This is Disable log Version; if you need a logcat, use the Official Version.</string>
-    <string name="verbose_log_not_avaliable">Verbose log is not available, if you just enabled it without reboot, try again after reboot.</string>
+    <string name="menu_enable_word_wrap">Word Wrap</string>
 
     <!-- Notification -->
     <string name="module_is_not_activated_yet">Xposed module is not activated yet</string>
@@ -106,6 +106,8 @@
     <string name="module_install_failed">Adding module failed</string>
     <string name="install_to_user">Install to user %s</string>
     <string name="install_to_user_message">Want to install %1$s to user %2$s? It is recommended to install manually, forcing installation via LSPosed may cause problems.</string>
+    <string name="expand">expand</string>
+    <string name="collapse">collapse</string>
 
     <!-- AppListActivity -->
     <string name="compile_speed">Re-optimize</string>
@@ -125,6 +127,7 @@
     <string name="no_scope_selected">You did not select any app. Continue?</string>
     <string name="menu_show_games">Games</string>
     <string name="menu_show_modules">Modules</string>
+    <string name="menu_show_denylist">Denylist</string>
     <string name="failed_to_save_scope_list">Failed save scope list</string>
     <string name="app_description">%1$s\nVersion %2$s</string>
     <string name="use_recommended">Recommended</string>
@@ -143,6 +146,8 @@
     <string name="reboot_required">Reboot is required for this change to apply</string>
     <string name="reboot">Reboot</string>
     <string name="menu_hide">Hide</string>
+    <string name="deny_list">%s is on denylist. It may not take effect.</string>
+    <string name="deny_list_info">On denylist</string>
 
     <!-- ModulesActivity and AppListActivity -->
     <string name="modules_other_app">View in other app</string>
@@ -177,6 +182,10 @@
     <string name="settings_translation_summary">Help us translate %s into your language</string>
     <string name="pref_title_enable_auto_add_shortcut">Automatically add a shortcut</string>
     <string name="settings_enable_auto_add_shortcut_summary">No new shortcuts will be added when disabled in the non-parasitic manager</string>
+    <string name="settings_update_channel">Update channel</string>
+    <string name="update_channel_stable">Stable</string>
+    <string name="update_channel_bate">Beta</string>
+    <string name="update_channel_nightly">Nightly build</string>
 
     <!-- Module Repo -->
     <string name="module_readme">Readme</string>
@@ -222,6 +231,4 @@
     <string name="color_brown">Brown</string>
     <string name="color_grey">Grey</string>
     <string name="color_blue_grey">Blue grey</string>
-    <string name="expand">expand</string>
-    <string name="collapse">collapse</string>
 </resources>
