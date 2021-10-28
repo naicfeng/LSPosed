@@ -36,6 +36,7 @@
 #define LOGW(...)
 #define LOGE(...)
 #define LOGF(...)
+#define PLOGE(fmt, args...)
 #else
 #ifndef NDEBUG
 #define LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
