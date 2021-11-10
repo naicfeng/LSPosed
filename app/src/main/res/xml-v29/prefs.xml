@@ -78,15 +78,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_group_framework">
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_outline_science_24"
-            android:key="enable_resources"
-            android:persistent="false"
-            android:summary="@string/settings_enable_resources_summary"
-            android:title="@string/settings_enable_resources" />
-
         <SwitchPreference
             android:defaultValue="false"
             android:key="disable_verbose_log"
@@ -113,13 +104,14 @@
 
     <PreferenceCategory
         android:icon="@drawable/ic_baseline_settings_backup_restore_24"
-        android:summary="@string/settings_backup_and_restore_summery"
         android:title="@string/settings_backup_and_restore">
         <Preference
             android:key="backup"
+            android:summary="@string/settings_backup_summery"
             android:title="@string/settings_backup" />
         <Preference
             android:key="restore"
+            android:summary="@string/settings_restore_summery"
             android:title="@string/settings_restore" />
     </PreferenceCategory>
 

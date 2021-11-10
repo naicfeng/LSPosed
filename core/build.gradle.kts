@@ -168,7 +168,7 @@ android {
 dependencies {
     // keep this dep since it affects ccache
     implementation("dev.rikka.ndk:riru:26.0.0")
-    implementation("dev.rikka.ndk.thirdparty:cxx:1.1.0")
+    implementation("dev.rikka.ndk.thirdparty:cxx:1.2.0")
     implementation("io.github.vvb2060.ndk:dobby:1.2")
     implementation("com.android.tools.build:apksig:$agpVersion")
     implementation("org.apache.commons:commons-lang3:3.12.0")
@@ -254,7 +254,7 @@ androidComponents.onVariants { v ->
     }
 
     val moduleId = "${flavorLowered}_$moduleBaseId"
-    val zipFileName = "$moduleName-${flavorLowered}-v$verName-$verCode-$buildTypeLowered.zip"
+    val zipFileName = "$moduleName-v$verName-$verCode-${flavorLowered}-$buildTypeLowered.zip"
 
     val prepareMagiskFilesTask = task("prepareMagiskFiles$variantCapped", Sync::class) {
         dependsOn("assemble$variantCapped")

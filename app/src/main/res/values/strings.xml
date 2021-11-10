@@ -31,7 +31,12 @@
     <string name="About">About</string>
     <string name="report_issue">Report issue</string>
     <string name="module_repo">Repository</string>
-    <string name="module_repo_summary">Module repository (Beta)</string>
+    <string name="module_repo_loading">Loading…</string>
+    <string name="module_repo_up_to_date">All modules up to date</string>
+    <plurals name="module_repo_upgradable">
+        <item quantity="one">%d module upgradable</item>
+        <item quantity="other">%d modules upgradable</item>
+    </plurals>
     <string name="about_view_source_code"><![CDATA[View source code at %1$s<br/>Join our %2$s channel]]></string>
     <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself.">null</string>
 
@@ -156,14 +161,13 @@
 
     <!-- SettingsActivity -->
     <string name="settings_group_framework">Framework</string>
-    <string name="settings_enable_resources">Enable resource hooks</string>
-    <string name="settings_enable_resources_summary"><b>WARNING:</b> Resource hooks are experimental</string>
     <string name="pref_title_disable_verbose_log">Disable verbose logs</string>
     <string name="pure_black_dark_theme">Black dark theme</string>
     <string name="pure_black_dark_theme_summary">Use the pure black theme if dark theme is enabled</string>
     <string name="settings_group_theme">Theme</string>
     <string name="settings_backup_and_restore">Backup and restore</string>
-    <string name="settings_backup_and_restore_summery">Backup or restore module list and scope lists.</string>
+    <string name="settings_backup_summery">Backup module list and scope lists.</string>
+    <string name="settings_restore_summery">Restore module list and scope lists.</string>
     <string name="settings_backup">Backup</string>
     <string name="settings_backup_failed2">Failed to backup:\n%s</string>
     <string name="settings_restore">Restore</string>

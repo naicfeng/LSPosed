@@ -30,7 +30,6 @@
     <string name="About">Tentang</string>
     <string name="report_issue">Laporkan masalah</string>
     <string name="module_repo">Gudang</string>
-    <string name="module_repo_summary">Gudang Modul (Beta)</string>
     <string name="about_view_source_code"><![CDATA[Lihat kode sumber di %1$s<br/>Bergabunglah dengan kami %2$s saluran]]></string>
     <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself.">AMMLR</string>
     <string name="install">Pasang</string>
@@ -54,11 +53,14 @@
     <string name="info_system_version">Versi sistem</string>
     <string name="info_device">Perangkat</string>
     <string name="info_system_abi">Sistem ABI</string>
+    <string name="info_api">Tanamkan tatap muka</string>
     <string name="parasitic_recommend">Manajer Parasit Direkomendasikan</string>
     <string name="parasitic_recommend_summary">LSPosed sekarang mendukung parasitisasi sistem untuk menghindari deteksi. Anda dapat menghapus instalan manajer dengan aman setelah berhasil membuat pintasan manajer parasit. Bagaimanapun, Anda dapat menginstal kembali manajer dari /data/adb/lspd/manager.apk.</string>
     <string name="create_shortcut">Buat pintasan</string>
     <string name="never_show">Jangan pernah ditampilkan</string>
     <string name="failed_to_create_shortcut">Gagal membuat pintasan: %1$s</string>
+    <string name="update_lsposed">Perbaharui LSPosed</string>
+    <string name="update_lsposed_msg">Konfirmasi untuk pembaharuan LSPosed? Perangkat ini akan mulai ulang setelah pembaharuan selesai</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Simpan</string>
     <string name="nav_item_logs_lsp">Log LSPosed</string>
@@ -139,14 +141,11 @@
     <string name="list_empty">\"\\\\_(ツ)_\/¯\nTidak ada apa-apa di sini</string>
     <!-- SettingsActivity -->
     <string name="settings_group_framework">Kerangka</string>
-    <string name="settings_enable_resources">Aktifkan kait sumber daya</string>
-    <string name="settings_enable_resources_summary"><b>PERINGATAN:</b> Kait sumber daya bersifat eksperimental</string>
     <string name="pref_title_disable_verbose_log">Nonaktifkan log lengkap</string>
     <string name="pure_black_dark_theme">Tema hitam gelap</string>
     <string name="pure_black_dark_theme_summary">Gunakan tema hitam murni jika tema gelap diaktifkan</string>
     <string name="settings_group_theme">Tema</string>
     <string name="settings_backup_and_restore">Cadangkan dan pulihkan</string>
-    <string name="settings_backup_and_restore_summery">Cadangkan atau pulihkan daftar modul dan daftar cakupan.</string>
     <string name="settings_backup">Cadangkan</string>
     <string name="settings_backup_failed2">Gagal mencadangkan:\n%s</string>
     <string name="settings_restore">Pulihkan</string>

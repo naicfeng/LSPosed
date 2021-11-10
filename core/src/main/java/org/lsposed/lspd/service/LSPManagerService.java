@@ -39,8 +39,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.content.pm.VersionedPackage;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
@@ -75,6 +74,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipFile;
 
 import de.robv.android.xposed.XposedBridge;
 import hidden.HiddenApiBridge;
@@ -157,24 +157,16 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     LSPManagerService() {
     }
 
-    private static Icon getIcon(int res) {
-        var icon = ConfigFileManager.getResources().getDrawable(res, ConfigFileManager.getResources().newTheme());
-        var bitmap = Bitmap.createBitmap(icon.getIntrinsicWidth(), icon.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        icon.setBounds(0, 0, icon.getIntrinsicWidth(), icon.getIntrinsicHeight());
-        icon.draw(new Canvas(bitmap));
-        return Icon.createWithBitmap(bitmap);
-    }
-
     private static Icon getManagerIcon() {
-        try {
-            return getIcon(org.lsposed.manager.R.mipmap.ic_launcher);
+        try (var zip = new ZipFile(ConfigFileManager.managerApkPath.toString())) {
+            var entry = zip.getEntry("assets/ic_launcher-playstore.png");
+            try (var is = zip.getInputStream(entry)) {
+                return Icon.createWithAdaptiveBitmap(BitmapFactory.decodeStream(is));
+            }
         } catch (Throwable e) {
-            return getIcon(org.lsposed.manager.R.drawable.ic_launcher);
+            Log.e(TAG, "load icon", e);
         }
-    }
-
-    private static Icon getNotificationIcon() {
-        return getIcon(org.lsposed.manager.R.drawable.ic_extension);
+        return null;
     }
 
     static Intent getManagerIntent() {
@@ -240,7 +232,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
             var notification = new Notification.Builder(context, CHANNEL_ID)
                     .setContentTitle(title)
                     .setContentText(content)
-                    .setSmallIcon(getNotificationIcon())
+                    .setSmallIcon(android.R.drawable.ic_dialog_info)
                     .setColor(context.getResources().getColor(org.lsposed.manager.R.color.color_primary))
                     .setContentIntent(getNotificationIntent(modulePackageName, moduleUserId))
                     .setAutoCancel(true)
@@ -554,16 +546,6 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     }
 
     @Override
-    public boolean isResourceHook() {
-        return ConfigManager.getInstance().resourceHook();
-    }
-
-    @Override
-    public void setResourceHook(boolean enabled) {
-        ConfigManager.getInstance().setResourceHook(enabled);
-    }
-
-    @Override
     public boolean isAddShortcut() {
         return ConfigManager.getInstance().isAddShortcut();
     }
@@ -693,15 +675,18 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         try {
             var contentProvider = ActivityManagerService.getContentProvider("settings", 0);
             if (contentProvider != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    try {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         contentProvider.call(new AttributionSource.Builder(1000).setPackageName("android").build(),
                                 "settings", "PUT_global", "show_hidden_icon_apps_enabled", args);
-                        return;
-                    } catch (NoSuchMethodError ignored) {
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        contentProvider.call("android", null, "settings", "PUT_global", "show_hidden_icon_apps_enabled", args);
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        contentProvider.call("android", "settings", "PUT_global", "show_hidden_icon_apps_enabled", args);
                     }
+                } catch (NoSuchMethodError e) {
+                    Log.w(TAG, "setHiddenIcon: ", e);
                 }
-                contentProvider.call("android", null, "settings", "PUT_global", "show_hidden_icon_apps_enabled", args);
             }
         } catch (Throwable e) {
             Log.w(TAG, "setHiddenIcon: ", e);

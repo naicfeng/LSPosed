@@ -222,17 +222,9 @@ public class LogsFragment extends BaseFragment {
             }
         });
 
-        try (var is = Runtime.getRuntime().exec("getprop").getInputStream()) {
-            os.putNextEntry(new ZipEntry("system_props.txt"));
-            FileUtils.copy(is, os);
-            os.closeEntry();
-        } catch (IOException e) {
-            Log.w(TAG, "system_props.txt", e);
-        }
-
         var now = LocalDateTime.now();
-        var name = "app_" + now.toString() + ".txt";
-        try (var is = Runtime.getRuntime().exec("logcat -d").getInputStream()) {
+        var name = "app_" + now.toString() + ".log";
+        try (var is = new ProcessBuilder("logcat", "-d").start().getInputStream()) {
             os.putNextEntry(new ZipEntry(name));
             FileUtils.copy(is, os);
             os.closeEntry();

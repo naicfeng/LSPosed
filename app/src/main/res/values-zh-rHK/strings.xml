@@ -30,7 +30,11 @@
     <string name="About">關於</string>
     <string name="report_issue">回報問題</string>
     <string name="module_repo">倉庫</string>
-    <string name="module_repo_summary">模組倉庫(測試版)</string>
+    <string name="module_repo_loading">正在載入…</string>
+    <string name="module_repo_up_to_date">所有模組為最新版本</string>
+    <plurals name="module_repo_upgradable">
+        <item quantity="other">%d 模組可更新</item>
+    </plurals>
     <string name="about_view_source_code"><![CDATA[在 %1$s 查看源碼<br/>加入我們的 %2$s 頻道]]></string>
     <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself.">darKnighT0v0</string>
     <string name="install">安裝</string>
@@ -54,6 +58,7 @@
     <string name="info_system_version">系統版本</string>
     <string name="info_device">設備</string>
     <string name="info_system_abi">系統應用二進制介面</string>
+    <string name="info_api">注入介面</string>
     <string name="parasitic_recommend">推薦使用寄生管理器</string>
     <string name="parasitic_recommend_summary">LSPosed 現在支援寄生到系統以避免檢測。
 在成功建立寄生管理器的捷徑後你可以安全地移除管理器。
@@ -76,6 +81,7 @@
     <string name="logs_cannot_read">無法讀取紀錄檔: \n</string>
     <string name="menuReload">重新載入</string>
     <string name="logs_clear_failed_2">清除記錄檔失敗</string>
+    <string name="menu_enable_word_wrap">自動換行</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">Xposed 模組尚未啟動</string>
     <string name="module_is_not_activated_yet_detailed">%s 已安裝, 但尚未啟動</string>
@@ -101,6 +107,8 @@
     <string name="module_install_failed">模組安裝失敗</string>
     <string name="install_to_user">安裝到用戶 %s</string>
     <string name="install_to_user_message">確認安裝 %1$s 到用戶 %2$s？推薦手動安裝，強制使用LSPosed安裝可能會導致異常。</string>
+    <string name="expand">展開</string>
+    <string name="collapse">收起</string>
     <!-- AppListActivity -->
     <string name="compile_speed">重新最佳化</string>
     <string name="compile_speed_msg">最佳化中…</string>
@@ -146,14 +154,13 @@
     <string name="list_empty">¯\\\\_(ツ)_\/¯\n這裡甚麼都沒有</string>
     <!-- SettingsActivity -->
     <string name="settings_group_framework">框架</string>
-    <string name="settings_enable_resources">啟用資源鈎子</string>
-    <string name="settings_enable_resources_summary"><b>警告: </b> 資源鈎子為實驗性質</string>
     <string name="pref_title_disable_verbose_log">禁用詳細紀錄檔</string>
     <string name="pure_black_dark_theme">黑色主題</string>
     <string name="pure_black_dark_theme_summary">使用純黑色背景當深色模式已啟用</string>
     <string name="settings_group_theme">主題</string>
     <string name="settings_backup_and_restore">備份與還原</string>
-    <string name="settings_backup_and_restore_summery">備份或還原模組清單與作用域清單</string>
+    <string name="settings_backup_summery">備份模組清單與作用域清單</string>
+    <string name="settings_restore_summery">還原模組清單與作用域清單</string>
     <string name="settings_backup">備份</string>
     <string name="settings_backup_failed2">備份失敗：\n%s</string>
     <string name="settings_restore">還原</string>
@@ -218,6 +225,4 @@
     <string name="color_brown">啡色</string>
     <string name="color_grey">灰色</string>
     <string name="color_blue_grey">藍灰色</string>
-    <string name="expand">展開</string>
-    <string name="collapse">收起</string>
 </resources>

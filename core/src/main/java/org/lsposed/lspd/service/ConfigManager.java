@@ -81,7 +81,6 @@ public class ConfigManager {
     private final SQLiteDatabase db =
             SQLiteDatabase.openOrCreateDatabase(ConfigFileManager.dbPath, null);
 
-    private boolean resourceHook = false;
     private boolean verboseLog = true;
     private boolean autoAddShortcut = true;
     private String miscPath = null;
@@ -207,10 +206,7 @@ public class ConfigManager {
     private synchronized void updateConfig() {
         Map<String, Object> config = getModulePrefs("lspd", 0, "config");
 
-        Object bool = config.get("enable_resources");
-        resourceHook = bool != null && (boolean) bool;
-
-        bool = config.get("enable_verbose_log");
+        Object bool = config.get("enable_verbose_log");
         verboseLog = bool == null || (boolean) bool;
 
         bool = config.get("enable_auto_add_shortcut");
@@ -787,11 +783,6 @@ public class ConfigManager {
         cacheScopes();
     }
 
-    public void setResourceHook(boolean resourceHook) {
-        updateModulePrefs("lspd", 0, "config", "enable_resources", resourceHook);
-        this.resourceHook = resourceHook;
-    }
-
     public void setVerboseLog(boolean on) {
         return;
 /*
@@ -808,16 +799,13 @@ public class ConfigManager {
     }
 
     public boolean isAddShortcut() {
+        Log.d(TAG, "Auto add shortcut=" + autoAddShortcut);
         return autoAddShortcut;
     }
 
     public void setAddShortcut(boolean on) {
         updateModulePrefs("lspd", 0, "config", "enable_auto_add_shortcut", on);
         this.autoAddShortcut = on;
-    }
-
-    public boolean resourceHook() {
-        return resourceHook;
     }
 
     public boolean verboseLog() {

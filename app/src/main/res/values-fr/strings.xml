@@ -31,7 +31,8 @@
     <string name="About">À propos</string>
     <string name="report_issue">Signaler un problème</string>
     <string name="module_repo">Dépôt</string>
-    <string name="module_repo_summary">Dépôts des modules (Béta)</string>
+    <string name="module_repo_loading">Chargement…</string>
+    <string name="module_repo_up_to_date">Tous les modules sont à jour</string>
     <string name="about_view_source_code"><![CDATA[Voir le code source sur %1$s<br/>Rejoindre notre canal %2$s]]></string>
     <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself.">https://github.com/xerta555</string>
     <string name="install">Installer</string>
@@ -55,6 +56,7 @@
     <string name="info_system_version">Version du système</string>
     <string name="info_device">Périphérique</string>
     <string name="info_system_abi">Architecture du système</string>
+    <string name="info_api">Interface Injection</string>
     <string name="parasitic_recommend">Gestionnaire Parasitaire Recommandé</string>
     <string name="parasitic_recommend_summary">LSPosed supporte maintenant la parasitation du système afin d\'éviter la détection. Vous pouvez désinstaller le gestionnaire en toute sécurité et avec succès après avoir créer un raccourcis du gestionnaire parasitaire. Dans n\'importe quel cas vous pouvez installer à nouveau le gestionnaire depuis /data/adb/lspd/manager.apk.</string>
     <string name="create_shortcut">Créer raccourci</string>
@@ -75,6 +77,7 @@
     <string name="logs_cannot_read">Lecture du journal impossible: \n</string>
     <string name="menuReload">Recharger</string>
     <string name="logs_clear_failed_2">Échec d\'effacement du journal</string>
+    <string name="menu_enable_word_wrap">Retour à la ligne</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">Le module LSPosed n\’est pas encore actif</string>
     <string name="module_is_not_activated_yet_detailed">%s à été installé, mais n\'est pas encore actif</string>
@@ -100,6 +103,8 @@
     <string name="module_install_failed">Échec de l\’ajout du module</string>
     <string name="install_to_user">Installation dans utilisateur %s</string>
     <string name="install_to_user_message">Vous voulez installer %1$s dans l\'utilisateur %2$s? Il est recommandé de l\'installer manuellement, forcer l\'installation via LSPosed pourrait causer des problèmes.</string>
+    <string name="expand">agrandir</string>
+    <string name="collapse">réduire</string>
     <!-- AppListActivity -->
     <string name="compile_speed">Ré-optimiser</string>
     <string name="compile_speed_msg">Optimisation…</string>
@@ -145,14 +150,13 @@
     <string name="list_empty">¯\\\\_(ツ)_\/¯\nIl n\’y a rien ici</string>
     <!-- SettingsActivity -->
     <string name="settings_group_framework">Sous-système</string>
-    <string name="settings_enable_resources">Activer les crochets de ressources</string>
-    <string name="settings_enable_resources_summary"><b>AVERTISSEMENT:</b> Les crochets de ressources sont expérimentaux</string>
     <string name="pref_title_disable_verbose_log">Désactiver les journaux détaillés</string>
     <string name="pure_black_dark_theme">Thème noir et sombre</string>
     <string name="pure_black_dark_theme_summary">Utiliser le thème noir pûre si le thème noir est activé</string>
     <string name="settings_group_theme">Thème</string>
     <string name="settings_backup_and_restore">Sauvegarder et restaurer</string>
-    <string name="settings_backup_and_restore_summery">Sauvegarder ou restaurer la liste de modules et leurs champs d\'applications.</string>
+    <string name="settings_backup_summery">Sauvegarder la liste des modules ainsi que leurs champs d\'applications.</string>
+    <string name="settings_restore_summery">Restaurer la liste des modules ainsi que leurs champs d\'applications.</string>
     <string name="settings_backup">Sauvegarder</string>
     <string name="settings_backup_failed2">Échec de la sauvegarde:\n%s</string>
     <string name="settings_restore">Restaurer</string>
@@ -217,6 +221,4 @@
     <string name="color_brown">Marron</string>
     <string name="color_grey">Gris</string>
     <string name="color_blue_grey">Bleu grisatre</string>
-    <string name="expand">agrandir</string>
-    <string name="collapse">réduire</string>
 </resources>

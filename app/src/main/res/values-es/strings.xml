@@ -31,7 +31,6 @@
     <string name="About">Acerca de</string>
     <string name="report_issue">Reportar problema</string>
     <string name="module_repo">Repositorio</string>
-    <string name="module_repo_summary">Repositorio de módulos (Beta)</string>
     <string name="about_view_source_code"><![CDATA[Ve el código fuente en %1$s<br/>Únete a nuestro %2$s canal]]></string>
     <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself.">squaredDot</string>
     <string name="install">Instalar</string>
@@ -141,14 +140,11 @@
     <string name="list_empty">¯\\\\_(ツ)_\/¯\nNo hay nada por aquí</string>
     <!-- SettingsActivity -->
     <string name="settings_group_framework">Framework</string>
-    <string name="settings_enable_resources">Activar hooks de recursos</string>
-    <string name="settings_enable_resources_summary"><b>ADVERTENCIA:</b> los hooks de recursos son experimentales</string>
     <string name="pref_title_disable_verbose_log">Desactivar registros detallados</string>
     <string name="pure_black_dark_theme">Tema negro oscuro</string>
     <string name="pure_black_dark_theme_summary">Usar el tema negro puro si el tema oscuro está activado</string>
     <string name="settings_group_theme">Tema</string>
     <string name="settings_backup_and_restore">Respaldo y restauración</string>
-    <string name="settings_backup_and_restore_summery">Hacer un respaldo o una restauración de la lista de módulos y scopes.</string>
     <string name="settings_backup">Hacer un respaldo</string>
     <string name="settings_backup_failed2">Error al realizar la copia de seguridad:\n%s</string>
     <string name="settings_restore">Restaurar</string>

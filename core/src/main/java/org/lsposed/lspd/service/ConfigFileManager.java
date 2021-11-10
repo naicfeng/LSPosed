@@ -47,7 +47,7 @@ import java.util.zip.ZipFile;
 
 public class ConfigFileManager {
     static final Path basePath = Paths.get("/data/adb/lspd");
-    private static final Path managerApkPath = basePath.resolve("manager.apk");
+    static final Path managerApkPath = basePath.resolve("manager.apk");
     private static final Path lockPath = basePath.resolve("lock");
     private static final Path configDirPath = basePath.resolve("config");
     static final File dbPath = configDirPath.resolve("modules_config.db").toFile();
@@ -157,7 +157,7 @@ public class ConfigFileManager {
     }
 
     private static String getNewLogFileName(String prefix) {
-        return prefix + "_" + formatter.format(Instant.now()) + ".txt";
+        return prefix + "_" + formatter.format(Instant.now()) + ".log";
     }
 
     static File getNewVerboseLogPath() throws IOException {
@@ -168,6 +168,11 @@ public class ConfigFileManager {
     static File getNewModulesLogPath() throws IOException {
         createLogDirPath();
         return logDirPath.resolve(getNewLogFileName("modules")).toFile();
+    }
+
+    static File getpropsLogPath() throws IOException {
+        createLogDirPath();
+        return logDirPath.resolve("props.log").toFile();
     }
 
     static Map<String, ParcelFileDescriptor> getLogs() {

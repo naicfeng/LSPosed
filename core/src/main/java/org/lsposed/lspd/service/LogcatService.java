@@ -3,16 +3,23 @@ package org.lsposed.lspd.service;
 import android.annotation.SuppressLint;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemProperties;
+import android.system.Os;
 import android.util.Log;
 
 import org.lsposed.lspd.BuildConfig;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class LogcatService implements Runnable {
     private static final String TAG = "LSPosedLogcat";
@@ -107,7 +114,43 @@ public class LogcatService implements Runnable {
             start();
         });
         thread.start();
+        getprop();
 */
+    }
+
+    private void getprop() {
+        try {
+            var sb = new StringBuilder();
+            var t = new Thread(() -> {
+                try (var magiskPathReader = new BufferedReader(new InputStreamReader(new ProcessBuilder("magisk", "--path").start().getInputStream()))) {
+                    var magiskPath = magiskPathReader.readLine();
+                    var sh = magiskPath + "/.magisk/busybox/sh";
+                    var pid = Os.getpid();
+                    var tid = Os.gettid();
+                    try (var exec = new FileOutputStream("/proc/" + pid + "/task/" + tid + "/attr/exec")) {
+                        var untrusted = "u:r:untrusted_app:s0";
+                        exec.write(untrusted.getBytes());
+                    }
+                    try (var rd = new BufferedReader(new InputStreamReader(new ProcessBuilder(sh, "-c", "getprop").start().getInputStream()))) {
+                        String line;
+                        while ((line = rd.readLine()) != null) {
+                            sb.append(line);
+                            sb.append(System.lineSeparator());
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "GetProp: " + e + ": " + Arrays.toString(e.getStackTrace()));
+                }
+            });
+            t.start();
+            t.join();
+            var propsLogPath = ConfigFileManager.getpropsLogPath();
+            try (var writer = new BufferedWriter(new FileWriter(propsLogPath))) {
+                writer.append(sb);
+            }
+        } catch (IOException | InterruptedException | NullPointerException e) {
+            Log.e(TAG, "GetProp: " + Arrays.toString(e.getStackTrace()));
+        }
     }
 
     public void startVerbose() {
