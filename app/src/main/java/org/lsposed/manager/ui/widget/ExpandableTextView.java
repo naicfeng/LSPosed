@@ -22,6 +22,8 @@ package org.lsposed.manager.ui.widget;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.Layout;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -71,7 +73,6 @@ public class ExpandableTextView extends MaterialTextView {
 
             @Override
             public void updateDrawState(@NonNull TextPaint ds) {
-                super.updateDrawState(ds);
                 ds.setTypeface(Typeface.DEFAULT_BOLD);
             }
         };
@@ -134,6 +135,24 @@ public class ExpandableTextView extends MaterialTextView {
         }
 
         return false;
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("superState", super.onSaveInstanceState());
+        bundle.putInt("maxLines", getMaxLines());
+        return bundle;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            setMaxLines(bundle.getInt("maxLines"));
+            state = bundle.getParcelable("superState");
+        }
+        super.onRestoreInstanceState(state);
     }
 
 }

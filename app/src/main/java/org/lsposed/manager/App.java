@@ -20,6 +20,7 @@
 
 package org.lsposed.manager;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Looper;
 import android.os.Process;
 import android.system.Os;
 import android.text.TextUtils;
@@ -36,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import org.lsposed.hiddenapibypass.HiddenApiBypass;
+import org.lsposed.manager.adapters.AppHelper;
 import org.lsposed.manager.repo.RepoLoader;
 import org.lsposed.manager.ui.activity.CrashReportActivity;
 import org.lsposed.manager.util.DoHDNS;
@@ -84,14 +87,45 @@ public class App extends Application {
             // TODO: set specific class name
             HiddenApiBypass.addHiddenApiExemptions("");
         }
+        Looper.myQueue().addIdleHandler(() -> {
+            if (App.getInstance() == null || App.getExecutorService() == null) return true;
+            App.getExecutorService().submit(() -> {
+                var list = AppHelper.getAppList(false);
+                var pm = App.getInstance().getPackageManager();
+                list.parallelStream().forEach(i -> AppHelper.getAppLabel(i, pm));
+            });
+            return false;
+        });
+
+        Looper.myQueue().addIdleHandler(() -> {
+            if (App.getInstance() == null || App.getExecutorService() == null) return true;
+            App.getExecutorService().submit(() -> {
+                AppHelper.getDenyList(false);
+            });
+            return false;
+        });
+        Looper.myQueue().addIdleHandler(() -> {
+            if (App.getInstance() == null || App.getExecutorService() == null) return true;
+            App.getExecutorService().submit((Runnable) ModuleUtil::getInstance);
+            return false;
+        });
+        Looper.myQueue().addIdleHandler(() -> {
+            if (App.getInstance() == null || App.getExecutorService() == null) return true;
+            App.getExecutorService().submit((Runnable) RepoLoader::getInstance);
+            return false;
+        });
     }
 
     public static final String TAG = "LSPosedManager";
+    private static final String ACTION_USER_ADDED = "android.intent.action.USER_ADDED";
+    private static final String ACTION_USER_REMOVED = "android.intent.action.USER_REMOVED";
+    private static final String ACTION_USER_INFO_CHANGED = "android.intent.action.USER_INFO_CHANGED";
+    private static final String EXTRA_REMOVED_FOR_ALL_USERS = "android.intent.extra.REMOVED_FOR_ALL_USERS";
     private static App instance = null;
     private static OkHttpClient okHttpClient;
     private static Cache okHttpCache;
     private SharedPreferences pref;
-    private ExecutorService executorService;
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public static App getInstance() {
         return instance;
@@ -109,6 +143,7 @@ public class App extends Application {
         return !Process.isApplicationUid(Process.myUid());
     }
 
+    @SuppressLint("WrongConstant")
     private void setCrashReport() {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
 
@@ -143,8 +178,6 @@ public class App extends Application {
 
         instance = this;
 
-        executorService = Executors.newCachedThreadPool();
-
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         if ("CN".equals(Locale.getDefault().getCountry())) {
             if (!pref.contains("doh")) {
@@ -155,20 +188,41 @@ public class App extends Application {
         DayNightDelegate.setDefaultNightMode(ThemeUtil.getDarkTheme());
         LocaleDelegate.setDefaultLocale(getLocale());
 
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("org.lsposed.manager.NOTIFICATION");
         registerReceiver(new BroadcastReceiver() {
             @Override
-            public void onReceive(Context context, Intent intent) {
-                int userId = intent.getIntExtra(Intent.EXTRA_USER, 0);
-                String packageName = intent.getStringExtra("android.intent.extra.PACKAGES");
-                boolean packageFullyRemoved = intent.getBooleanExtra(Intent.ACTION_PACKAGE_FULLY_REMOVED, false);
-                if (packageName != null) {
-                    ModuleUtil.getInstance().reloadSingleModule(packageName, userId, packageFullyRemoved);
+            public void onReceive(Context context, Intent inIntent) {
+                var intent = (Intent) inIntent.getParcelableExtra(Intent.EXTRA_INTENT);
+                Log.d(TAG, "onReceive: " + intent);
+                switch (intent.getAction()) {
+                    case Intent.ACTION_PACKAGE_ADDED:
+                    case Intent.ACTION_PACKAGE_CHANGED:
+                    case Intent.ACTION_PACKAGE_FULLY_REMOVED:
+                    case Intent.ACTION_UID_REMOVED: {
+                        var userId = intent.getIntExtra(Intent.EXTRA_USER, 0);
+                        var packageName = intent.getStringExtra("android.intent.extra.PACKAGES");
+                        var packageRemovedForAllUsers = intent.getBooleanExtra(EXTRA_REMOVED_FOR_ALL_USERS, false);
+                        var isXposedModule = intent.getBooleanExtra("isXposedModule", false);
+                        if (packageName != null) {
+                            if (isXposedModule)
+                                ModuleUtil.getInstance().reloadSingleModule(packageName, userId, packageRemovedForAllUsers);
+                            else
+                                App.getExecutorService().submit(() -> AppHelper.getAppList(true));
+                        }
+                        break;
+                    }
+                    case ACTION_USER_ADDED:
+                    case ACTION_USER_REMOVED:
+                    case ACTION_USER_INFO_CHANGED: {
+                        App.getExecutorService().submit(() -> ModuleUtil.getInstance().reloadInstalledModules());
+                        break;
+                    }
                 }
             }
-        }, new IntentFilter(Intent.ACTION_PACKAGE_CHANGED));
+        }, intentFilter);
 
 //        UpdateUtil.loadRemoteVersion();
-        RepoLoader.getInstance().loadRemoteData();
 
         executorService.submit(HTML_TEMPLATE);
         executorService.submit(HTML_TEMPLATE_DARK);

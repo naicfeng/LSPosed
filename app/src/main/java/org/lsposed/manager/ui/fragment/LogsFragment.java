@@ -14,60 +14,55 @@
  * You should have received a copy of the GNU General Public License
  * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2020 EdXposed Contributors
  * Copyright (C) 2021 LSPosed Contributors
  */
 
 package org.lsposed.manager.ui.fragment;
 
-import static org.lsposed.manager.App.TAG;
-import static java.lang.Math.max;
-
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.HorizontalScrollView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.textview.MaterialTextView;
 
 import org.lsposed.manager.App;
 import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
-import org.lsposed.manager.databinding.FragmentLogsBinding;
-import org.lsposed.manager.databinding.ItemLogBinding;
+import org.lsposed.manager.databinding.FragmentPagerBinding;
+import org.lsposed.manager.databinding.ItemLogTextviewBinding;
+import org.lsposed.manager.databinding.SwiperefreshRecyclerviewBinding;
+import org.lsposed.manager.ui.widget.EmptyStateRecyclerView;
 
 import java.io.BufferedReader;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -75,30 +70,32 @@ import java.util.zip.ZipOutputStream;
 import rikka.core.os.FileUtils;
 import rikka.recyclerview.RecyclerViewKt;
 
-@SuppressLint("NotifyDataSetChanged")
 public class LogsFragment extends BaseFragment {
-    private boolean verbose = false;
-    private LogsAdapter adapter;
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private FragmentLogsBinding binding;
-    private LinearLayoutManager layoutManager;
-    private final SharedPreferences preferences = App.getPreferences();
+    private FragmentPagerBinding binding;
+    private LogPageAdapter adapter;
+    private MenuItem wordWrap;
+
+    interface OptionsItemSelectListener {
+        boolean onOptionsItemSelected(@NonNull MenuItem item);
+    }
+
+    private OptionsItemSelectListener optionsItemSelectListener;
+
     private final ActivityResultLauncher<String> saveLogsLauncher = registerForActivityResult(
             new ActivityResultContracts.CreateDocument(),
             uri -> {
                 if (uri == null) return;
                 runAsync(() -> {
-                    try (var os = new ZipOutputStream(requireContext().getContentResolver().openOutputStream(uri))) {
+                    var context = requireContext();
+                    var contentResolver = context.getContentResolver();
+                    try (var os = new ZipOutputStream(contentResolver.openOutputStream(uri))) {
                         os.setLevel(Deflater.BEST_COMPRESSION);
                         zipLogs(os);
                         os.finish();
                     } catch (IOException e) {
-                        var text = App.getInstance().getString(R.string.logs_save_failed2, e.getMessage());
-                        if (binding != null && isResumed()) {
-                            Snackbar.make(binding.snackbar, text, Snackbar.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(App.getInstance(), text, Toast.LENGTH_LONG).show();
-                        }
+                        var text = context.getString(R.string.logs_save_failed2, e.getMessage());
+                        showHint(text, false);
                     }
                 });
             });
@@ -106,71 +103,47 @@ public class LogsFragment extends BaseFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentLogsBinding.inflate(inflater, container, false);
-        setupToolbar(binding.toolbar, R.string.Logs, R.menu.menu_logs);
+        binding = FragmentPagerBinding.inflate(inflater, container, false);
+        binding.appBar.setLiftable(true);
+        setupToolbar(binding.toolbar, binding.clickView, R.string.Logs, R.menu.menu_logs);
+        binding.toolbar.setSubtitle(ConfigManager.isVerboseLogEnabled() ? R.string.enabled_verbose_log : R.string.disabled_verbose_log);
+        adapter = new LogPageAdapter(this);
+        binding.viewPager.setAdapter(adapter);
+        new TabLayoutMediator(binding.tabLayout, binding.viewPager, (tab, position) -> tab.setText((int) adapter.getItemId(position))).attach();
 
-        binding.slidingTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                verbose = tab.getPosition() == 1;
-                reloadLogs();
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
+        binding.tabLayout.addOnLayoutChangeListener((view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            ViewGroup vg = (ViewGroup) binding.tabLayout.getChildAt(0);
+            int tabLayoutWidth = IntStream.range(0, binding.tabLayout.getTabCount()).map(i -> vg.getChildAt(i).getWidth()).sum();
+            if (tabLayoutWidth <= binding.getRoot().getWidth()) {
+                binding.tabLayout.setTabMode(TabLayout.MODE_FIXED);
+                binding.tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
             }
         });
 
-        adapter = new LogsAdapter();
-        RecyclerViewKt.fixEdgeEffect(binding.recyclerView, false, true);
-        binding.recyclerView.setAdapter(adapter);
-        layoutManager = new LinearLayoutManager(requireActivity());
-        binding.recyclerView.setLayoutManager(layoutManager);
         return binding.getRoot();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        reloadLogs();
+    public void setOptionsItemSelectListener(OptionsItemSelectListener optionsItemSelectListener) {
+        this.optionsItemSelectListener = optionsItemSelectListener;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.menu_scroll_top) {
-            if (layoutManager.findFirstVisibleItemPosition() > 1000) {
-                binding.recyclerView.scrollToPosition(0);
-            } else {
-                binding.recyclerView.smoothScrollToPosition(0);
-            }
-            binding.recyclerView.smoothScrollToPosition(0);
-        } else if (itemId == R.id.menu_scroll_down) {
-            if (adapter.getItemCount() - layoutManager.findLastVisibleItemPosition() > 1000) {
-                binding.recyclerView.scrollToPosition(adapter.getItemCount() - 1);
-            } else {
-                binding.recyclerView.smoothScrollToPosition(max(adapter.getItemCount() - 1, 0));
-            }
-        } else if (itemId == R.id.menu_refresh) {
-            reloadLogs();
-            return true;
-        } else if (itemId == R.id.menu_save) {
+        var itemId = item.getItemId();
+        if (itemId == R.id.menu_save) {
             save();
             return true;
-        } else if (itemId == R.id.menu_clear) {
-            clear();
-            return true;
-        } else if (itemId == R.id.item_word_wrap) {
+        } else if (itemId == R.id.menu_word_wrap) {
             item.setChecked(!item.isChecked());
-            preferences.edit().putBoolean("enable_word_wrap", item.isChecked()).apply();
-            reloadLogs();
+            App.getPreferences().edit().putBoolean("enable_word_wrap", item.isChecked()).apply();
+            binding.viewPager.setUserInputEnabled(item.isChecked());
+            adapter.refresh();
             return true;
+        }
+        if (optionsItemSelectListener != null) {
+            if (optionsItemSelectListener.onOptionsItemSelected(item))
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -178,7 +151,9 @@ public class LogsFragment extends BaseFragment {
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.item_word_wrap).setChecked(preferences.getBoolean("enable_word_wrap", false));
+        wordWrap = menu.findItem(R.id.menu_word_wrap);
+        wordWrap.setChecked(App.getPreferences().getBoolean("enable_word_wrap", false));
+        binding.viewPager.setUserInputEnabled(wordWrap.isChecked());
     }
 
     @Override
@@ -186,22 +161,6 @@ public class LogsFragment extends BaseFragment {
         super.onDestroyView();
 
         binding = null;
-    }
-
-    private void reloadLogs() {
-        ParcelFileDescriptor parcelFileDescriptor = ConfigManager.getLog(verbose);
-        if (parcelFileDescriptor != null) {
-            new LogsReader().execute(parcelFileDescriptor.getFileDescriptor());
-        }
-    }
-
-    private void clear() {
-        if (ConfigManager.clearLogs(verbose)) {
-            Snackbar.make(binding.snackbar, R.string.logs_cleared, Snackbar.LENGTH_SHORT).show();
-            adapter.clearLogs();
-        } else {
-            Snackbar.make(binding.snackbar, R.string.logs_clear_failed_2, Snackbar.LENGTH_SHORT).show();
-        }
     }
 
     private void save() {
@@ -218,7 +177,7 @@ public class LogsFragment extends BaseFragment {
                 FileUtils.copy(is, os);
                 os.closeEntry();
             } catch (IOException e) {
-                Log.w(TAG, name, e);
+                Log.w(App.TAG, name, e);
             }
         });
 
@@ -229,58 +188,7 @@ public class LogsFragment extends BaseFragment {
             FileUtils.copy(is, os);
             os.closeEntry();
         } catch (IOException e) {
-            Log.w(TAG, name, e);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    @SuppressLint("StaticFieldLeak")
-    private class LogsReader extends AsyncTask<FileDescriptor, Integer, List<String>> {
-        private AlertDialog mProgressDialog;
-        private final Runnable mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (!requireActivity().isFinishing()) {
-                    mProgressDialog.show();
-                }
-            }
-        };
-
-        @Override
-        protected void onPreExecute() {
-            mProgressDialog = new MaterialAlertDialogBuilder(requireActivity()).create();
-            mProgressDialog.setMessage(getString(R.string.loading));
-            mProgressDialog.setCancelable(false);
-            handler.postDelayed(mRunnable, 300);
-        }
-
-        @Override
-        protected List<String> doInBackground(FileDescriptor... log) {
-            Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 2);
-
-            List<String> logs = new ArrayList<>();
-
-            try (InputStream inputStream = new FileInputStream(log[0]); BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    logs.add(line);
-                }
-            } catch (Exception e) {
-                logs.add(requireActivity().getResources().getString(R.string.logs_cannot_read));
-                logs.addAll(Arrays.asList(Log.getStackTraceString(e).split("\n")));
-            }
-
-            return logs;
-        }
-
-        @Override
-        protected void onPostExecute(List<String> logs) {
-            adapter.setLogs(logs);
-
-            handler.removeCallbacks(mRunnable);
-            if (mProgressDialog.isShowing()) {
-                mProgressDialog.dismiss();
-            }
+            Log.w(App.TAG, name, e);
         }
     }
 
@@ -290,52 +198,245 @@ public class LogsFragment extends BaseFragment {
         super.onDestroy();
     }
 
-    private class LogsAdapter extends RecyclerView.Adapter<LogsAdapter.ViewHolder> {
-        ArrayList<String> logs = new ArrayList<>();
+    public static class LogFragment extends BaseFragment {
+        public static final int SCROLL_THRESHOLD = 500;
+        protected boolean verbose;
+        protected SwiperefreshRecyclerviewBinding binding;
+        protected LogAdaptor adaptor;
+        protected LinearLayoutManager layoutManager;
 
-        @NonNull
-        @Override
-        public LogsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            ItemLogBinding binding = ItemLogBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-            return new LogsAdapter.ViewHolder(binding);
-        }
+        class LogAdaptor extends EmptyStateRecyclerView.EmptyStateAdapter<LogAdaptor.ViewHolder> {
+            private List<CharSequence> log = Collections.emptyList();
+            private boolean isLoaded = false;
 
-        @Override
-        public void onBindViewHolder(@NonNull LogsAdapter.ViewHolder holder, int position) {
-            TextView view = holder.textView;
-            view.setText(logs.get(position));
-            view.measure(0, 0);
-            int desiredWidth = (preferences.getBoolean("enable_word_wrap", false)) ? binding.getRoot().getWidth() : view.getMeasuredWidth();
-            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-            layoutParams.width = desiredWidth;
-            if (binding.recyclerView.getWidth() < desiredWidth) {
-                binding.recyclerView.requestLayout();
+            @NonNull
+            @Override
+            public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                return new ViewHolder(ItemLogTextviewBinding.inflate(getLayoutInflater(), parent, false));
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+                holder.item.setText(log.get(position));
+            }
+
+            @Override
+            public int getItemCount() {
+                return log.size();
+            }
+
+            void refresh() {
+                isLoaded = true;
+                runOnUiThread(this::notifyDataSetChanged);
+            }
+
+            void fullRefresh() {
+                runAsync(() -> {
+                    isLoaded = false;
+                    try (var parcelFileDescriptor = ConfigManager.getLog(verbose);
+                         var br = new BufferedReader(new InputStreamReader(new FileInputStream(parcelFileDescriptor != null ? parcelFileDescriptor.getFileDescriptor() : null)))) {
+                        log = br.lines().parallel().collect(Collectors.toList());
+                    } catch (Throwable e) {
+                        log = Arrays.asList(Log.getStackTraceString(e).split("\n"));
+                    } finally {
+                        refresh();
+                    }
+                });
+            }
+
+            @Override
+            public boolean isLoaded() {
+                return isLoaded;
+            }
+
+            class ViewHolder extends RecyclerView.ViewHolder {
+                final MaterialTextView item;
+
+                public ViewHolder(ItemLogTextviewBinding binding) {
+                    super(binding.getRoot());
+                    item = binding.logItem;
+                }
             }
         }
 
-        void setLogs(List<String> logs) {
-            this.logs.clear();
-            this.logs.addAll(logs);
-            notifyDataSetChanged();
+        protected LogAdaptor createAdaptor() {
+            return new LogAdaptor();
         }
 
-        void clearLogs() {
-            notifyItemRangeRemoved(0, logs.size());
-            logs.clear();
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            binding = SwiperefreshRecyclerviewBinding.inflate(getLayoutInflater(), container, false);
+            var arguments = getArguments();
+            if (arguments == null) return null;
+            verbose = arguments.getBoolean("verbose");
+            adaptor = createAdaptor();
+            binding.recyclerView.setAdapter(adaptor);
+            layoutManager = new LinearLayoutManager(requireActivity());
+            binding.recyclerView.setLayoutManager(layoutManager);
+            binding.swipeRefreshLayout.setProgressViewEndTarget(true, binding.swipeRefreshLayout.getProgressViewEndOffset());
+            RecyclerViewKt.fixEdgeEffect(binding.recyclerView, false, true);
+            binding.swipeRefreshLayout.setOnRefreshListener(adaptor::fullRefresh);
+            adaptor.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onChanged() {
+                    binding.swipeRefreshLayout.setRefreshing(!adaptor.isLoaded());
+                }
+            });
+            adaptor.fullRefresh();
+            return binding.getRoot();
+        }
+
+        public void scrollToTop(LogsFragment logsFragment) {
+            logsFragment.binding.appBar.setExpanded(true, true);
+            if (layoutManager.findFirstVisibleItemPosition() > SCROLL_THRESHOLD) {
+                binding.recyclerView.scrollToPosition(0);
+            } else {
+                binding.recyclerView.smoothScrollToPosition(0);
+            }
+        }
+
+        public void scrollToBottom(LogsFragment logsFragment) {
+            logsFragment.binding.appBar.setExpanded(false, true);
+            var end = Math.max(adaptor.getItemCount() - 1, 0);
+            if (adaptor.getItemCount() - layoutManager.findLastVisibleItemPosition() > SCROLL_THRESHOLD) {
+                binding.recyclerView.scrollToPosition(end);
+            } else {
+                binding.recyclerView.smoothScrollToPosition(end);
+            }
+        }
+
+        void attachListeners() {
+            var parent = getParentFragment();
+            if (parent instanceof LogsFragment) {
+                var logsFragment = (LogsFragment) parent;
+                logsFragment.binding.appBar.setLifted(!binding.recyclerView.getBorderViewDelegate().isShowingTopBorder());
+                binding.recyclerView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> logsFragment.binding.appBar.setLifted(!top));
+                logsFragment.setOptionsItemSelectListener(item -> {
+                    int itemId = item.getItemId();
+                    if (itemId == R.id.menu_scroll_top) {
+                        scrollToTop(logsFragment);
+                    } else if (itemId == R.id.menu_scroll_down) {
+                        scrollToBottom(logsFragment);
+                    } else if (itemId == R.id.menu_clear) {
+                        if (ConfigManager.clearLogs(verbose)) {
+                            logsFragment.showHint(R.string.logs_cleared, true);
+                            adaptor.fullRefresh();
+                        } else {
+                            logsFragment.showHint(R.string.logs_clear_failed_2, true);
+                        }
+                        return true;
+                    }
+                    return false;
+                });
+
+                View.OnClickListener l = v -> scrollToTop(logsFragment);
+                logsFragment.binding.clickView.setOnClickListener(l);
+                logsFragment.binding.toolbar.setOnClickListener(l);
+            }
+        }
+
+        void detachListeners() {
+            binding.recyclerView.getBorderViewDelegate().setBorderVisibilityChangedListener(null);
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            attachListeners();
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            adaptor.refresh();
+            attachListeners();
+        }
+
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            detachListeners();
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+            detachListeners();
+        }
+    }
+
+    public static class UnwrapLogFragment extends LogFragment {
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            var root = super.onCreateView(inflater, container, savedInstanceState);
+            binding.swipeRefreshLayout.removeView(binding.recyclerView);
+            HorizontalScrollView horizontalScrollView = new HorizontalScrollView(getContext());
+            horizontalScrollView.setFillViewport(true);
+            horizontalScrollView.setHorizontalScrollBarEnabled(false);
+            binding.swipeRefreshLayout.addView(horizontalScrollView);
+            horizontalScrollView.addView(binding.recyclerView);
+            binding.recyclerView.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            return root;
+        }
+
+        @Override
+        protected LogAdaptor createAdaptor() {
+            return new LogAdaptor() {
+                @Override
+                public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+                    super.onBindViewHolder(holder, position);
+                    holder.item.measure(0, 0);
+                }
+            };
+        }
+    }
+
+    class LogPageAdapter extends FragmentStateAdapter {
+
+        public LogPageAdapter(@NonNull Fragment fragment) {
+            super(fragment);
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            var bundle = new Bundle();
+            bundle.putBoolean("verbose", verbose(position));
+            var f = getItemViewType(position) == 0 ? new LogFragment() : new UnwrapLogFragment();
+            f.setArguments(bundle);
+            return f;
         }
 
         @Override
         public int getItemCount() {
-            return logs.size();
+            return 2;
         }
 
-        class ViewHolder extends RecyclerView.ViewHolder {
-            TextView textView;
+        @Override
+        public long getItemId(int position) {
+            return verbose(position) ? R.string.nav_item_logs_verbose : R.string.nav_item_logs_module;
+        }
 
-            ViewHolder(ItemLogBinding binding) {
-                super(binding.getRoot());
-                textView = binding.log;
-            }
+        @Override
+        public boolean containsItem(long itemId) {
+            return itemId == R.string.nav_item_logs_verbose || itemId == R.string.nav_item_logs_module;
+        }
+
+        public boolean verbose(int position) {
+            return position != 0;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return wordWrap.isChecked() ? 0 : 1;
+        }
+
+        public void refresh() {
+            runOnUiThread(this::notifyDataSetChanged);
         }
     }
 }

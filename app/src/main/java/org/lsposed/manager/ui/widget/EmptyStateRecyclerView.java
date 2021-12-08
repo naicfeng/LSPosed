@@ -31,30 +31,13 @@ import android.util.DisplayMetrics;
 import androidx.annotation.Nullable;
 
 import org.lsposed.manager.R;
+import org.lsposed.manager.util.SimpleStatefulAdaptor;
 
 import rikka.core.util.ResourceUtils;
-import rikka.widget.borderview.BorderRecyclerView;
 
-public class EmptyStateRecyclerView extends BorderRecyclerView {
+public class EmptyStateRecyclerView extends StatefulRecyclerView {
     private final TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private final String emptyText;
-    private final AdapterDataObserver emptyObserver = new AdapterDataObserver() {
-
-        @Override
-        public void onChanged() {
-            Adapter<?> adapter = getAdapter();
-            if (adapter != null) {
-                boolean newEmpty = adapter.getItemCount() == 0;
-                if (empty != newEmpty) {
-                    empty = newEmpty;
-                    invalidate();
-                }
-            }
-        }
-    };
-
-    private boolean empty = false;
-
 
     public EmptyStateRecyclerView(Context context) {
         this(context, null);
@@ -75,25 +58,10 @@ public class EmptyStateRecyclerView extends BorderRecyclerView {
     }
 
     @Override
-    public void setAdapter(Adapter adapter) {
-        var oldAdapter = getAdapter();
-        if (oldAdapter != null) {
-            oldAdapter.unregisterAdapterDataObserver(emptyObserver);
-        }
-        super.setAdapter(adapter);
-        if (adapter != null) {
-            adapter.registerAdapterDataObserver(emptyObserver);
-            if (adapter instanceof EmptyStateAdapter && ((EmptyStateAdapter<?>) adapter).isLoaded()) {
-                emptyObserver.onChanged();
-            }
-        }
-    }
-
-    @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-
-        if (empty) {
+        var adapter = getAdapter();
+        if (adapter instanceof EmptyStateAdapter && ((EmptyStateAdapter<?>) adapter).isLoaded() && adapter.getItemCount() == 0) {
             final int width = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
             final int height = getMeasuredHeight() - getPaddingTop() - getPaddingBottom();
 
@@ -108,9 +76,7 @@ public class EmptyStateRecyclerView extends BorderRecyclerView {
         }
     }
 
-
-    public abstract static class EmptyStateAdapter<T extends ViewHolder> extends Adapter<T> {
+    public abstract static class EmptyStateAdapter<T extends ViewHolder> extends SimpleStatefulAdaptor<T> {
         abstract public boolean isLoaded();
     }
-
 }

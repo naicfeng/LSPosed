@@ -20,6 +20,7 @@
 
 package org.lsposed.manager.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -34,6 +35,7 @@ import org.lsposed.manager.R;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AppHelper {
 
@@ -41,7 +43,9 @@ public class AppHelper {
     public static final int FLAG_SHOW_FOR_ALL_USERS = 0x0400;
     private static List<String> denyList;
     private static List<PackageInfo> appList;
+    private static final ConcurrentHashMap<PackageInfo, CharSequence> appLabel = new ConcurrentHashMap<>();
 
+    @SuppressLint("WrongConstant")
     public static Intent getSettingsIntent(String packageName, int userId) {
         Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
         intentToResolve.addCategory(SETTINGS_CATEGORY);
@@ -61,6 +65,7 @@ public class AppHelper {
         return intent;
     }
 
+    @SuppressLint("WrongConstant")
     public static Intent getLaunchIntentForPackage(String packageName, int userId) {
         Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
         intentToResolve.addCategory(Intent.CATEGORY_INFO);
@@ -132,17 +137,22 @@ public class AppHelper {
         }
     }
 
-    public static List<PackageInfo> getAppList(boolean force) {
+    synchronized public static List<PackageInfo> getAppList(boolean force) {
         if (appList == null || force) {
             appList = ConfigManager.getInstalledPackagesFromAllUsers(PackageManager.GET_META_DATA | PackageManager.MATCH_UNINSTALLED_PACKAGES, true);
         }
         return appList;
     }
 
-    public static List<String> getDenyList(boolean force) {
+    synchronized public static List<String> getDenyList(boolean force) {
         if (denyList == null || force) {
             denyList = ConfigManager.getDenyListPackages();
         }
         return denyList;
+    }
+
+    public static CharSequence getAppLabel(PackageInfo info, PackageManager pm) {
+        if (info == null || info.applicationInfo == null) return null;
+        return appLabel.computeIfAbsent(info, i -> i.applicationInfo.loadLabel(pm));
     }
 }

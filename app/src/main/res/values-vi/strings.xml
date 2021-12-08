@@ -15,7 +15,6 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
   ~
-  ~ Copyright (C) 2020 EdXposed Contributors
   ~ Copyright (C) 2021 LSPosed Contributors
   -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/xposed_module_updated_notification_*,@string/module_is_not_activated_*">
@@ -36,7 +35,7 @@
         <item quantity="other">%d mô-đun có bản cập nhật</item>
     </plurals>
     <string name="about_view_source_code"><![CDATA[Xem mã nguồn tại %1$s<br/>Tham gia %2$s nhóm của chúng tôi]]></string>
-    <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself.">Tuyen Nguyen (tuyennn)</string>
+    <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself.">The Primal Pea</string>
     <string name="install">Cài đặt</string>
     <string name="install_summary">Chạm để cài đặt LSPosed</string>
     <string name="not_installed">Chưa được cài đặt</string>
@@ -68,7 +67,7 @@
     <string name="update_lsposed_msg">Xác nhận cập nhật LSPosed? Thiết bị sẽ khởi động lại sau khi cập nhật hoàn tất</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Lưu lại</string>
-    <string name="nav_item_logs_lsp">Nhật ký LSPosed</string>
+    <string name="nav_item_logs_verbose">Nhật ký Chi tiết</string>
     <string name="nav_item_logs_module">Nhật ký các Mô-đun</string>
     <string name="logs_save_failed2">Lưu lại thất bại:\n%s</string>
     <string name="menuClearLog">Xóa nhật ký</string>
@@ -80,6 +79,8 @@
     <string name="menuReload">Tải lại</string>
     <string name="logs_clear_failed_2">Thất bại khi xoá nhật ký</string>
     <string name="menu_enable_word_wrap">Xuống dòng tự động</string>
+    <string name="enabled_verbose_log">Nhật ký chi tiết đã được kích hoạt</string>
+    <string name="disabled_verbose_log">Nhật ký chi tiết đã được vô hiệu hoá</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">Mô-đun Xposed chưa được kích hoạt</string>
     <string name="module_is_not_activated_yet_detailed">%s đã được cài đặt, nhưng chưa được kích hoạt</string>
@@ -89,7 +90,6 @@
     <string name="xposed_module_updated_notification_content_system">%s đã được cập nhật, phạm vi hoạt động đã bao gồm System Framework, thì khởi động lại thiết bị là bắt buộc</string>
     <!-- ModulesActivity -->
     <string name="module_empty_description">(chưa có mô tả)</string>
-    <string name="module_no_ui">Mô-đun này không cung cấp giao diện người dùng</string>
     <string name="warning_xposed_min_version">Mô-đun này yêu cầu một phiên bản Xposed mới hơn (%d) và đó là lý do không thể được kích hoạt</string>
     <string name="no_min_version_specified">Mô-đun này không chỉ định phiên bản Xposed cần thiết để khởi chạy.</string>
     <string name="warning_min_version_too_low">Mô-đun này được tạo bởi phiên bản Xposed %1$d, nhưng vì lý do không tương thích với phiên bản %2$d, nên nó đã bị vô hiệu hóa</string>
@@ -222,4 +222,5 @@
     <string name="color_brown">Nâu</string>
     <string name="color_grey">Xám</string>
     <string name="color_blue_grey">Xanh xám</string>
+    <string name="feedback_or_suggestion">Phản hồi hoặc góp ý</string>
 </resources>

@@ -21,6 +21,7 @@ package org.lsposed.lspd.service;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 import static org.lsposed.lspd.service.ServiceManager.TAG;
+import static org.lsposed.lspd.service.ServiceManager.getExecutorService;
 
 import android.annotation.SuppressLint;
 import android.app.INotificationManager;
@@ -84,7 +85,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     private static final String PROP_NAME = "dalvik.vm.dex2oat-flags";
     private static final String PROP_VALUE = "--inline-max-code-units=0";
     // this maybe useful when obtaining the manager binder
-    private static final String RANDOM_UUID = UUID.randomUUID().toString();
+    private static String RANDOM_UUID = null;
     private static final String SHORTCUT_ID = "org.lsposed.manager.shortcut";
     public static final int NOTIFICATION_ID = 114514;
     public static final String CHANNEL_ID = "lsposed";
@@ -251,13 +252,11 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     }
 
     @SuppressLint("WrongConstant")
-    public static void broadcastIntent(String modulePackageName, int moduleUserId, boolean packageFullyRemoved) {
-        Intent intent = new Intent(Intent.ACTION_PACKAGE_CHANGED);
+    public static void broadcastIntent(Intent inIntent) {
+        var intent = new Intent("org.lsposed.manager.NOTIFICATION");
+        intent.putExtra(Intent.EXTRA_INTENT, inIntent);
         intent.addFlags(0x01000000); //Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND
         intent.addFlags(0x00400000); //Intent.FLAG_RECEIVER_FROM_SHELL
-        intent.putExtra("android.intent.extra.PACKAGES", modulePackageName);
-        intent.putExtra(Intent.EXTRA_USER, moduleUserId);
-        intent.putExtra(Intent.ACTION_PACKAGE_FULLY_REMOVED, packageFullyRemoved);
         intent.setPackage(BuildConfig.MANAGER_INJECTED_PKG_NAME);
         try {
             ActivityManagerService.broadcastIntentWithFeature(null, intent,
@@ -394,7 +393,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                 // check if there's one running
                 // or it's run by ourselves after force stopping
                 var snapshot = guardSnapshot();
-                if (intent.getCategories().contains(RANDOM_UUID) ||
+                if ((RANDOM_UUID != null && intent.getCategories().contains(RANDOM_UUID)) ||
                         (snapshot != null && snapshot.isAlive() && snapshot.uid == BuildConfig.MANAGER_INJECTED_UID)) {
                     Log.d(TAG, "manager is still running or is on its way");
                     // there's one running parasitic manager
@@ -406,10 +405,10 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                     // we do it by cancelling the launch (return false)
                     // and start activity in a new thread
                     pendingManager = true;
-                    new Thread(() -> {
+                    getExecutorService().submit(() -> {
                         ensureWebViewPermission();
                         stopAndStartActivity(pkgName, intent, true);
-                    }).start();
+                    });
                     Log.d(TAG, "requested to launch manager");
                     return false;
                 }
@@ -435,6 +434,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
             Log.d(TAG, "stopped old package");
             if (addUUID) {
                 intent = (Intent) intent.clone();
+                RANDOM_UUID = UUID.randomUUID().toString();
                 intent.addCategory(RANDOM_UUID);
             }
             ActivityManagerService.startActivityAsUserWithFeature("android", null, intent, intent.getType(), null, null, 0, 0, null, null, 0);
@@ -459,7 +459,11 @@ public class LSPManagerService extends ILSPManagerService.Stub {
 
     // return true to send manager binder
     synchronized boolean postStartManager(int pid, int uid) {
-        return pid == managerPid && uid == BuildConfig.MANAGER_INJECTED_UID;
+        if (pid == managerPid && uid == BuildConfig.MANAGER_INJECTED_UID) {
+            RANDOM_UUID = null;
+            return true;
+        }
+        return false;
     }
 
     public @NonNull
@@ -520,16 +524,11 @@ public class LSPManagerService extends ILSPManagerService.Stub {
 
     @Override
     public boolean enableModule(String packageName) throws RemoteException {
-        PackageInfo pkgInfo = PackageService.getPackageInfo(packageName, PackageService.MATCH_ALL_FLAGS, 0);
-        if (pkgInfo != null && pkgInfo.applicationInfo != null) {
-            return ConfigManager.getInstance().enableModule(packageName, pkgInfo.applicationInfo);
-        } else {
-            return false;
-        }
+        return ConfigManager.getInstance().enableModule(packageName);
     }
 
     @Override
-    public boolean setModuleScope(String packageName, ParceledListSlice<Application> scope) {
+    public boolean setModuleScope(String packageName, ParceledListSlice<Application> scope) throws RemoteException {
         return ConfigManager.getInstance().setModuleScope(packageName, scope.getList());
     }
 

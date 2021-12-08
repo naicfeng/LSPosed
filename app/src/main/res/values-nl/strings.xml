@@ -15,12 +15,11 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
   ~
-  ~ Copyright (C) 2020 EdXposed Contributors
   ~ Copyright (C) 2021 LSPosed Contributors
   -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/xposed_module_updated_notification_*,@string/module_is_not_activated_*">
     <!-- MainActivity -->
-    <string name="info">Info</string>
+    <string name="info">info</string>
     <string name="Modules">Modules</string>
     <plurals name="modules_enabled_count">
         <item quantity="one">%d module ingeschakeld</item>
@@ -70,7 +69,7 @@
     <string name="update_lsposed_msg">Bevestig bijwerken van LSPosed? Dit apparaat zal opnieuw opstarten nadat de update is voltooid</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Opslaan</string>
-    <string name="nav_item_logs_lsp">LSPosed logboeken</string>
+    <string name="nav_item_logs_verbose">Uitgebreide logs</string>
     <string name="nav_item_logs_module">Modules Logbestanden</string>
     <string name="logs_save_failed2">Opslaan mislukt:\n%s</string>
     <string name="menuClearLog">Wis het logboek nu</string>
@@ -82,6 +81,8 @@
     <string name="menuReload">Herlaad</string>
     <string name="logs_clear_failed_2">Het logboek kan niet worden gewist</string>
     <string name="menu_enable_word_wrap">Woord Omslag</string>
+    <string name="enabled_verbose_log">Uitgebreide logboek ingeschakeld</string>
+    <string name="disabled_verbose_log">Verbose logboek uitgeschakeld</string>
     <!-- Notification -->
     <string name="module_is_not_activated_yet">LSPosed module is nog niet geactiveerd</string>
     <string name="module_is_not_activated_yet_detailed">%1$s is geïnstalleerd, maar is nog niet geactiveerd</string>
@@ -91,7 +92,6 @@
     <string name="xposed_module_updated_notification_content_system">%s is bijgewerkt, omdat het bereik een systeemkader bevat, moet je opnieuw opstarten om wijzigingen toe te passen</string>
     <!-- ModulesActivity -->
     <string name="module_empty_description">(geen beschrijving gegeven)</string>
-    <string name="module_no_ui">Deze module biedt geen gebruikersinterface</string>
     <string name="warning_xposed_min_version">Deze module vereist een nieuwere versie van Lsposed (%d) en kan dus niet worden geactiveerd</string>
     <string name="no_min_version_specified">Deze module heeft geen vereiste versie voor Xposed opgegeven.</string>
     <string name="warning_min_version_too_low">Deze module is gemaakt voor de Lsposed-versie %1$d, maar vanwege onverenigbare wijzigingen in de versie %2$d, is het uitgeschakeld</string>
@@ -224,4 +224,5 @@
     <string name="color_brown">Bruin</string>
     <string name="color_grey">Grijs</string>
     <string name="color_blue_grey">Blauw grijs</string>
+    <string name="feedback_or_suggestion">Feedback en suggestie</string>
 </resources>

@@ -59,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import io.github.xposed.xposedservice.utils.ParceledListSlice;
 
@@ -66,8 +67,9 @@ public class PackageService {
 
     static final int INSTALL_FAILED_INTERNAL_ERROR = -110;
     static final int INSTALL_REASON_UNKNOWN = 0;
+    static final int MATCH_ANY_USER = 0x00400000; // PackageManager.MATCH_ANY_USER
 
-    static final int MATCH_ALL_FLAGS = PackageManager.MATCH_DISABLED_COMPONENTS | PackageManager.MATCH_DIRECT_BOOT_AWARE | PackageManager.MATCH_DIRECT_BOOT_UNAWARE | PackageManager.MATCH_UNINSTALLED_PACKAGES;
+    static final int MATCH_ALL_FLAGS = PackageManager.MATCH_DISABLED_COMPONENTS | PackageManager.MATCH_DIRECT_BOOT_AWARE | PackageManager.MATCH_DIRECT_BOOT_UNAWARE | PackageManager.MATCH_UNINSTALLED_PACKAGES | MATCH_ANY_USER;
     public static final int PER_USER_RANGE = 100000;
 
     private static IPackageManager pm = null;
@@ -131,17 +133,19 @@ public class PackageService {
         IPackageManager pm = getPackageManager();
         if (pm == null) return ParceledListSlice.emptyList();
         for (var user : UserService.getUsers()) {
-            res.addAll(pm.getInstalledPackages(flags, user.id).getList());
+            // in case pkginfo of other users in primary user
+            res.addAll(pm.getInstalledPackages(flags, user.id).getList().parallelStream().filter(info -> info.applicationInfo != null && info.applicationInfo.uid / PER_USER_RANGE == user.id).collect(Collectors.toList()));
         }
         if (filterNoProcess) {
-            res.removeIf(packageInfo -> {
+            return new ParceledListSlice<>(res.parallelStream().filter(packageInfo -> {
                 try {
                     PackageInfo pkgInfo = getPackageInfoWithComponents(packageInfo.packageName, MATCH_ALL_FLAGS, packageInfo.applicationInfo.uid / PER_USER_RANGE);
-                    return fetchProcesses(pkgInfo).isEmpty();
+                    return !fetchProcesses(pkgInfo).isEmpty();
                 } catch (RemoteException e) {
-                    return false;
+                    Log.w(TAG, "filter failed", e);
+                    return true;
                 }
-            });
+            }).collect(Collectors.toList()));
         }
         return new ParceledListSlice<>(res);
     }
