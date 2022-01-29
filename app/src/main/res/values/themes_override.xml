@@ -53,12 +53,11 @@
         <item name="android:letterSpacing">0.0178571429</item>
     </style>
 
-    <style name="PreferenceCategoryTitleTextStyle" tools:override="true">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:textSize">11sp</item>
-        <!-- 0.8 Spacing, 0.8/11 = 0.072727273 -->
-        <item name="android:letterSpacing">0.072727273</item>
+    <style name="Preference.Category.Material" tools:override="true">
+        <item name="android:layout">@layout/preference_category_material</item>
+        <item name="iconSpaceReserved">false</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
     </style>
 
     <!-- Base themes -->
@@ -76,7 +75,7 @@
         <item name="colorWarning">@color/material_orange_700</item>
         <item name="colorInactive" tools:ignore="PrivateResource">@color/material_grey_600</item>
 
-        <item name="navigationBarDividerColor">@color/navigation_bar_divider_light</item>
+        <item name="navigationBarDividerColor">@android:color/transparent</item>
 
         <!-- SwitchBar -->
         <item name="switchBarStyle">@style/Widget.SwitchBar.Light</item>
@@ -99,7 +98,7 @@
         <item name="colorWarning">@color/material_orange_A100</item>
         <item name="colorInactive">@color/material_grey_500</item>
 
-        <item name="navigationBarDividerColor">@color/navigation_bar_divider_dark</item>
+        <item name="navigationBarDividerColor">@android:color/transparent</item>
 
         <!-- SwitchBar -->
         <item name="switchBarStyle">@style/Widget.SwitchBar</item>

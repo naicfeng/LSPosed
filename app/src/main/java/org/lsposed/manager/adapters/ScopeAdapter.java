@@ -78,12 +78,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import rikka.core.util.ResourceUtils;
+import rikka.material.app.LocaleDelegate;
 import rikka.widget.switchbar.SwitchBar;
 
 @SuppressLint("NotifyDataSetChanged")
@@ -253,7 +253,7 @@ public class ScopeAdapter extends EmptyStateRecyclerView.EmptyStateAdapter<Scope
             preferences.edit().putBoolean("filter_denylist", item.isChecked()).apply();
         } else if (itemId == R.id.backup) {
             LocalDateTime now = LocalDateTime.now();
-            fragment.backupLauncher.launch(String.format(Locale.ROOT,
+            fragment.backupLauncher.launch(String.format(LocaleDelegate.getDefaultLocale(),
                     "%s_%s.lsp", module.getAppName(), now.toString()));
             return true;
         } else if (itemId == R.id.restore) {
@@ -387,7 +387,7 @@ public class ScopeAdapter extends EmptyStateRecyclerView.EmptyStateAdapter<Scope
         if (!recommendedList.isEmpty() && recommendedList.contains(appInfo.application)) {
             String recommended = activity.getString(R.string.requested_by_module);
             sb.append(recommended);
-            final ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourceUtils.resolveColor(activity.getTheme(), androidx.appcompat.R.attr.colorAccent));
+            final ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourceUtils.resolveColor(activity.getTheme(), com.google.android.material.R.attr.colorPrimary));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 final TypefaceSpan typefaceSpan = new TypefaceSpan(Typeface.create("sans-serif-medium", Typeface.NORMAL));
                 sb.setSpan(typefaceSpan, sb.length() - recommended.length(), sb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -401,7 +401,7 @@ public class ScopeAdapter extends EmptyStateRecyclerView.EmptyStateAdapter<Scope
             if (sb.length() != 0) sb.append("\n");
             String denylist = activity.getString(R.string.deny_list_info);
             sb.append(denylist);
-            final ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourceUtils.resolveColor(activity.getTheme(), rikka.material.R.attr.colorWarning));
+            final ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourceUtils.resolveColor(activity.getTheme(), com.google.android.material.R.attr.colorError));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 final TypefaceSpan typefaceSpan = new TypefaceSpan(Typeface.create("sans-serif-medium", Typeface.NORMAL));
                 sb.setSpan(typefaceSpan, sb.length() - denylist.length(), sb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);

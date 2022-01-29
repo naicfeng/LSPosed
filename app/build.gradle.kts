@@ -18,26 +18,15 @@
  */
 
 import com.android.build.gradle.internal.dsl.BuildType
+import java.io.PrintStream
 import java.nio.file.Paths
 import java.time.Instant
+import java.util.*
 
 plugins {
     id("org.gradle.idea")
     id("com.android.application")
     id("androidx.navigation.safeargs")
-}
-
-// workaround for AS. TODO: Remove when AS 7.1 stable release
-val dataBinding = file("${project.buildDir}/generated/data_binding_base_class_source_out/debug/out")
-sourceSets {
-    create("dataBinding") {
-        java.srcDir(dataBinding)
-    }
-}
-idea {
-    module {
-        generatedSourceDirs.add(dataBinding)
-    }
 }
 
 val androidTargetSdkVersion: Int by rootProject.extra
@@ -82,8 +71,8 @@ android {
 
     lint {
         disable += "MissingTranslation"
-        isAbortOnError = true
-        isCheckReleaseBuilds = false
+        abortOnError = true
+        checkReleaseBuilds = false
     }
 
     packagingOptions {
@@ -161,40 +150,75 @@ tasks.whenTaskAdded {
     }
 }
 
+afterEvaluate {
+    android.applicationVariants.forEach { variant ->
+        val outSrcDir = file("$buildDir/generated/source/langList/${variant.name}")
+        val outSrc = file("$outSrcDir/org/lsposed/manager/util/LangList.java")
+        val genLangList =
+            tasks.register("generate${variant.name.capitalize(Locale.ROOT)}LangList") {
+                inputs.files("src/main/res")
+                outputs.file(outSrc)
+                doLast {
+                    val langList = File(projectDir, "src/main/res").listFiles { dir ->
+                        dir.name.startsWith("values-") && File(dir, "strings.xml").exists()
+                    }.orEmpty().sorted().map {
+                        it.name.substring(7).split("-", limit = 2)
+                    }.map {
+                        if (it.size == 1) Locale(it[0])
+                        else Locale(it[0], it[1].substring(1))
+                    }.map { it.toLanguageTag() }
+                    PrintStream(outSrc).print(
+                        """
+                        |package org.lsposed.manager.util;
+                        |public final class LangList {
+                        |    public static final String[] LANG_LIST = {"SYSTEM", ${
+                            langList.joinToString(", ") { """"$it"""" }
+                        }};
+                        |}""".trimMargin()
+                    )
+                }
+            }
+        variant.registerJavaGeneratingTask(genLangList, outSrcDir)
+    }
+}
+
 dependencies {
     val glideVersion = "4.12.0"
     val navVersion: String by rootProject.extra
     annotationProcessor("com.github.bumptech.glide:compiler:$glideVersion")
     implementation("androidx.activity:activity:1.4.0")
     implementation("androidx.browser:browser:1.4.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("androidx.core:core:1.7.0")
-    implementation("androidx.fragment:fragment:1.4.0")
+    implementation("androidx.fragment:fragment:1.4.1")
     implementation("androidx.navigation:navigation-fragment:$navVersion")
     implementation("androidx.navigation:navigation-ui:$navVersion")
-    implementation("androidx.preference:preference:1.1.1")
+    implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.slidingpanelayout:slidingpanelayout:1.2.0-rc01")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
     implementation("com.github.bumptech.glide:glide:$glideVersion")
-    implementation("com.google.android.material:material:1.6.0-alpha01")
+    implementation("com.google.android.material:material:1.6.0-alpha02")
     implementation("com.google.code.gson:gson:2.8.9")
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.3"))
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:okhttp-dnsoverhttps")
     implementation("com.squareup.okhttp3:logging-interceptor")
-    implementation("dev.rikka.rikkax.appcompat:appcompat:1.2.0-rc01")
+    implementation("dev.rikka.rikkax.appcompat:appcompat:1.4.1")
     implementation("dev.rikka.rikkax.core:core:1.3.3")
-    implementation("dev.rikka.rikkax.insets:insets:1.1.0")
+    implementation("dev.rikka.rikkax.insets:insets:1.1.1")
     implementation("dev.rikka.rikkax.material:material:1.6.6")
     implementation("dev.rikka.rikkax.preference:simplemenu-preference:1.0.3")
-    implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.2")
+    implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.3.1")
     implementation("dev.rikka.rikkax.widget:borderview:1.1.0")
     implementation("dev.rikka.rikkax.widget:switchbar:1.0.2")
-    implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.1.0")
+    implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.2.0")
     implementation("me.zhanghai.android.appiconloader:appiconloader:1.3.1")
-    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:3.0")
+    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.2")
     implementation(project(":manager-service"))
+
+    val appCenter = "4.4.2"
+    debugImplementation("com.microsoft.appcenter:appcenter-crashes:${appCenter}")
+    debugImplementation("com.microsoft.appcenter:appcenter-analytics:${appCenter}")
 }
 
 configurations.all {

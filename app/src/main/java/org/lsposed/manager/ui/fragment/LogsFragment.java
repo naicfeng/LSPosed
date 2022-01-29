@@ -60,7 +60,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.Deflater;
@@ -68,6 +67,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import rikka.core.os.FileUtils;
+import rikka.material.app.LocaleDelegate;
 import rikka.recyclerview.RecyclerViewKt;
 
 public class LogsFragment extends BaseFragment {
@@ -83,7 +83,7 @@ public class LogsFragment extends BaseFragment {
     private OptionsItemSelectListener optionsItemSelectListener;
 
     private final ActivityResultLauncher<String> saveLogsLauncher = registerForActivityResult(
-            new ActivityResultContracts.CreateDocument(),
+            new ActivityResultContracts.CreateDocument("application/zip"),
             uri -> {
                 if (uri == null) return;
                 runAsync(() -> {
@@ -106,6 +106,7 @@ public class LogsFragment extends BaseFragment {
         binding = FragmentPagerBinding.inflate(inflater, container, false);
         binding.appBar.setLiftable(true);
         setupToolbar(binding.toolbar, binding.clickView, R.string.Logs, R.menu.menu_logs);
+        binding.toolbar.setNavigationIcon(null);
         binding.toolbar.setSubtitle(ConfigManager.isVerboseLogEnabled() ? R.string.enabled_verbose_log : R.string.disabled_verbose_log);
         adapter = new LogPageAdapter(this);
         binding.viewPager.setAdapter(adapter);
@@ -165,7 +166,7 @@ public class LogsFragment extends BaseFragment {
 
     private void save() {
         LocalDateTime now = LocalDateTime.now();
-        String filename = String.format(Locale.ROOT, "LSPosed_%s.zip", now.toString());
+        String filename = String.format(LocaleDelegate.getDefaultLocale(), "LSPosed_%s.zip", now.toString());
         saveLogsLauncher.launch(filename);
     }
 
@@ -274,6 +275,8 @@ public class LogsFragment extends BaseFragment {
             binding.recyclerView.setAdapter(adaptor);
             layoutManager = new LinearLayoutManager(requireActivity());
             binding.recyclerView.setLayoutManager(layoutManager);
+            // ltr even for rtl languages because of log format
+            binding.recyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
             binding.swipeRefreshLayout.setProgressViewEndTarget(true, binding.swipeRefreshLayout.getProgressViewEndOffset());
             RecyclerViewKt.fixEdgeEffect(binding.recyclerView, false, true);
             binding.swipeRefreshLayout.setOnRefreshListener(adaptor::fullRefresh);
@@ -377,6 +380,7 @@ public class LogsFragment extends BaseFragment {
             HorizontalScrollView horizontalScrollView = new HorizontalScrollView(getContext());
             horizontalScrollView.setFillViewport(true);
             horizontalScrollView.setHorizontalScrollBarEnabled(false);
+            horizontalScrollView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
             binding.swipeRefreshLayout.addView(horizontalScrollView);
             horizontalScrollView.addView(binding.recyclerView);
             binding.recyclerView.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -389,7 +393,14 @@ public class LogsFragment extends BaseFragment {
                 @Override
                 public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
                     super.onBindViewHolder(holder, position);
-                    holder.item.measure(0, 0);
+                    var view = holder.item;
+                    view.measure(0, 0);
+                    int desiredWidth = view.getMeasuredWidth();
+                    ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+                    layoutParams.width = desiredWidth;
+                    if (binding.recyclerView.getWidth() < desiredWidth) {
+                        binding.recyclerView.requestLayout();
+                    }
                 }
             };
         }

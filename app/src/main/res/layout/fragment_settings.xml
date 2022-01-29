@@ -20,20 +20,22 @@
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:consumeSystemWindowsInsets="start|end"
+    app:consumeSystemWindowsInsets="@integer/internal_fragment_insets"
     app:edgeToEdge="true"
-    app:fitsSystemWindowsInsets="start|end">
+    app:fitsSystemWindowsInsets="@integer/internal_fragment_insets">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="false"
-        app:fitsSystemWindowsInsets="top">
+        app:fitsSystemWindowsInsets="@integer/internal_fragment_top_insets">
 
         <com.google.android.material.appbar.SubtitleCollapsingToolbarLayout
+            android:id="@+id/toolbar_layout"
             style="?attr/collapsingToolbarLayoutLargeStyle"
             android:layout_width="match_parent"
             android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
@@ -50,13 +52,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:elevation="0dp"
+                android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar"
                 app:layout_collapseMode="pin" />
         </com.google.android.material.appbar.SubtitleCollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/container"
+        android:id="@+id/setting_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />

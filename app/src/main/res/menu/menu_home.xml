@@ -17,12 +17,18 @@
   ~ Copyright (C) 2021 LSPosed Contributors
   -->
 
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/material_grey_100" />
-    <foreground>
-        <!-- 44dp icon scaled to 52dp in 72dp, padding = (1-52/44*24/72)/2 -->
-        <inset
-            android:drawable="@drawable/ic_get_app"
-            android:inset="30.303%" />
-    </foreground>
-</adaptive-icon>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_issue"
+        android:actionViewClass="androidx.appcompat.widget.SearchView"
+        android:icon="@drawable/ic_baseline_chat_24"
+        android:showAsAction="never"
+        android:title="@string/feedback_or_suggestion" />
+
+    <item
+        android:id="@+id/menu_about"
+        android:actionViewClass="androidx.appcompat.widget.SearchView"
+        android:icon="@drawable/ic_baseline_info_24"
+        android:showAsAction="never"
+        android:title="@string/About" />
+</menu>

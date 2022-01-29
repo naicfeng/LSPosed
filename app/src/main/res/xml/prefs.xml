@@ -34,18 +34,20 @@
 
         <rikka.preference.SimpleMenuPreference
             android:defaultValue="SYSTEM"
-            android:entries="@array/language"
-            android:icon="@drawable/ic_baseline_translate_24"
+            android:icon="@drawable/ic_outline_language_24"
             android:key="language"
+            android:popupTheme="@style/language_menu_style"
             android:summary="%s"
             android:title="@string/settings_language" />
 
         <Preference
+            android:icon="@drawable/ic_outline_groups_24"
             android:key="translation_contributors"
             android:title="@string/settings_translation_contributors"
             app:enableCopying="true" />
 
         <Preference
+            android:icon="@drawable/ic_outline_translate_24"
             android:key="translation"
             android:title="@string/settings_translation" />
     </PreferenceCategory>
@@ -53,14 +55,15 @@
     <PreferenceCategory android:title="@string/settings_group_theme">
         <SwitchPreference
             android:defaultValue="true"
+            android:icon="@drawable/ic_outline_palette_24"
             android:key="follow_system_accent"
             android:title="@string/theme_color_system"
             app:isPreferenceVisible="false" />
         <rikka.preference.SimpleMenuPreference
-            android:defaultValue="COLOR_PRIMARY"
+            android:defaultValue="COLOR_BLUE"
             android:entries="@array/color_texts"
             android:entryValues="@array/color_values"
-            android:icon="@drawable/ic_outline_palette_24"
+            android:icon="@drawable/ic_outline_format_color_fill_24"
             android:key="theme_color"
             android:summary="%s"
             android:title="@string/theme_color" />
@@ -73,6 +76,7 @@
             android:summary="%s"
             android:title="@string/dark_theme" />
         <SwitchPreference
+            android:icon="@drawable/ic_outline_invert_colors_24"
             android:key="black_dark_theme"
             android:summary="@string/pure_black_dark_theme_summary"
             android:title="@string/pure_black_dark_theme" />
@@ -81,13 +85,21 @@
     <PreferenceCategory android:title="@string/settings_group_framework">
         <SwitchPreference
             android:defaultValue="false"
+            android:icon="@drawable/ic_outline_assignment_24"
             android:key="disable_verbose_log"
             android:persistent="false"
             android:shouldDisableView="true"
             android:title="@string/pref_title_disable_verbose_log" />
 
+        <Preference
+            android:icon="@drawable/ic_outline_app_shortcut_24"
+            android:key="add_shortcut"
+            android:summary="@string/create_shortcut_summary"
+            android:title="@string/create_shortcut" />
+
         <SwitchPreference
             android:defaultValue="false"
+            android:icon="@drawable/ic_outline_add_to_home_screen_24"
             android:key="enable_auto_add_shortcut"
             android:persistent="false"
             android:summary="@string/settings_enable_auto_add_shortcut_summary"
@@ -99,21 +111,36 @@
             android:defaultValue="CHANNEL_STABLE"
             android:entries="@array/update_channel_texts"
             android:entryValues="@array/update_channel_values"
+            android:icon="@drawable/ic_outline_merge_type_24"
             android:key="update_channel"
             android:summary="%s"
             android:title="@string/settings_update_channel" />
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:icon="@drawable/ic_baseline_settings_backup_restore_24"
-        android:title="@string/settings_backup_and_restore">
+    <PreferenceCategory android:title="@string/settings_backup_and_restore">
         <Preference
+            android:icon="@drawable/ic_baseline_settings_backup_restore_24"
             android:key="backup"
             android:summary="@string/settings_backup_summery"
             android:title="@string/settings_backup" />
         <Preference
+            android:icon="@drawable/ic_outline_restore_24"
             android:key="restore"
             android:summary="@string/settings_restore_summery"
             android:title="@string/settings_restore" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="settings_group_system"
+        android:title="@string/settings_group_system"
+        app:isPreferenceVisible="@bool/show_system_settings">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:enabled="false"
+            android:icon="@drawable/ic_outline_android_24"
+            android:key="show_hidden_icon_apps_enabled"
+            android:persistent="false"
+            android:summary="@string/settings_show_hidden_icon_apps_enabled_summary"
+            android:title="@string/settings_show_hidden_icon_apps_enabled" />
     </PreferenceCategory>
 </PreferenceScreen>

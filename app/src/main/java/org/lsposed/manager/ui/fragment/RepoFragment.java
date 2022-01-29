@@ -111,6 +111,7 @@ public class RepoFragment extends BaseFragment implements RepoLoader.RepoListene
         binding.appBar.setLiftable(true);
         binding.recyclerView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> binding.appBar.setLifted(!top));
         setupToolbar(binding.toolbar, binding.clickView, R.string.module_repo, R.menu.menu_repo);
+        binding.toolbar.setNavigationIcon(null);
         adapter = new RepoAdapter();
         adapter.setHasStableIds(true);
         adapter.registerAdapterDataObserver(observer);
@@ -182,6 +183,7 @@ public class RepoFragment extends BaseFragment implements RepoLoader.RepoListene
                 binding.recyclerView.setNestedScrollingEnabled(true);
             }
         });
+        searchView.findViewById(androidx.appcompat.R.id.search_edit_frame).setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
         int sort = App.getPreferences().getInt("repo_sort", 0);
         if (sort == 0) {
             menu.findItem(R.id.item_sort_by_name).setChecked(true);
@@ -214,7 +216,9 @@ public class RepoFragment extends BaseFragment implements RepoLoader.RepoListene
 
     @Override
     public void onRepoLoaded() {
-        adapter.refresh();
+        if (adapter != null) {
+            adapter.refresh();
+        }
         updateRepoSummary();
     }
 
@@ -292,7 +296,7 @@ public class RepoFragment extends BaseFragment implements RepoLoader.RepoListene
             if (upgradableVer != null) {
                 String hint = getString(R.string.update_available, upgradableVer.versionName);
                 sb.append(hint);
-                final ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourceUtils.resolveColor(requireActivity().getTheme(), androidx.appcompat.R.attr.colorAccent));
+                final ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourceUtils.resolveColor(requireActivity().getTheme(), com.google.android.material.R.attr.colorPrimary));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     final TypefaceSpan typefaceSpan = new TypefaceSpan(Typeface.create("sans-serif-medium", Typeface.NORMAL));
                     sb.setSpan(typefaceSpan, sb.length() - hint.length(), sb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -311,7 +315,7 @@ public class RepoFragment extends BaseFragment implements RepoLoader.RepoListene
 
             holder.itemView.setOnClickListener(v -> {
                 searchView.clearFocus();
-                getNavController().navigate(RepoFragmentDirections.actionRepoFragmentToRepoItemFragment(module.getName(), module.getDescription()));
+                getNavController().navigate(RepoFragmentDirections.actionRepoFragmentToRepoItemFragment(module.getName()));
             });
             holder.itemView.setTooltipText(module.getDescription());
         }

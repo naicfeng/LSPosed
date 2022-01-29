@@ -21,6 +21,7 @@
 package org.lsposed.manager;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -43,6 +44,7 @@ import org.lsposed.manager.repo.RepoLoader;
 import org.lsposed.manager.ui.activity.CrashReportActivity;
 import org.lsposed.manager.util.DoHDNS;
 import org.lsposed.manager.util.ModuleUtil;
+import org.lsposed.manager.util.Telemetry;
 import org.lsposed.manager.util.ThemeUtil;
 //import org.lsposed.manager.util.UpdateUtil;
 
@@ -52,6 +54,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -78,7 +81,7 @@ public class App extends Application {
             return result.toString(StandardCharsets.UTF_8.name());
         } catch (IOException e) {
             Log.e(App.TAG, "read webview HTML", e);
-            return "<html><body>@body@</body></html>";
+            return "<html dir\"@dir@\"><body>@body@</body></html>";
         }
     }
 
@@ -141,6 +144,28 @@ public class App extends Application {
 
     public static boolean isParasitic() {
         return !Process.isApplicationUid(Process.myUid());
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        Telemetry.start(this);
+        var map = new HashMap<String, String>(1);
+        map.put("isParasitic", String.valueOf(isParasitic()));
+        Telemetry.trackEvent("App start", map);
+        var am = getSystemService(ActivityManager.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            map.clear();
+            var reasons = am.getHistoricalProcessExitReasons(null, 0, 1);
+            if (reasons.size() == 1) {
+                map.put("description", reasons.get(0).getDescription());
+                map.put("importance", String.valueOf(reasons.get(0).getImportance()));
+                map.put("process", reasons.get(0).getProcessName());
+                map.put("reason", String.valueOf(reasons.get(0).getReason()));
+                map.put("status", String.valueOf(reasons.get(0).getStatus()));
+                Telemetry.trackEvent("Last exit reasons", map);
+            }
+        }
     }
 
     @SuppressLint("WrongConstant")

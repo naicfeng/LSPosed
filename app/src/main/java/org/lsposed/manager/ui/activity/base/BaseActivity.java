@@ -40,10 +40,10 @@ import org.lsposed.manager.R;
 import org.lsposed.manager.ui.dialog.BlurBehindDialogBuilder;
 import org.lsposed.manager.ui.dialog.FlashDialogBuilder;
 import org.lsposed.manager.util.NavUtil;
+import org.lsposed.manager.util.Telemetry;
 import org.lsposed.manager.util.ThemeUtil;
 import org.lsposed.manager.util.UpdateUtil;
 
-import rikka.core.util.ResourceUtils;
 import rikka.material.app.MaterialActivity;
 
 public class BaseActivity extends MaterialActivity {
@@ -96,6 +96,12 @@ public class BaseActivity extends MaterialActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        Telemetry.trackEvent("BaseActivity stop", null);
+    }
+
+    @Override
     public void onApplyUserThemeResource(@NonNull Resources.Theme theme, boolean isDecorView) {
         theme.applyStyle(ThemeUtil.getNightThemeStyleRes(this), true);
         if (!ThemeUtil.isSystemAccent()) {
@@ -113,15 +119,6 @@ public class BaseActivity extends MaterialActivity {
         super.onApplyTranslucentSystemBars();
         Window window = getWindow();
         window.setStatusBarColor(Color.TRANSPARENT);
-
-        window.getDecorView().post(() -> {
-            var rootWindowInsets = window.getDecorView().getRootWindowInsets();
-            if (rootWindowInsets != null &&
-                    rootWindowInsets.getSystemWindowInsetBottom() >= Resources.getSystem().getDisplayMetrics().density * 40) {
-                window.setNavigationBarColor(ResourceUtils.resolveColor(getTheme(), android.R.attr.navigationBarColor) & 0x00ffffff | -0x20000000);
-            } else {
-                window.setNavigationBarColor(Color.TRANSPARENT);
-            }
-        });
+        window.setNavigationBarColor(Color.TRANSPARENT);
     }
 }
