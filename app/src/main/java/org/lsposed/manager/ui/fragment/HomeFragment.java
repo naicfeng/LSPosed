@@ -230,7 +230,7 @@ public class HomeFragment extends BaseFragment {
             binding.designAboutInfo.setText(HtmlCompat.fromHtml(getString(
                     R.string.about_view_source_code,
                     "<b><a href=\"https://github.com/naicfeng/LSPosed\">GitHub</a></b>",
-                    "<b><a href=\"https://t.me/LSPosed\">Telegram</a></b>
+                    "<b><a href=\"https://t.me/LSPosed\">Telegram</a></b>",
                     "<b><a href=\"https://cuojue.org\">CuoJue.org</a></b>"), HtmlCompat.FROM_HTML_MODE_LEGACY));
             binding.designAboutVersion.setText(String.format(LocaleDelegate.getDefaultLocale(), "%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
             return new BlurBehindDialogBuilder(requireContext())
