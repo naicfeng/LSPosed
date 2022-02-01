@@ -24,10 +24,12 @@ import android.os.Looper;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -50,6 +52,24 @@ public class BaseFragment extends Fragment {
 
     public NavController getNavController() {
         return NavHostFragment.findNavController(this);
+    }
+
+    public boolean safeNavigate(@IdRes int resId) {
+        try {
+            getNavController().navigate(resId);
+            return true;
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
+    }
+
+    public boolean safeNavigate(NavDirections direction) {
+        try {
+            getNavController().navigate(direction);
+            return true;
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
     }
 
     public void setupToolbar(Toolbar toolbar, View tipsView, int title) {
@@ -112,14 +132,21 @@ public class BaseFragment extends Fragment {
             var container = requireActivity().findViewById(R.id.container);
             if (container != null) {
                 var snackbar = Snackbar.make(container, str, lengthShort ? Snackbar.LENGTH_SHORT : Snackbar.LENGTH_LONG);
-                if (container.findViewById(R.id.nav) instanceof BottomNavigationView) snackbar.setAnchorView(R.id.nav);
-                if (container.findViewById(R.id.fab) instanceof FloatingActionButton) snackbar.setAnchorView(R.id.fab);
+                if (container.findViewById(R.id.nav) instanceof BottomNavigationView)
+                    snackbar.setAnchorView(R.id.nav);
+                if (container.findViewById(R.id.fab) instanceof FloatingActionButton)
+                    snackbar.setAnchorView(R.id.fab);
                 if (actionStr != null && action != null) snackbar.setAction(actionStr, action);
                 snackbar.show();
                 return;
             }
         }
-        runOnUiThread(Toast.makeText(App.getInstance(), str, lengthShort ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG)::show);
+        runOnUiThread(() -> {
+            try {
+                Toast.makeText(App.getInstance(), str, lengthShort ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
+            } catch (Throwable ignored) {
+            }
+        });
     }
 
 }

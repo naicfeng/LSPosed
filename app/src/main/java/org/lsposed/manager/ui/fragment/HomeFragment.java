@@ -43,7 +43,7 @@ import org.lsposed.manager.ui.dialog.BlurBehindDialogBuilder;
 import org.lsposed.manager.ui.dialog.FlashDialogBuilder;
 import org.lsposed.manager.ui.dialog.ShortcutDialog;
 import org.lsposed.manager.util.NavUtil;
-import org.lsposed.manager.util.Telemetry;
+//import org.lsposed.manager.util.Telemetry;
 import org.lsposed.manager.util.UpdateUtil;
 import org.lsposed.manager.util.chrome.LinkTransformationMethod;
 
@@ -203,7 +203,7 @@ public class HomeFragment extends BaseFragment {
         map.put("api", binding.api.getText().toString());
         map.put("frameworkVersion", binding.frameworkVersion.getText().toString());
         map.put("systemAbi", Arrays.toString(Build.SUPPORTED_ABIS));
-        Telemetry.trackEvent("HomeFragment", map);
+//        Telemetry.trackEvent("HomeFragment", map);
         binding.copyInfo.setOnClickListener(v -> {
             ClipboardUtils.put(activity, info);
             showHint(R.string.info_copied, false);

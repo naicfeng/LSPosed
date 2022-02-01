@@ -40,7 +40,7 @@ import org.lsposed.manager.R;
 import org.lsposed.manager.ui.dialog.BlurBehindDialogBuilder;
 import org.lsposed.manager.ui.dialog.FlashDialogBuilder;
 import org.lsposed.manager.util.NavUtil;
-import org.lsposed.manager.util.Telemetry;
+//import org.lsposed.manager.util.Telemetry;
 import org.lsposed.manager.util.ThemeUtil;
 import org.lsposed.manager.util.UpdateUtil;
 
@@ -98,7 +98,7 @@ public class BaseActivity extends MaterialActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Telemetry.trackEvent("BaseActivity stop", null);
+//        Telemetry.trackEvent("BaseActivity stop", null);
     }
 
     @Override

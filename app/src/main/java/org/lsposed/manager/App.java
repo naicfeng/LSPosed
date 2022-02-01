@@ -44,7 +44,7 @@ import org.lsposed.manager.repo.RepoLoader;
 import org.lsposed.manager.ui.activity.CrashReportActivity;
 import org.lsposed.manager.util.DoHDNS;
 import org.lsposed.manager.util.ModuleUtil;
-import org.lsposed.manager.util.Telemetry;
+//import org.lsposed.manager.util.Telemetry;
 import org.lsposed.manager.util.ThemeUtil;
 //import org.lsposed.manager.util.UpdateUtil;
 
@@ -149,10 +149,10 @@ public class App extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        Telemetry.start(this);
+//        Telemetry.start(this);
         var map = new HashMap<String, String>(1);
         map.put("isParasitic", String.valueOf(isParasitic()));
-        Telemetry.trackEvent("App start", map);
+//        Telemetry.trackEvent("App start", map);
         var am = getSystemService(ActivityManager.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             map.clear();
@@ -163,7 +163,7 @@ public class App extends Application {
                 map.put("process", reasons.get(0).getProcessName());
                 map.put("reason", String.valueOf(reasons.get(0).getReason()));
                 map.put("status", String.valueOf(reasons.get(0).getStatus()));
-                Telemetry.trackEvent("Last exit reasons", map);
+//                Telemetry.trackEvent("Last exit reasons", map);
             }
         }
     }
