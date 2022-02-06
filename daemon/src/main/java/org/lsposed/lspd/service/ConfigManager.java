@@ -55,6 +55,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,7 +76,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 public class ConfigManager {
     private static ConfigManager instance = null;
@@ -702,7 +705,7 @@ public class ConfigManager {
             updateCaches(true);
             return true;
         }
-        return count >= 0;
+        return count > 0;
     }
 
     // Only be called before updating modules. No need to cache.
@@ -822,17 +825,17 @@ public class ConfigManager {
     }
 
     public boolean enableModule(String packageName) throws RemoteException {
+        if (packageName.equals("lspd")) return false;
         PackageInfo pkgInfo = PackageService.getPackageInfoFromAllUsers(packageName, PackageService.MATCH_ALL_FLAGS).values().stream().findFirst().orElse(null);
-        if (pkgInfo == null || pkgInfo.applicationInfo == null) {
-            return false;
-        }
-        if (packageName.equals("lspd") || !updateModuleApkPath(packageName, getModuleApkPath(pkgInfo.applicationInfo), false))
-            return false;
-        boolean changed = executeInTransaction(() -> {
+        if (pkgInfo == null || pkgInfo.applicationInfo == null) return false;
+        var modulePath = getModuleApkPath(pkgInfo.applicationInfo);
+        if (modulePath == null) return false;
+        boolean changed = updateModuleApkPath(packageName, modulePath, false);
+        changed = executeInTransaction(() -> {
             ContentValues values = new ContentValues();
             values.put("enabled", 1);
             return db.update("modules", values, "module_pkg_name = ?", new String[]{packageName}) > 0;
-        });
+        }) || changed;
         if (changed) {
             // Called by manager, should be async
             updateCaches(false);
@@ -1023,5 +1026,26 @@ public class ConfigManager {
 
     public String getApi() {
         return api;
+    }
+
+    public void exportScopes(ZipOutputStream os) throws IOException {
+        os.putNextEntry(new ZipEntry("scopes.txt"));
+        cachedScope.forEach((scope, modules) -> {
+            try {
+                os.write((scope.processName + "/" + scope.uid + "\n").getBytes(StandardCharsets.UTF_8));
+                for (var module : modules) {
+                    os.write(("\t" + module.packageName + "\n").getBytes(StandardCharsets.UTF_8));
+                    for (var cn : module.file.moduleClassNames) {
+                        os.write(("\t\t" + cn + "\n").getBytes(StandardCharsets.UTF_8));
+                    }
+                    for (var ln : module.file.moduleLibraryNames) {
+                        os.write(("\t\t" + ln + "\n").getBytes(StandardCharsets.UTF_8));
+                    }
+                }
+            } catch (IOException e) {
+                Log.w(TAG, scope.processName, e);
+            }
+        });
+        os.closeEntry();
     }
 }
