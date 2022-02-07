@@ -19,6 +19,7 @@
 
 package org.lsposed.manager.ui.fragment;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -178,9 +179,14 @@ public class SettingsFragment extends BaseFragment {
                 backup.setEnabled(installed);
                 backup.setOnPreferenceClickListener(preference -> {
                     LocalDateTime now = LocalDateTime.now();
-                    backupLauncher.launch(String.format(LocaleDelegate.getDefaultLocale(),
-                            "LSPosed_%s.lsp", now.toString()));
-                    return true;
+                    try {
+                        backupLauncher.launch(String.format(LocaleDelegate.getDefaultLocale(),
+                                "LSPosed_%s.lsp", now.toString()));
+                        return true;
+                    } catch (ActivityNotFoundException e) {
+                        parentFragment.showHint(R.string.enable_documentui, true);
+                        return false;
+                    }
                 });
             }
 
@@ -188,8 +194,13 @@ public class SettingsFragment extends BaseFragment {
             if (restore != null) {
                 restore.setEnabled(installed);
                 restore.setOnPreferenceClickListener(preference -> {
-                    restoreLauncher.launch(new String[]{"*/*"});
-                    return true;
+                    try {
+                        restoreLauncher.launch(new String[]{"*/*"});
+                        return true;
+                    } catch (ActivityNotFoundException e) {
+                        parentFragment.showHint(R.string.enable_documentui, true);
+                        return false;
+                    }
                 });
             }
 
