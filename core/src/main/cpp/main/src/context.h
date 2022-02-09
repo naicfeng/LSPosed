@@ -15,7 +15,7 @@
  * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2020 EdXposed Contributors
- * Copyright (C) 2021 LSPosed Contributors
+ * Copyright (C) 2021 - 2022 LSPosed Contributors
  */
 
 #pragma once
@@ -59,10 +59,6 @@ namespace lspd {
 
         void OnNativeForkSystemServerPre(JNIEnv *env);
 
-        void PreLoadDex(std::string_view dex_paths);
-
-        void PreLoadDex(int fd, std::size_t size);
-
         void Init();
 
     private:
@@ -97,6 +93,9 @@ namespace lspd {
                 other.size_ = 0;
             };
 
+            // Use with caution!
+            PreloadedDex(void* addr, size_t size) : addr_(addr), size_(size) {};
+
             operator bool() const { return addr_ && size_; }
 
             auto size() const { return size_; }
@@ -110,11 +109,9 @@ namespace lspd {
             std::size_t size_;
         };
 
-        PreloadedDex dex_{};
-
         Context() {}
 
-        void LoadDex(JNIEnv *env);
+        void LoadDex(JNIEnv *env, int fd, size_t size);
 
         void Init(JNIEnv *env);
 

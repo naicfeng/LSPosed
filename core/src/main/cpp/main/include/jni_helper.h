@@ -15,7 +15,7 @@
  * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2020 EdXposed Contributors
- * Copyright (C) 2021 LSPosed Contributors
+ * Copyright (C) 2021 - 2022 LSPosed Contributors
  */
 
 #pragma once
@@ -24,9 +24,18 @@
 #include "macros.h"
 #include <string>
 #include "logging.h"
-#include "base/object.h"
 
 #define JNI_START JNIEnv *env, [[maybe_unused]] jclass clazz
+
+namespace JNIHelper {
+    template<class, template<class, class...> class>
+    struct is_instance : public std::false_type {
+    };
+
+    template<class...Ts, template<class, class...> class U>
+    struct is_instance<U<Ts...>, U> : public std::true_type {
+    };
+}
 
 class JUTFString {
 public:
@@ -170,7 +179,7 @@ template<typename T>
 [[maybe_unused]]
 inline auto unwrap_scope(T &&x) {
     if constexpr (std::is_same_v<std::decay_t<T>, std::string_view>) return x.data();
-    else if constexpr (lspd::is_instance<std::decay_t<T>, ScopedLocalRef>::value) return x.get();
+    else if constexpr (JNIHelper::is_instance<std::decay_t<T>, ScopedLocalRef>::value) return x.get();
     else return std::forward<T>(x);
 }
 
@@ -180,6 +189,10 @@ inline auto wrap_scope(JNIEnv *env, T &&x) {
     if constexpr (std::is_convertible_v<T, jobject>) {
         return ScopedLocalRef(env, std::forward<T>(x));
     } else return x;
+}
+
+inline auto JNI_NewStringUTF(JNIEnv *env, std::string_view sv) {
+    return ScopedLocalRef(env, env->NewStringUTF(sv.data()));
 }
 
 template<typename Func, typename ...Args>
@@ -239,6 +252,18 @@ template<ScopeOrObject Object, typename ...Args>
 [[maybe_unused]]
 inline auto JNI_CallObjectMethod(JNIEnv *env, const Object &obj, Args &&... args) {
     return JNI_SafeInvoke(env, &JNIEnv::CallObjectMethod, obj, std::forward<Args>(args)...);
+}
+
+template<ScopeOrObject Object, typename ...Args>
+[[maybe_unused]]
+inline auto JNI_CallIntMethod(JNIEnv *env, const Object &obj, Args &&... args) {
+    return JNI_SafeInvoke(env, &JNIEnv::CallIntMethod, obj, std::forward<Args>(args)...);
+}
+
+template<ScopeOrObject Object, typename ...Args>
+[[maybe_unused]]
+inline auto JNI_CallLongMethod(JNIEnv *env, const Object &obj, Args &&... args) {
+    return JNI_SafeInvoke(env, &JNIEnv::CallLongMethod, obj, std::forward<Args>(args)...);
 }
 
 template<ScopeOrObject Object, typename ...Args>

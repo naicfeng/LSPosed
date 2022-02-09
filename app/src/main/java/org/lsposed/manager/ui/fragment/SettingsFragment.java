@@ -154,6 +154,17 @@ public class SettingsFragment extends BaseFragment {
                         ConfigManager.setVerboseLogEnabled(!(boolean) newValue));
             }
 
+            SwitchPreference prefDexObfuscate = findPreference("enable_dex_obfuscate");
+            if (prefDexObfuscate != null) {
+                prefDexObfuscate.setEnabled(installed);
+                prefDexObfuscate.setChecked(!installed || ConfigManager.isDexObfuscateEnabled());
+                prefDexObfuscate.setOnPreferenceChangeListener((preference, newValue) -> {
+                    parentFragment.showHint(R.string.reboot_required, true, R.string.reboot,
+                            v -> ConfigManager.reboot(false));
+                    return ConfigManager.setDexObfuscateEnabled((boolean) newValue);
+                });
+            }
+
             SwitchPreference prefEnableShortcut = findPreference("enable_auto_add_shortcut");
             if (prefEnableShortcut != null) {
                 prefEnableShortcut.setEnabled(installed);

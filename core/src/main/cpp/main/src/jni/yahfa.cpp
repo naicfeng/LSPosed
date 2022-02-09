@@ -15,7 +15,7 @@
  * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2020 EdXposed Contributors
- * Copyright (C) 2021 LSPosed Contributors
+ * Copyright (C) 2021 - 2022 LSPosed Contributors
  */
 
 #include "yahfa.h"
@@ -36,7 +36,7 @@ namespace lspd {
         std::unordered_set<const void *> hooked_methods_;
         std::shared_mutex hooked_methods_lock_;
 
-        std::vector<std::pair<void *, void*>> jit_movements_;
+        std::vector<std::pair<void *, void *>> jit_movements_;
         std::shared_mutex jit_movements_lock_;
     }
 
@@ -50,12 +50,12 @@ namespace lspd {
         hooked_methods_.insert(art_method);
     }
 
-    void recordJitMovement(void *target, void* backup) {
+    void recordJitMovement(void *target, void *backup) {
         std::unique_lock lk(jit_movements_lock_);
         jit_movements_.emplace_back(target, backup);
     }
 
-    std::vector<std::pair<void*, void*>> getJitMovements() {
+    std::vector<std::pair<void *, void *>> getJitMovements() {
         std::unique_lock lk(jit_movements_lock_);
         return std::move(jit_movements_);
     }
@@ -94,7 +94,7 @@ namespace lspd {
     }
 
     LSP_DEF_NATIVE_METHOD(jclass, Yahfa, buildHooker, jobject app_class_loader, jchar return_class,
-                          jcharArray classes, jstring method_name) {
+                          jcharArray classes, jstring method_name, jstring hooker_name) {
         static auto *kInMemoryClassloader = JNI_NewGlobalRef(env, JNI_FindClass(env,
                                                                                 "dalvik/system/InMemoryDexClassLoader"));
         static jmethodID kInitMid = JNI_GetMethodID(env, kInMemoryClassloader, "<init>",
@@ -119,7 +119,7 @@ namespace lspd {
         cbuilder.set_source_file("LSP");
 
         auto hooker_type =
-                TypeDescriptor::FromClassname("de.robv.android.xposed.LspHooker");
+                TypeDescriptor::FromClassname(JUTFString(env, hooker_name).get());
 
         auto *hooker_field = cbuilder.CreateField("hooker", hooker_type)
                 .access_flags(dex::kAccStatic)
@@ -195,10 +195,9 @@ namespace lspd {
                                    "(Ljava/lang/String;)Ljava/lang/Class;");
         }
         if (my_cl) {
-            auto target = JNI_CallObjectMethod(env, my_cl, kMid, env->NewStringUTF("LspHooker_"));
-            if (target) {
-                return (jclass) target.release();
-            }
+            auto target = JNI_CallObjectMethod(env, my_cl, kMid,
+                                               JNI_NewStringUTF(env, "LspHooker_"));
+            if (target) return (jclass) target.release();
         }
         return nullptr;
     }
@@ -211,7 +210,7 @@ namespace lspd {
                               "(Ljava/lang/reflect/Executable;Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;Z)Z"),
             LSP_NATIVE_METHOD(Yahfa, isHooked, "(Ljava/lang/reflect/Executable;)Z"),
             LSP_NATIVE_METHOD(Yahfa, buildHooker,
-                              "(Ljava/lang/ClassLoader;C[CLjava/lang/String;)Ljava/lang/Class;"),
+                              "(Ljava/lang/ClassLoader;C[CLjava/lang/String;Ljava/lang/String;)Ljava/lang/Class;"),
     };
 
     void RegisterYahfa(JNIEnv *env) {

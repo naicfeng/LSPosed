@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2021 LSPosed Contributors
+ * Copyright (C) 2021 - 2022 LSPosed Contributors
  */
 
 //
@@ -117,10 +117,23 @@ namespace lspd {
         write_strong_binder_method_ = JNI_GetMethodID(env, parcel_class_, "writeStrongBinder",
                                                       "(Landroid/os/IBinder;)V");
         read_exception_method_ = JNI_GetMethodID(env, parcel_class_, "readException", "()V");
+        read_long_method_ = JNI_GetMethodID(env, parcel_class_, "readLong", "()J");
         read_strong_binder_method_ = JNI_GetMethodID(env, parcel_class_, "readStrongBinder",
                                                      "()Landroid/os/IBinder;");
+        read_string_method_ = JNI_GetMethodID(env, parcel_class_, "readString",
+                                                     "()Ljava/lang/String;");
+        read_file_descriptor_method_ = JNI_GetMethodID(env, parcel_class_, "readFileDescriptor",
+                                                       "()Landroid/os/ParcelFileDescriptor;");
 //        createStringArray_ = env->GetMethodID(parcel_class_, "createStringArray",
 //                                              "()[Ljava/lang/String;");
+
+        if (auto parcel_file_descriptor_class = JNI_FindClass(env, "android/os/ParcelFileDescriptor")) {
+            parcel_file_descriptor_class_ = JNI_NewGlobalRef(env, parcel_file_descriptor_class);
+        } else {
+            LOGE("ParcelFileDescriptor not found");
+            return;
+        }
+        detach_fd_method_ = JNI_GetMethodID(env, parcel_file_descriptor_class_, "detachFd", "()I");
 
         if (auto dead_object_exception_class = JNI_FindClass(env,
                                                              "android/os/DeadObjectException")) {
@@ -202,7 +215,7 @@ namespace lspd {
             return {env, nullptr};
         }
 
-        auto *bridge_service_name = env->NewStringUTF(BRIDGE_SERVICE_NAME.data());
+        auto bridge_service_name = JNI_NewStringUTF(env, BRIDGE_SERVICE_NAME.data());
         auto bridge_service = JNI_CallStaticObjectMethod(env, service_manager_class_,
                                                          get_service_method_, bridge_service_name);
         if (!bridge_service) {
@@ -215,7 +228,7 @@ namespace lspd {
         auto data = JNI_CallStaticObjectMethod(env, parcel_class_, obtain_method_);
         auto reply = JNI_CallStaticObjectMethod(env, parcel_class_, obtain_method_);
 
-        auto *descriptor = env->NewStringUTF(BRIDGE_SERVICE_DESCRIPTOR.data());
+        auto descriptor = JNI_NewStringUTF(env, BRIDGE_SERVICE_DESCRIPTOR.data());
         JNI_CallVoidMethod(env, data, write_interface_token_method_, descriptor);
         JNI_CallVoidMethod(env, data, write_int_method_, BRIDGE_ACTION_GET_BINDER);
         JNI_CallVoidMethod(env, data, write_string_method_, nice_name);
@@ -240,12 +253,14 @@ namespace lspd {
         return service;
     }
 
-    ScopedLocalRef<jobject> Service::RequestBinderForSystemServer(JNIEnv *env) {
-        if (!initialized_ || !bridge_service_class_) [[unlikely]] {
+    ScopedLocalRef<jobject> Service::RequestSystemServerBinder(JNIEnv *env) {
+        if (!initialized_) [[unlikely]] {
             LOGE("Service not initialized");
             return {env, nullptr};
         }
-        auto *bridge_service_name = env->NewStringUTF(SYSTEM_SERVER_BRIDGE_SERVICE_NAME.data());
+        // Get Binder for LSPSystemServerService.
+        // The binder itself was inject into system service "serial"
+        auto bridge_service_name = JNI_NewStringUTF(env, SYSTEM_SERVER_BRIDGE_SERVICE_NAME);
         ScopedLocalRef<jobject> binder{env, nullptr};
         for (int i = 0; i < 3; ++i) {
             binder = JNI_CallStaticObjectMethod(env, service_manager_class_,
@@ -262,15 +277,56 @@ namespace lspd {
             LOGW("Fail to get binder for system server");
             return {env, nullptr};
         }
-        auto *method = JNI_GetStaticMethodID(env, bridge_service_class_,
-                                             "getApplicationServiceForSystemServer",
-                                             "(Landroid/os/IBinder;Landroid/os/IBinder;)Landroid/os/IBinder;");
+        return binder;
+    }
+
+    ScopedLocalRef<jobject> Service::RequestApplicationBinderFromSystemServer(JNIEnv *env, const ScopedLocalRef<jobject> &system_server_binder) {
         auto heart_beat_binder = JNI_NewObject(env, binder_class_, binder_ctor_);
-        auto app_binder = JNI_CallStaticObjectMethod(env, bridge_service_class_, method, binder,
-                                                     heart_beat_binder);
+        auto data = JNI_CallStaticObjectMethod(env, parcel_class_, obtain_method_);
+        auto reply = JNI_CallStaticObjectMethod(env, parcel_class_, obtain_method_);
+
+        JNI_CallVoidMethod(env, data, write_int_method_, getuid());
+        JNI_CallVoidMethod(env, data, write_int_method_, getpid());
+        JNI_CallVoidMethod(env, data, write_string_method_, JNI_NewStringUTF(env, "android"));
+        JNI_CallVoidMethod(env, data, write_strong_binder_method_, heart_beat_binder);
+
+        auto res = JNI_CallBooleanMethod(env, system_server_binder, transact_method_,
+                                         BRIDGE_TRANSACTION_CODE,
+                                         data,
+                                         reply, 0);
+
+        ScopedLocalRef<jobject> app_binder = {env, nullptr};
+        if (res) {
+            JNI_CallVoidMethod(env, reply, read_exception_method_);
+            app_binder = JNI_CallObjectMethod(env, reply, read_strong_binder_method_);
+        }
+        JNI_CallVoidMethod(env, data, recycleMethod_);
+        JNI_CallVoidMethod(env, reply, recycleMethod_);
         if (app_binder) {
             JNI_NewGlobalRef(env, heart_beat_binder);
         }
+        LOGD("Service::RequestSystemServerBinder app_binder: %p", app_binder.get());
         return app_binder;
+    }
+
+    std::tuple<int, size_t> Service::RequestLSPDex(JNIEnv *env, const ScopedLocalRef<jobject> &binder) {
+        auto data = JNI_CallStaticObjectMethod(env, parcel_class_, obtain_method_);
+        auto reply = JNI_CallStaticObjectMethod(env, parcel_class_, obtain_method_);
+        auto res = JNI_CallBooleanMethod(env, binder, transact_method_,
+                                         DEX_TRANSACTION_CODE,
+                                         data,
+                                         reply, 0);
+        if (!res) {
+            LOGE("Service::RequestLSPDex: transaction failed?");
+            return {-1, 0};
+        }
+        auto parcel_fd = JNI_CallObjectMethod(env, reply, read_file_descriptor_method_);
+        int fd = JNI_CallIntMethod(env, parcel_fd, detach_fd_method_);
+        auto size = JNI_CallLongMethod(env, reply, read_long_method_);
+        JNI_CallVoidMethod(env, data, recycleMethod_);
+        JNI_CallVoidMethod(env, reply, recycleMethod_);
+
+        LOGD("Service::RequestLSPDex fd=%d, size=%zu", fd, size);
+        return {fd, size};
     }
 }  // namespace lspd

@@ -15,7 +15,7 @@
  * along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2020 EdXposed Contributors
- * Copyright (C) 2021 LSPosed Contributors
+ * Copyright (C) 2021 - 2022 LSPosed Contributors
  */
 
 #include <jni.h>
@@ -43,11 +43,6 @@ namespace lspd {
             LOGI("onModuleLoaded: version v%s (%d)", versionName, versionCode);
             InitSymbolCache(nullptr);
             Context::GetInstance()->Init();
-            if constexpr (isDebug) {
-                Context::GetInstance()->PreLoadDex("/system/" + kDexPath);
-            } else {
-                Context::GetInstance()->PreLoadDex(magiskPath + '/' + kDexPath);
-            }
         }
 
         void nativeForkAndSpecializePre(JNIEnv *env, jclass, jint *_uid, jint *,
