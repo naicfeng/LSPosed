@@ -241,16 +241,6 @@ public class SettingsFragment extends BaseFragment {
             }
 
             Preference primary_color = findPreference("theme_color");
-            if (primary_color != null) {
-                primary_color.setOnPreferenceChangeListener((preference, newValue) -> {
-                    MainActivity activity = (MainActivity) getActivity();
-                    if (activity != null) {
-                        activity.restart();
-                    }
-                    return true;
-                });
-            }
-
             SwitchPreference prefShowHiddenIcons = findPreference("show_hidden_icon_apps_enabled");
             if (prefShowHiddenIcons != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 if (ConfigManager.isBinderAlive()) {
@@ -279,15 +269,6 @@ public class SettingsFragment extends BaseFragment {
 
             SimpleMenuPreference language = findPreference("language");
             if (language != null) {
-                language.setOnPreferenceChangeListener((preference, newValue) -> {
-                    var locale = SYSTEM.equals(newValue) ? LocaleDelegate.getSystemLocale() : Locale.forLanguageTag((String) newValue);
-                    LocaleDelegate.setDefaultLocale(locale);
-                    MainActivity activity = (MainActivity) getActivity();
-                    if (activity != null) {
-                        activity.restart();
-                    }
-                    return true;
-                });
                 var tag = language.getValue();
                 var userLocale = App.getLocale();
                 var entries = new ArrayList<CharSequence>();
@@ -303,7 +284,7 @@ public class SettingsFragment extends BaseFragment {
                 language.setEntries(entries.toArray(new CharSequence[0]));
                 language.setEntryValues(lstLang);
                 if (TextUtils.isEmpty(tag) || SYSTEM.equals(tag)) {
-                    language.setSummary(getString(rikka.material.R.string.follow_system));
+                    language.setSummary(getString(rikka.core.R.string.follow_system));
                 } else {
                     var locale = Locale.forLanguageTag(tag);
                     language.setSummary(!TextUtils.isEmpty(locale.getScript()) ? locale.getDisplayScript(userLocale) : locale.getDisplayName(userLocale));
@@ -328,6 +309,24 @@ public class SettingsFragment extends BaseFragment {
                     translation_contributors.setSummary(translators);
                 }
             }
+
+            App.getPreferences().registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
+                var newValue = sharedPreferences.getAll().getOrDefault(key, null);
+                if (newValue == null) return;
+                switch (key) {
+                    case "language":
+                        var app = App.getInstance();
+                        var config = app.getResources().getConfiguration();
+                        app.onConfigurationChanged(config);
+                    case "theme_color":
+                    case "follow_system_accent":
+                        MainActivity activity = (MainActivity) getActivity();
+                        if (activity != null) {
+                            activity.restart();
+                        }
+                        break;
+                }
+            });
         }
 
         @NonNull
