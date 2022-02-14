@@ -19,6 +19,7 @@
 
 package org.lsposed.lspd.service;
 
+import android.app.ActivityThread;
 import android.content.Context;
 import android.ddm.DdmHandleAppName;
 import android.os.IBinder;
@@ -99,6 +100,8 @@ public class ServiceManager {
 
         Process.setThreadPriority(Process.THREAD_PRIORITY_FOREGROUND);
         Looper.prepareMainLooper();
+
+
         mainService = new LSPosedService();
         applicationService = new LSPApplicationService();
         managerService = new LSPManagerService();
@@ -112,6 +115,8 @@ public class ServiceManager {
         // otherwise getInstance will trigger module/scope cache
         var configManager = ConfigManager.getInstance();
         // --- DO NOT call ConfigManager.getInstance later!!! ---
+
+        ActivityThread.systemMain();
 
         waitSystemService("package");
         waitSystemService("activity");
