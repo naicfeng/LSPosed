@@ -226,9 +226,14 @@ public class ConfigFileManager {
         return logDirPath.resolve(getNewLogFileName("modules")).toFile();
     }
 
-    static File getpropsLogPath() throws IOException {
+    static File getPropsPath() throws IOException {
         createLogDirPath();
         return logDirPath.resolve("props.txt").toFile();
+    }
+
+    static File getKmsgPath() throws IOException {
+        createLogDirPath();
+        return logDirPath.resolve("kmsg.log").toFile();
     }
 
     static void getLogs(ParcelFileDescriptor zipFd) throws RemoteException {
@@ -273,7 +278,7 @@ public class ConfigFileManager {
         var name = base.relativize(path).toString();
         if (Files.isDirectory(path)) {
             try {
-                os.putNextEntry(new ZipEntry(name));
+                os.putNextEntry(new ZipEntry(name + "/"));
                 os.closeEntry();
             } catch (IOException e) {
                 Log.w(TAG, name, e);
