@@ -19,11 +19,11 @@
   -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/xposed_module_updated_notification_*,@string/module_is_not_activated_*">
     <!-- MainActivity -->
-    <string name="info">Info</string>
+    <string name="info">Informações</string>
     <string name="overview">Visão geral</string>
     <string name="Modules">Módulos</string>
     <plurals name="modules_enabled_count">
-        <item quantity="one">%d módulos ativados</item>
+        <item quantity="one">%d módulo ativado</item>
         <item quantity="other">%d módulos ativados</item>
     </plurals>
     <string name="Logs">Registros</string>
@@ -33,13 +33,13 @@
     <string name="report_issue">Reportar problema</string>
     <string name="module_repo">Repositório</string>
     <string name="module_repo_loading">Carregando…</string>
-    <string name="module_repo_up_to_date">Todos os módulos atualizados</string>
+    <string name="module_repo_up_to_date">Todos os módulos estão atualizados</string>
     <plurals name="module_repo_upgradable">
-        <item quantity="one">%d módulo atualizado</item>
-        <item quantity="other">%d módulos atualizados</item>
+        <item quantity="one">%d módulo atualizável</item>
+        <item quantity="other">%d módulos atualizáveis</item>
     </plurals>
-    <string name="about_view_source_code"><![CDATA[Ver código fonte em %1$s<br/>Entre no nosso canal %2$s]]></string>
-    <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself."><a href="https://github.com/PedriR19">PedriR19</a></string>
+    <string name="about_view_source_code"><![CDATA[Veja o código fonte em %1$s<br/>Junte-se ao nosso %2$s canal]]></string>
+    <string name="translators" comment="Dear translators, please add your home page here following the format. There can be more than one translator. So feel free to append yourself.">PedriR19, VD171</string>
     <string name="install">Instalar</string>
     <string name="install_summary">Toque para instalar LSPosed</string>
     <string name="not_installed">Não instalado</string>
@@ -50,7 +50,7 @@
     <string name="selinux_policy_not_loaded"><![CDATA[Módulos que injetam no Sistema Android não irão funcionar.<br/>Por favor reporte isso ao desenvolvedor do <a href="https://github.com/topjohnwu/Magisk/issues"><b>Magisk</b></a>]]></string>
     <string name="system_inject_fail_summary">Injeção no Sistema Android falhou</string>
     <string name="system_inject_fail"><![CDATA[Isto é raro e pode ser causado pelo <b>Magisk</b> ou módulos Magisk de baixa qualidade.<br/>Por favor, tente desativar alguns módulos Magisk exceto Riru e LSPosed ou envie os registros completos aos desenvolvedores.]]></string>
-    <string name="system_prop_incorrect_summary">Propriedade de sistema incorreta</string>
+    <string name="system_prop_incorrect_summary">Prop do sistema incorreto</string>
     <string name="system_prop_incorrect"><![CDATA[Algumas propriedades do sistema necessárias foram apagadas ou modificadas.<br/>Módulos podem falhar ocasionalmente.]]></string>
     <string name="need_update">Atualização necessária</string>
     <string name="please_update_summary">Por favor instale a versão mais recente do LSPosed</string>
@@ -62,8 +62,8 @@
     <string name="info_device">Dispositivo</string>
     <string name="info_system_abi">ABI do sistema</string>
     <string name="info_api">Interface de Injeção</string>
-    <string name="parasitic_recommend">Recomendado um Gerenciador de Parasita</string>
-    <string name="parasitic_recommend_summary">LSPosed agora suporta a parasitização do sistema para evitar a detecção. Você pode desinstalar o gerenciador em segurança depois de criar com sucesso um atalho do gerenciador parasita. Em qualquer caso, você pode instalar o gerenciador a partir de /data/adb/lspd/manager.apk.</string>
+    <string name="parasitic_recommend">Gerenciador de Parasita Recomendado</string>
+    <string name="parasitic_recommend_summary">LSPosed agora suporta a parasitização do sistema para evitar detecções. Você pode desinstalar o gerenciador depois de criar com sucesso um atalho do gerenciador parasita. Em qualquer caso, você pode instalar o gerenciador a partir de /data/adb/lspd/manager.apk.</string>
     <string name="create_shortcut">Criar atalho</string>
     <string name="never_show">Nunca exibir</string>
     <string name="update_lsposed">Atualizar LSPosed</string>
@@ -86,7 +86,7 @@
     <string name="disabled_verbose_log">Registro detalhado desativado</string>
     <!-- ModulesActivity -->
     <string name="module_empty_description">(nenhuma descrição fornecida)</string>
-    <string name="warning_xposed_min_version">Esse módulo necessita de uma versão mais recente do Xposed (%d) e, portanto, não pode ser ativado</string>
+    <string name="warning_xposed_min_version">Esse módulo necessita de uma versão mais recente do Xposed (%d) e portanto não pode ser ativado</string>
     <string name="no_min_version_specified">Este módulo não especifica a versão do Xposed de que precisa.</string>
     <string name="warning_min_version_too_low">Este módulo foi feito para a versão %1$ddo do Xposed, mas devido as alterações incompatíveis na versão %2$d, foi desativado</string>
     <string name="warning_installed_on_external_storage">Este módulo não pôde ser carregado porque está instalado no cartão SD, por favor, mova-o para o armazenamento interno</string>
@@ -102,12 +102,12 @@
     <string name="install_to_user">Instalar para o usuário %s</string>
     <string name="install_to_user_message">Quer instalar o %1$s para o usuário %2$s? Recomenda-se instalar manualmente, forçando a instalação via LSPosed pode causar problemas.</string>
     <string name="expand">expandir</string>
-    <string name="collapse">colapso</string>
+    <string name="collapse">recolher</string>
     <!-- AppListActivity -->
     <string name="compile_speed">Re-otimizar</string>
     <string name="compile_speed_msg">Otimizando…</string>
     <string name="compile_done">Otimização completa</string>
-    <string name="app_launch">Lançá-lo</string>
+    <string name="app_launch">Iniciar</string>
     <string name="compile_failed">A otimização falhou: o valor de retorno está vazio</string>
     <string name="compile_failed_with_info">A otimização falhou: </string>
     <string name="sort_by_name">Nome do aplicativo</string>
@@ -131,7 +131,7 @@
     <string name="requested_by_module">Recomendado</string>
     <string name="update_available">Atualização disponível: %1$s</string>
     <string name="module_disabled_no_selection">O módulo %s foi desativado desde que nenhum app foi selecionado.</string>
-    <string name="android_framework">Estrutura do Sistema</string>
+    <string name="android_framework">Framework do Sistema</string>
     <string name="menu_backup_and_restore">Backup</string>
     <string name="menu_backup">Backup</string>
     <string name="menu_restore">Restaurar</string>
@@ -145,13 +145,13 @@
     <string name="deny_list_info">Na lista de Bloqueados</string>
     <!-- ModulesActivity and AppListActivity -->
     <string name="modules_other_app">Ver em outro aplicativo</string>
-    <string name="module_app_info">Informações do app</string>
-    <string name="list_empty">¯\\\\_(ツ)_\/¯\nNada aqui</string>
+    <string name="module_app_info">Informações do aplicativo</string>
+    <string name="list_empty">¯\\\\_(ツ)_\/¯\nNada encontrado</string>
     <!-- SettingsActivity -->
     <string name="settings_group_framework">Framework</string>
     <string name="pref_title_disable_verbose_log">Desativar logs detalhados</string>
     <string name="pure_black_dark_theme">Tema preto</string>
-    <string name="pure_black_dark_theme_summary">Usar o tema preto puro se o tema escuro estiver ativado</string>
+    <string name="pure_black_dark_theme_summary">Usar o tema preto se o tema escuro estiver ativado</string>
     <string name="settings_group_theme">Tema</string>
     <string name="settings_backup_and_restore">Backup e restauração</string>
     <string name="settings_backup_summery">Backup da lista de módulos e escopo.</string>
@@ -174,42 +174,42 @@
     <string name="settings_translation">Participe da tradução</string>
     <string name="settings_translation_summary">Ajude-nos a traduzir %s para o seu idioma</string>
     <string name="pref_title_enable_auto_add_shortcut">Adicionar um atalho automaticamente</string>
-    <string name="create_shortcut_summary">Criar manualmente um atalho para o gestor de parasitas</string>
+    <string name="create_shortcut_summary">Criar atalho do gerenciador parasita manualmente</string>
     <string name="settings_enable_auto_add_shortcut_summary">Nenhum novo atalho será adicionado quando desativado no gerenciador não parasita</string>
     <string name="settings_update_channel">Canal de atualização</string>
     <string name="update_channel_stable">Estável</string>
     <string name="update_channel_bate">Beta</string>
     <string name="update_channel_nightly">Nightly build</string>
     <string name="pref_title_restrict_classloader">Somente o carregador de classes de módulo pode usar o Xposed API</string>
-    <string name="pref_summary_restrict_classloader">Isto pode quebrar alguns módulos mas beneficiar a segurança (característica experimental)</string>
+    <string name="pref_summary_restrict_classloader">Isto pode quebrar alguns módulos mas beneficiar a segurança (função experimental)</string>
     <!-- Module Repo -->
-    <string name="module_readme">Leia-me</string>
+    <string name="module_readme">Leia</string>
     <string name="module_releases">Versões</string>
-    <string name="module_information">Info</string>
+    <string name="module_information">Informação</string>
     <string name="module_information_homepage">Início</string>
     <string name="module_information_source_url">Código Fonte</string>
     <string name="module_information_collaborators">Colaboradores</string>
     <string name="module_release_view_assets">Conteúdos</string>
     <string name="menu_open_in_browser">Abrir no navegador</string>
     <string name="refresh">Atualizar</string>
-    <string name="module_release_load_more">Mostrar versões mais antigas</string>
+    <string name="module_release_load_more">Mostrar versões antigas</string>
     <string name="module_release_no_more">Não há mais versões</string>
     <string name="repo_load_failed">Falha ao carregar o repositório de módulos: %s</string>
     <string name="sort_upgradable_first">Atualizável primeiro</string>
     <!-- CrashReportActivity -->
-    <string name="version_mismatch">A versão do framework LSPosed (%1$d) não corresponde ao gerente (%2$d). Por favor, reinstale o LSPosed.</string>
+    <string name="version_mismatch">A versão do framework LSPosed (%1$d) não corresponde ao gerenciador (%2$d). Por favor, reinstale o LSPosed.</string>
     <string name="manager_crashed">Gerenciador travou</string>
     <string name="manager_crashed_info">reportar isto para </string>
     <string name="send_crash_info">Enviar as informações de erro</string>
     <string name="crash_info_copied">Informação do erro copiada para a área de transferência</string>
-    <string name="info_copied">Copiado para o clipboard</string>
+    <string name="info_copied">Copiado para a área de transferência</string>
     <!-- Colors -->
     <string name="color_sakura">Sakura</string>
     <string name="color_red">Vermelho</string>
     <string name="color_pink">Rosa</string>
-    <string name="color_purple">Roxo</string>
+    <string name="color_purple">Púrpura</string>
     <string name="color_deep_purple">Roxo escuro</string>
-    <string name="color_indigo">Anil</string>
+    <string name="color_indigo">Índigo</string>
     <string name="color_blue">Azul</string>
     <string name="color_light_blue">Azul claro</string>
     <string name="color_cyan">Ciano</string>
