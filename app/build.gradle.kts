@@ -18,15 +18,13 @@
  */
 
 import com.android.build.gradle.internal.dsl.BuildType
-import java.io.PrintStream
 import java.nio.file.Paths
 import java.time.Instant
-import java.util.*
 
 plugins {
-    id("org.gradle.idea")
     id("com.android.application")
     id("androidx.navigation.safeargs")
+    id("dev.rikka.tools.autoresconfig")
 }
 
 val androidTargetSdkVersion: Int by rootProject.extra
@@ -123,6 +121,13 @@ android {
     }
 }
 
+autoResConfig {
+    generateClass.set(true)
+    generateRes.set(false)
+    generatedClassFullName.set("org.lsposed.manager.util.LangList")
+    generatedArrayFirstItem.set("SYSTEM")
+}
+
 val optimizeReleaseRes = task("optimizeReleaseRes").doLast {
     val aapt2 = File(
         androidComponents.sdkComponents.sdkDirectory.get().asFile,
@@ -158,38 +163,6 @@ tasks.whenTaskAdded {
     }
 }
 
-afterEvaluate {
-    android.applicationVariants.forEach { variant ->
-        val outSrcDir = file("$buildDir/generated/source/langList/${variant.name}")
-        val outSrc = file("$outSrcDir/org/lsposed/manager/util/LangList.java")
-        val genLangList =
-            tasks.register("generate${variant.name.capitalize(Locale.ROOT)}LangList") {
-                inputs.files("src/main/res")
-                outputs.file(outSrc)
-                doLast {
-                    val langList = File(projectDir, "src/main/res").listFiles { dir ->
-                        dir.name.startsWith("values-") && File(dir, "strings.xml").exists()
-                    }.orEmpty().sorted().map {
-                        it.name.substring(7).split("-", limit = 2)
-                    }.map {
-                        if (it.size == 1) Locale(it[0])
-                        else Locale(it[0], it[1].substring(1))
-                    }.map { it.toLanguageTag() }
-                    PrintStream(outSrc).print(
-                        """
-                        |package org.lsposed.manager.util;
-                        |public final class LangList {
-                        |    public static final String[] LANG_LIST = {"SYSTEM", ${
-                            langList.joinToString(", ") { """"$it"""" }
-                        }};
-                        |}""".trimMargin()
-                    )
-                }
-            }
-        variant.registerJavaGeneratingTask(genLangList, outSrcDir)
-    }
-}
-
 dependencies {
     val glideVersion = "4.13.1"
     val navVersion: String by rootProject.extra
@@ -205,7 +178,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
     implementation("com.github.bumptech.glide:glide:$glideVersion")
-    implementation("com.google.android.material:material:1.6.0-alpha02")
+    implementation("com.google.android.material:material:1.6.0-alpha03")
     implementation("com.google.code.gson:gson:2.9.0")
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.3"))
     implementation("com.squareup.okhttp3:okhttp")
