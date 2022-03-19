@@ -31,43 +31,18 @@ val daemonName = "LSPosed"
 val injectedPackageName: String by rootProject.extra
 val injectedPackageUid: Int by rootProject.extra
 
-val agpVersion: String by rootProject.extra
+val agpVersion : String by project
 
 val defaultManagerPackageName: String by rootProject.extra
 val apiCode: Int by rootProject.extra
-val verCode: Int by rootProject.extra
-val verName: String by rootProject.extra
-
-val androidTargetSdkVersion: Int by rootProject.extra
-val androidMinSdkVersion: Int by rootProject.extra
-val androidBuildToolsVersion: String by rootProject.extra
-val androidCompileSdkVersion: Int by rootProject.extra
-val androidCompileNdkVersion: String by rootProject.extra
-val androidSourceCompatibility: JavaVersion by rootProject.extra
-val androidTargetCompatibility: JavaVersion by rootProject.extra
 
 android {
-    compileSdk = androidCompileSdkVersion
-    ndkVersion = androidCompileNdkVersion
-    buildToolsVersion = androidBuildToolsVersion
-
     buildFeatures {
         prefab = true
     }
 
     defaultConfig {
         applicationId = "org.lsposed.daemon"
-        minSdk = androidMinSdkVersion
-        targetSdk = androidTargetSdkVersion
-        versionCode = verCode
-        versionName = verName
-        multiDexEnabled = false
-
-        externalNativeBuild {
-            ndkBuild {
-                arguments += "-j${Runtime.getRuntime().availableProcessors()}"
-            }
-        }
 
         buildConfigField("int", "API_CODE", "$apiCode")
         buildConfigField(
@@ -79,11 +54,6 @@ android {
         buildConfigField("int", "MANAGER_INJECTED_UID", """$injectedPackageUid""")
     }
 
-    lint {
-        abortOnError = true
-        checkReleaseBuilds = false
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -92,23 +62,8 @@ android {
     }
 
     externalNativeBuild {
-        ndkBuild {
-            path("src/main/cpp/Android.mk")
-        }
-    }
-
-    compileOptions {
-        targetCompatibility(androidTargetCompatibility)
-        sourceCompatibility(androidSourceCompatibility)
-    }
-
-    buildTypes {
-        all {
-            externalNativeBuild {
-                ndkBuild {
-                    arguments += "NDK_OUT=${File(buildDir, ".cxx/$name").absolutePath}"
-                }
-            }
+        cmake {
+            path("src/main/jni/CMakeLists.txt")
         }
     }
 
@@ -163,12 +118,11 @@ afterEvaluate {
 }
 
 dependencies {
-    implementation("dev.rikka.ndk.thirdparty:cxx:1.2.0")
     implementation("com.android.tools.build:apksig:$agpVersion")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     compileOnly("androidx.annotation:annotation:1.3.0")
-    compileOnly(project(":hiddenapi-stubs"))
-    implementation(project(":hiddenapi-bridge"))
-    implementation(project(":daemon-service"))
-    implementation(project(":manager-service"))
+    compileOnly(projects.hiddenapi.stubs)
+    implementation(projects.hiddenapi.bridge)
+    implementation(projects.services.daemonService)
+    implementation(projects.services.managerService)
 }

@@ -24,9 +24,9 @@ import static org.lsposed.lspd.deopt.InlinedMethodCallers.KEY_BOOT_IMAGE;
 import static org.lsposed.lspd.deopt.InlinedMethodCallers.KEY_BOOT_IMAGE_MIUI_RES;
 import static org.lsposed.lspd.deopt.InlinedMethodCallers.KEY_SYSTEM_SERVER;
 
-import org.lsposed.lspd.nativebridge.Yahfa;
+import org.lsposed.lspd.nativebridge.HookBridge;
+import org.lsposed.lspd.util.Hookers;
 import org.lsposed.lspd.util.Utils;
-import org.lsposed.lspd.yahfa.hooker.YahfaHooker;
 
 import java.lang.reflect.Executable;
 import java.util.Arrays;
@@ -36,19 +36,26 @@ import de.robv.android.xposed.XposedHelpers;
 public class PrebuiltMethodsDeopter {
 
     public static void deoptMethods(String where, ClassLoader cl) {
-        String[][] callers = InlinedMethodCallers.get(where);
+        Object[][] callers = InlinedMethodCallers.get(where);
         if (callers == null) {
             return;
         }
-        for (String[] caller : callers) {
+        for (Object[] caller : callers) {
             try {
-                Class clazz = XposedHelpers.findClassIfExists(caller[0], cl);
-                if (clazz == null) {
-                    continue;
+                if (caller.length < 2) continue;
+                if (!(caller[0] instanceof String)) continue;
+                if (!(caller[1] instanceof String)) continue;
+                Executable method;
+                Object[] params = new Object[caller.length - 2];
+                System.arraycopy(caller, 2, params, 0, params.length);
+                if ("<init>".equals(caller[1])) {
+                    method = XposedHelpers.findConstructorExactIfExists((String) caller[0], cl, params);
+                } else {
+                    method = XposedHelpers.findMethodExactIfExists((String) caller[0], cl, (String) caller[1], params);
                 }
-                Executable method = Yahfa.findMethodNative(clazz, caller[1], caller[2]);
                 if (method != null) {
-                    YahfaHooker.deoptMethodNative(method);
+                    Hookers.logD("deoptimizing " + method);
+                    HookBridge.deoptimizeMethod(method);
                 }
             } catch (Throwable throwable) {
                 Utils.logE("error when deopting method: " + Arrays.toString(caller), throwable);

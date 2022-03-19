@@ -18,7 +18,6 @@
  */
 
 import com.android.build.gradle.internal.dsl.BuildType
-import java.nio.file.Paths
 import java.time.Instant
 
 plugins {
@@ -27,16 +26,7 @@ plugins {
     id("dev.rikka.tools.autoresconfig")
 }
 
-val androidTargetSdkVersion: Int by rootProject.extra
-val androidMinSdkVersion: Int by rootProject.extra
-val androidBuildToolsVersion: String by rootProject.extra
-val androidCompileSdkVersion: Int by rootProject.extra
-val androidCompileNdkVersion: String by rootProject.extra
-val androidSourceCompatibility: JavaVersion by rootProject.extra
-val androidTargetCompatibility: JavaVersion by rootProject.extra
 val defaultManagerPackageName: String by rootProject.extra
-val verCode: Int by rootProject.extra
-val verName: String by rootProject.extra
 
 val androidStoreFile: String? by rootProject
 val androidStorePassword: String? by rootProject
@@ -44,10 +34,6 @@ val androidKeyAlias: String? by rootProject
 val androidKeyPassword: String? by rootProject
 
 android {
-    compileSdk = androidCompileSdkVersion
-    ndkVersion = androidCompileNdkVersion
-    buildToolsVersion = androidBuildToolsVersion
-
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -55,22 +41,7 @@ android {
 
     defaultConfig {
         applicationId = defaultManagerPackageName
-        minSdk = androidMinSdkVersion
-        targetSdk = androidTargetSdkVersion
-        versionCode = verCode
-        versionName = verName
         buildConfigField("long", "BUILD_TIME", Instant.now().epochSecond.toString())
-    }
-
-    compileOptions {
-        targetCompatibility(androidTargetCompatibility)
-        sourceCompatibility(androidSourceCompatibility)
-    }
-
-    lint {
-        disable += "MissingTranslation"
-        abortOnError = true
-        checkReleaseBuilds = false
     }
 
     packagingOptions {
@@ -128,44 +99,9 @@ autoResConfig {
     generatedArrayFirstItem.set("SYSTEM")
 }
 
-val optimizeReleaseRes = task("optimizeReleaseRes").doLast {
-    val aapt2 = File(
-        androidComponents.sdkComponents.sdkDirectory.get().asFile,
-        "build-tools/${androidBuildToolsVersion}/aapt2"
-    )
-    val zip = Paths.get(
-        project.buildDir.path,
-        "intermediates",
-        "optimized_processed_res",
-        "release",
-        "resources-release-optimize.ap_"
-    )
-    val optimized = File("${zip}.opt")
-    val cmd = exec {
-        commandLine(
-            aapt2, "optimize",
-            "--collapse-resource-names",
-            "--enable-sparse-encoding",
-            "-o", optimized,
-            zip
-        )
-        isIgnoreExitValue = false
-    }
-    if (cmd.exitValue == 0) {
-        delete(zip)
-        optimized.renameTo(zip.toFile())
-    }
-}
-
-tasks.whenTaskAdded {
-    if (name == "optimizeReleaseResources") {
-        finalizedBy(optimizeReleaseRes)
-    }
-}
-
 dependencies {
     val glideVersion = "4.13.1"
-    val navVersion: String by rootProject.extra
+    val navVersion: String by project
     annotationProcessor("com.github.bumptech.glide:compiler:$glideVersion")
     implementation("androidx.activity:activity:1.4.0")
     implementation("androidx.browser:browser:1.4.0")
@@ -195,9 +131,9 @@ dependencies {
     implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.2.0")
     implementation("me.zhanghai.android.appiconloader:appiconloader:1.3.1")
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
-    implementation(project(":manager-service"))
+    implementation(projects.services.managerService)
 
-    val appCenter = "4.4.2"
+    val appCenter = "4.4.3"
     debugImplementation("com.microsoft.appcenter:appcenter-crashes:${appCenter}")
     debugImplementation("com.microsoft.appcenter:appcenter-analytics:${appCenter}")
 }
