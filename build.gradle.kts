@@ -22,6 +22,8 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.gradle.BaseExtension
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.internal.storage.file.FileRepository
+import java.nio.file.Paths
+import org.gradle.internal.os.OperatingSystem
 
 plugins {
     id("com.android.application") apply false
@@ -50,7 +52,7 @@ val injectedPackageUid by extra(2000)
 val defaultManagerPackageName by extra("org.lsposed.manager")
 val apiCode by extra(93)
 val verCode by extra(commitCount + 800)
-val verName by extra("1.7.2")
+val verName by extra("1.8.0")
 val androidTargetSdkVersion by extra(32)
 val androidMinSdkVersion by extra(27)
 val androidBuildToolsVersion by extra("32.0.0")
@@ -61,6 +63,16 @@ val androidTargetCompatibility by extra(JavaVersion.VERSION_11)
 
 tasks.register("Delete", Delete::class) {
     delete(rootProject.buildDir)
+}
+
+fun findInPath(executable: String): String? {
+    val pathEnv = System.getenv("PATH")
+    return pathEnv.split(File.pathSeparator).map { folder ->
+        Paths.get("${folder}${File.separator}${executable}${if (OperatingSystem.current().isWindows) ".exe" else ""}")
+            .toFile()
+    }.firstOrNull { path ->
+        path.exists()
+    }?.absolutePath
 }
 
 fun Project.configureBaseExtension() {
@@ -102,6 +114,10 @@ fun Project.configureBaseExtension() {
                         "-DVERSION_CODE=$verCode",
                         "-DVERSION_NAME=$verName",
                     )
+                    findInPath("ccache")?.let {
+                        println("Using ccache $it")
+                        arguments += "-DANDROID_CCACHE=$it"
+                    }
                 }
             }
         }

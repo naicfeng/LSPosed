@@ -16,7 +16,7 @@ A Riru / Zygisk module trying to provide an ART hooking framework which delivers
 
 ## Supported Versions
 
-Android 8.1 ~ 13 DP1
+Android 8.1 ~ 13 DP2
 
 ## Install
 
