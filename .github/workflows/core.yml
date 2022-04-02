@@ -3,7 +3,7 @@ name: Core
 on:
   workflow_dispatch:
   push:
-    branches: [ LSPosed ]
+    branches: [LSPosed]
   pull_request:
 
 jobs:
@@ -12,122 +12,124 @@ jobs:
     if: ${{ !startsWith(github.event.head_commit.message, '[skip ci]') }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        submodules: 'recursive'
-        fetch-depth: 0
-    - name: Write key
-      if: github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed'
-      run: |
-        if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-          echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
-          echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
-          echo androidKeyPassword='${{ secrets.KEY_PASSWORD }}' >> gradle.properties
-          echo androidStoreFile='key.jks' >> gradle.properties
-          echo ${{ secrets.KEY_STORE }} | base64 --decode > key.jks
-        fi
-    - name: set up JDK 11
-      uses: actions/setup-java@v1
-      with:
-        java-version: 11
-    - name: Cache Gradle Dependencies
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-          !~/.gradle/caches/build-cache-*
-        key: gradle-deps-core-${{ hashFiles('**/build.gradle.kts') }}
-        restore-keys: |
-          gradle-deps
-    - name: Cache Gradle Build
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches/build-cache-*
-          ~/.gradle/buildOutputCleanup/cache.properties
-        key: gradle-builds-core-${{ github.sha }}
-        restore-keys: |
-          gradle-builds
-    - name: Cache native build
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.ccache
-          magisk-loader/build/.lto-cache
-          daemon/build/.lto-cache
-        key: native-cache-${{ github.sha }}
-        restore-keys: native-cache-
-    - name: Install dep
-      run: |
-        sudo apt-get install -y ccache ninja-build
-        ccache -o max_size=1G
-        ccache -o hash_dir=false
-        ccache -o compiler_check='%compiler% -dumpmachine; %compiler% -dumpversion'
-        ccache -zp
-    - name: Get current date
-      id: date
-      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-    - name: Build with Gradle
-      run: |
-        [ $(du -s ~/.gradle/wrapper | awk '{ print $1 }') -gt 250000 ] && rm -rf ~/.gradle/wrapper/* || true
-        find ~/.gradle/caches -exec touch -d "2 days ago" {} + || true
-        echo 'org.gradle.caching=true' >> gradle.properties
-        echo 'org.gradle.parallel=true' >> gradle.properties
-        echo 'org.gradle.vfs.watch=true' >> gradle.properties
-        echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
-        echo 'android.native.buildOutput=verbose' >> gradle.properties
-        ln -s $(which ninja) $(dirname $(which cmake)) # https://issuetracker.google.com/issues/206099937
-        echo "cmake.dir=$(dirname $(dirname $(which cmake)))" >> local.properties
-        bash ./gradlew zipAll
-        ccache -s
-    - name: Prepare artifact
-      if: success()
-      id: prepareArtifact
-      run: |
-        riruReleaseName=`ls magisk-loader/release/LSPosed-v*-riru-release.zip | awk -F '(/|release.zip)' '{print $3}'` && echo "::set-output name=riruReleaseName::$riruReleaseName"
-        riruDebugName=`ls magisk-loader/release/LSPosed-v*-riru-debug.zip | awk -F '(/|debug.zip)' '{print $3}'` && echo "::set-output name=riruDebugName::$riruDebugName"
-        zygiskReleaseName=`ls magisk-loader/release/LSPosed-v*-zygisk-release.zip | awk -F '(/|release.zip)' '{print $3}'` && echo "::set-output name=zygiskReleaseName::$zygiskReleaseName"
-        zygiskDebugName=`ls magisk-loader/release/LSPosed-v*-zygisk-debug.zip | awk -F '(/|debug.zip)' '{print $3}'` && echo "::set-output name=zygiskDebugName::$zygiskDebugName"
-        unzip magisk-loader/release/LSPosed-v*-riru-release.zip -d LSPosed-riru-release
-        unzip magisk-loader/release/LSPosed-v*-riru-debug.zip -d LSPosed-riru-debug
-        unzip magisk-loader/release/LSPosed-v*-zygisk-release.zip -d LSPosed-zygisk-release
-        unzip magisk-loader/release/LSPosed-v*-zygisk-debug.zip -d LSPosed-zygisk-debug
-    - name: Upload riru release
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.prepareArtifact.outputs.riruReleaseName }}${{ steps.date.outputs.date }}-release
-        path: './LSPosed-riru-release/*'
-    - name: Upload riru debug
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.prepareArtifact.outputs.riruDebugName }}${{ steps.date.outputs.date }}-debug
-        path: './LSPosed-riru-debug/*'
-    - name: Upload zygisk release
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.prepareArtifact.outputs.zygiskReleaseName }}${{ steps.date.outputs.date }}-release
-        path: './LSPosed-zygisk-release/*'
-    - name: Upload zygisk debug
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.prepareArtifact.outputs.zygiskDebugName }}${{ steps.date.outputs.date }}-debug
-        path: './LSPosed-zygisk-debug/*'
-    - name: Upload mappings
-      uses: actions/upload-artifact@v2
-      with:
-        name: mappings
-        path: |
-          magisk-loader/build/outputs/mapping
-          app/build/outputs/mapping
-    - name: Upload symbols
-      uses: actions/upload-artifact@v2
-      with:
-        name: symbols
-        path: |
-          magisk-loader/build/symbols
-          daemon/build/symbols
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+          fetch-depth: 0
+      - name: Write key
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed'
+        run: |
+          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
+            echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
+            echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
+            echo androidKeyPassword='${{ secrets.KEY_PASSWORD }}' >> gradle.properties
+            echo androidStoreFile='key.jks' >> gradle.properties
+            echo ${{ secrets.KEY_STORE }} | base64 --decode > key.jks
+          fi
+      - name: set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            !~/.gradle/caches/build-cache-*
+          key: gradle-deps-core-${{ hashFiles('**/build.gradle.kts') }}
+          restore-keys: |
+            gradle-deps
+      - name: Cache Gradle Build
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches/build-cache-*
+            ~/.gradle/buildOutputCleanup/cache.properties
+          key: gradle-builds-core-${{ github.sha }}
+          restore-keys: |
+            gradle-builds
+      - name: Cache native build
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ccache
+            magisk-loader/build/.lto-cache
+            daemon/build/.lto-cache
+            dex2oat/build/.lto-cache
+          key: native-cache-${{ github.sha }}
+          restore-keys: native-cache-
+      - name: Install dep
+        run: |
+          sudo apt-get install -y ccache ninja-build
+          ccache -o max_size=1G
+          ccache -o hash_dir=false
+          ccache -o compiler_check='%compiler% -dumpmachine; %compiler% -dumpversion'
+          ccache -zp
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Build with Gradle
+        run: |
+          [ $(du -s ~/.gradle/wrapper | awk '{ print $1 }') -gt 250000 ] && rm -rf ~/.gradle/wrapper/* || true
+          find ~/.gradle/caches -exec touch -d "2 days ago" {} + || true
+          echo 'org.gradle.caching=true' >> gradle.properties
+          echo 'org.gradle.parallel=true' >> gradle.properties
+          echo 'org.gradle.vfs.watch=true' >> gradle.properties
+          echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
+          echo 'android.native.buildOutput=verbose' >> gradle.properties
+          ln -s $(which ninja) $(dirname $(which cmake)) # https://issuetracker.google.com/issues/206099937
+          echo "cmake.dir=$(dirname $(dirname $(which cmake)))" >> local.properties
+          bash ./gradlew zipAll
+          ccache -s
+      - name: Prepare artifact
+        if: success()
+        id: prepareArtifact
+        run: |
+          riruReleaseName=`ls magisk-loader/release/LSPosed-v*-riru-release.zip | awk -F '(/|release.zip)' '{print $3}'` && echo "::set-output name=riruReleaseName::$riruReleaseName"
+          riruDebugName=`ls magisk-loader/release/LSPosed-v*-riru-debug.zip | awk -F '(/|debug.zip)' '{print $3}'` && echo "::set-output name=riruDebugName::$riruDebugName"
+          zygiskReleaseName=`ls magisk-loader/release/LSPosed-v*-zygisk-release.zip | awk -F '(/|release.zip)' '{print $3}'` && echo "::set-output name=zygiskReleaseName::$zygiskReleaseName"
+          zygiskDebugName=`ls magisk-loader/release/LSPosed-v*-zygisk-debug.zip | awk -F '(/|debug.zip)' '{print $3}'` && echo "::set-output name=zygiskDebugName::$zygiskDebugName"
+          unzip magisk-loader/release/LSPosed-v*-riru-release.zip -d LSPosed-riru-release
+          unzip magisk-loader/release/LSPosed-v*-riru-debug.zip -d LSPosed-riru-debug
+          unzip magisk-loader/release/LSPosed-v*-zygisk-release.zip -d LSPosed-zygisk-release
+          unzip magisk-loader/release/LSPosed-v*-zygisk-debug.zip -d LSPosed-zygisk-debug
+      - name: Upload riru release
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.prepareArtifact.outputs.riruReleaseName }}${{ steps.date.outputs.date }}-release
+          path: "./LSPosed-riru-release/*"
+      - name: Upload riru debug
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.prepareArtifact.outputs.riruDebugName }}${{ steps.date.outputs.date }}-debug
+          path: "./LSPosed-riru-debug/*"
+      - name: Upload zygisk release
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.prepareArtifact.outputs.zygiskReleaseName }}${{ steps.date.outputs.date }}-release
+          path: "./LSPosed-zygisk-release/*"
+      - name: Upload zygisk debug
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.prepareArtifact.outputs.zygiskDebugName }}${{ steps.date.outputs.date }}-debug
+          path: "./LSPosed-zygisk-debug/*"
+      - name: Upload mappings
+        uses: actions/upload-artifact@v2
+        with:
+          name: mappings
+          path: |
+            magisk-loader/build/outputs/mapping
+            app/build/outputs/mapping
+      - name: Upload symbols
+        uses: actions/upload-artifact@v2
+        with:
+          name: symbols
+          path: |
+            magisk-loader/build/symbols
+            daemon/build/symbols
+            dex2oat/build/symbols
     # - name: Post to channel
     #   if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
     #   env:
