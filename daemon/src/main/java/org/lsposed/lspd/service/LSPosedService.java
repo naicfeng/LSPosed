@@ -109,8 +109,14 @@ public class LSPosedService extends ILSPosedService.Stub {
                         isXposedModule = true;
                         broadcastAndShowNotification(moduleName, userId, intent, true);
                     }
+                // Anyway, canceled the notification
+                if (moduleName != null) LSPManagerService.cancelNotification(moduleName, userId);
                 break;
             }
+            case Intent.ACTION_PACKAGE_REMOVED:
+                // Anyway, canceled the notification
+                if (moduleName != null) LSPManagerService.cancelNotification(moduleName, userId);
+                break;
             case Intent.ACTION_PACKAGE_ADDED:
             case Intent.ACTION_PACKAGE_CHANGED: {
                 // make sure that the change is for the complete package, not only a
