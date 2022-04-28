@@ -37,6 +37,7 @@
 #define LOGI(...) 0
 #define LOGW(...) 0
 #define LOGE(...) 0
+#define LOGF(...) 0
 #define PLOGE(fmt, args...) 0
 #else
 template <typename... T>
