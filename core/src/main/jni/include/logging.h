@@ -37,6 +37,7 @@
 #define LOGI(...) 0
 #define LOGW(...) 0
 #define LOGE(...) 0
+#define PLOGE(fmt, args...) 0
 #else
 template <typename... T>
 constexpr inline void LOG(int prio, const char* tag, fmt::format_string<T...> fmt, T&&... args) {
