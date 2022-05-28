@@ -79,6 +79,12 @@ fun Project.configureBaseExtension() {
         ndkVersion = androidCompileNdkVersion
         buildToolsVersion = androidBuildToolsVersion
 
+        externalNativeBuild {
+            cmake {
+                version = "3.22.1+"
+            }
+        }
+
         defaultConfig {
             minSdk = androidMinSdkVersion
             targetSdk = androidTargetSdkVersion
@@ -160,10 +166,9 @@ fun Project.configureBaseExtension() {
                         ).joinToString(" ")
                         arguments.addAll(
                             arrayOf(
+                                "-DCMAKE_BUILD_TYPE=Release",
                                 "-DCMAKE_CXX_FLAGS_RELEASE=$configFlags",
-                                "-DCMAKE_CXX_FLAGS_RELWITHDEBINFO=$configFlags",
                                 "-DCMAKE_C_FLAGS_RELEASE=$configFlags",
-                                "-DCMAKE_C_FLAGS_RELWITHDEBINFO=$configFlags",
                                 "-DDEBUG_SYMBOLS_PATH=${buildDir.absolutePath}/symbols",
                             )
                         )
