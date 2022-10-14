@@ -8,77 +8,71 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
-    if: ${{ !startsWith(github.event.head_commit.message, '[skip ci]') }}
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: "recursive"
-          fetch-depth: 0
-      - name: Write key
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed'
-        run: |
-          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-            echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
-            echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
-            echo androidKeyPassword='${{ secrets.KEY_PASSWORD }}' >> gradle.properties
-            echo androidStoreFile='key.jks' >> gradle.properties
-            echo ${{ secrets.KEY_STORE }} | base64 --decode > key.jks
-          fi
-      - name: Cache Gradle Dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            !~/.gradle/caches/build-cache-*
-          key: gradle-deps-core-${{ hashFiles('**/build.gradle.kts') }}
-          restore-keys: |
-            gradle-deps
-      - name: Cache Gradle Build
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches/build-cache-*
-            ~/.gradle/buildOutputCleanup/cache.properties
-          key: gradle-builds-core-${{ github.sha }}
-          restore-keys: |
-            gradle-builds
-      - name: Cache native build
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.ccache
-            magisk-loader/build/.lto-cache
-            daemon/build/.lto-cache
-            dex2oat/build/.lto-cache
-          key: native-cache-${{ github.sha }}
-          restore-keys: native-cache-
-      - name: Install dep
-        run: |
-          sudo apt-get install -y ccache
-          ccache -o max_size=1G
-          ccache -o hash_dir=false
-          ccache -o compiler_check='%compiler% -dumpmachine; %compiler% -dumpversion'
-          ccache -o hard_link=true
-          ccache -zp
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-      - name: Build with Gradle
-        run: |
-          [ $(du -s ~/.gradle/wrapper | awk '{ print $1 }') -gt 250000 ] && rm -rf ~/.gradle/wrapper/* || true
-          find ~/.gradle/caches -exec touch -d "2 days ago" {} + || true
-          echo 'org.gradle.caching=true' >> gradle.properties
-          echo 'org.gradle.parallel=true' >> gradle.properties
-          echo 'org.gradle.vfs.watch=true' >> gradle.properties
-          echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
-          echo 'android.native.buildOutput=verbose' >> gradle.properties
-          echo 'buildCache { local { removeUnusedEntriesAfterDays = 1 } }' >> settings.gradle.kts
-          bash ./gradlew zipAll
-          ccache -s
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+        fetch-depth: 0
+    - name: Write key
+      if: github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed'
+      run: |
+        if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
+          echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
+          echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
+          echo androidKeyPassword='${{ secrets.KEY_PASSWORD }}' >> gradle.properties
+          echo androidStoreFile='key.jks' >> gradle.properties
+          echo ${{ secrets.KEY_STORE }} | base64 --decode > key.jks
+        fi
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+        cache: 'gradle'
+    - name: Cache Gradle Build
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches/build-cache-*
+          ~/.gradle/buildOutputCleanup/cache.properties
+        key: gradle-builds-core-${{ github.sha }}
+        restore-keys: |
+          gradle-builds
+    - name: Cache native build
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.ccache
+          magisk-loader/build/.lto-cache
+          daemon/build/.lto-cache
+          dex2oat/build/.lto-cache
+        key: native-cache-${{ github.sha }}
+        restore-keys: native-cache-
+    - name: Install dep
+      run: |
+        sudo apt-get install -y ccache
+        ccache -o max_size=1G
+        ccache -o hash_dir=false
+        ccache -o compiler_check='%compiler% -dumpmachine; %compiler% -dumpversion'
+        ccache -o hard_link=true
+        ccache -zp
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+    - name: Build with Gradle
+      run: |
+        [ $(du -s ~/.gradle/wrapper | awk '{ print $1 }') -gt 250000 ] && rm -rf ~/.gradle/wrapper/* || true
+        find ~/.gradle/caches -exec touch -d "2 days ago" {} + || true
+        echo 'org.gradle.caching=true' >> gradle.properties
+        echo 'org.gradle.parallel=true' >> gradle.properties
+        echo 'org.gradle.vfs.watch=true' >> gradle.properties
+        echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
+        echo 'android.native.buildOutput=verbose' >> gradle.properties
+        echo 'buildCache { local { removeUnusedEntriesAfterDays = 1 } }' >> settings.gradle.kts
+        bash ./gradlew zipAll
+        ccache -s
       - name: Prepare artifact
         if: success()
         id: prepareArtifact
@@ -95,34 +89,34 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.prepareArtifact.outputs.riruReleaseName }}${{ steps.date.outputs.date }}-release
-          path: "./LSPosed-riru-release/*"
+          path: './LSPosed-riru-release/*'
       - name: Upload riru debug
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.prepareArtifact.outputs.riruDebugName }}${{ steps.date.outputs.date }}-debug
-          path: "./LSPosed-riru-debug/*"
+          path: './LSPosed-riru-debug/*'
       - name: Upload zygisk release
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.prepareArtifact.outputs.zygiskReleaseName }}${{ steps.date.outputs.date }}-release
-          path: "./LSPosed-zygisk-release/*"
+          path: './LSPosed-zygisk-release/*'
       - name: Upload zygisk debug
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.prepareArtifact.outputs.zygiskDebugName }}${{ steps.date.outputs.date }}-debug
-          path: "./LSPosed-zygisk-debug/*"
-      - name: Upload mappings
-        uses: actions/upload-artifact@v2
-        with:
-          name: mappings
-          path: |
-            magisk-loader/build/outputs/mapping
-            app/build/outputs/mapping
-      - name: Upload symbols
-        uses: actions/upload-artifact@v2
-        with:
-          name: symbols
-          path: |
-            magisk-loader/build/symbols
-            daemon/build/symbols
-            dex2oat/build/symbols
+          path: './LSPosed-zygisk-debug/*'
+    - name: Upload mappings
+      uses: actions/upload-artifact@v2
+      with:
+        name: mappings
+        path: |
+          magisk-loader/build/outputs/mapping
+          app/build/outputs/mapping
+    - name: Upload symbols
+      uses: actions/upload-artifact@v2
+      with:
+        name: symbols
+        path: |
+          magisk-loader/build/symbols
+          daemon/build/symbols
+          dex2oat/build/symbols
