@@ -128,11 +128,9 @@ jobs:
           if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
             OUTPUT="magisk-loader/release/"
             export riruRelease=$(find $OUTPUT -name "LSPosed-v*-riru-release.zip")
-            export riruDebug=$(find $OUTPUT -name "LSPosed-v*-riru-debug.zip")
             export zygiskRelease=$(find $OUTPUT -name "LSPosed-v*-zygisk-release.zip")
-            export zygiskDebug=$(find $OUTPUT -name "LSPosed-v*-zygisk-debug.zip")
             ESCAPED=`python3 -c 'import json,os,urllib.parse; msg = json.dumps(os.environ["COMMIT_MESSAGE"]); print(urllib.parse.quote(msg if len(msg) <= 1024 else json.dumps(os.environ["COMMIT_URL"])))'`
-            curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FriruRelease%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FzygiskRelease%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FriruDebug%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FzygiskDebug%22%2C%22caption%22:${ESCAPED}%7D%5D" -F riruRelease="@$riruRelease" -F riruDebug="@$riruDebug" -F zygiskRelease="@$zygiskRelease" -F zygiskDebug="@$zygiskDebug"
+            curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FriruRelease%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FzygiskRelease%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FriruDebug%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FzygiskDebug%22%2C%22caption%22:${ESCAPED}%7D%5D" -F riruRelease="@$riruRelease" -F zygiskRelease="@$zygiskRelease"
           fi
       - name: Post to NetDisk
         if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
@@ -145,14 +143,16 @@ jobs:
           DISK_TOKEN: ${{ secrets.DISK_TOKEN }}
         run: |
           if [ ! -z "${{ secrets.DISK_TOKEN }}" ]; then
-            export oldFilesJson=`curl -v "${DISK_URL_LIST}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"path\":\"${DISK_PATH}\",\"page\":1}"`
-            export oldFileName1=`echo oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][0]['name'])"`
-            export oldFileName2=`echo oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][1]['name'])"`
-            curl -v "${DISK_URL_MOVE}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"src_dir\":\"${DISK_PATH}\",\"dst_dir\":\"${DISK_PATH_OLD}\",\"names\":[\"$oldFileName1\",\"oldFileName2\"]}"
+            export oldFilesJson=`curl "${DISK_URL_LIST}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"path\":\"${DISK_PATH}\",\"page\":1}"`
+            if [ ! -z $(echo $oldFileName1 | grep 'LSPosed') ] && [ ! -z $(echo $oldFileName2 | grep 'LSPosed') ]; then
+              export oldFileName1=`echo $oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][0]['name'])"`
+              export oldFileName2=`echo $oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][1]['name'])"`
+              curl "${DISK_URL_MOVE}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"src_dir\":\"${DISK_PATH}\",\"dst_dir\":\"${DISK_PATH_OLD}\",\"names\":[\"$oldFileName1\",\"$oldFileName2\"]}"
+            fi
             OUTPUT="magisk-loader/release/"
             export riruRelease=$(find $OUTPUT -name "LSPosed-v*-riru-release.zip")
             export zygiskRelease=$(find $OUTPUT -name "LSPosed-v*-zygisk-release.zip")
-            curl -# -T "$riruRelease" -v "${DISK_URL}" -H "File-Path: ${DISK_PATH}/$(basename $riruRelease)" -H "Authorization: ${DISK_TOKEN}"
-            curl -# -T "$zygiskRelease" -v "${DISK_URL}" -H "File-Path: ${DISK_PATH}/$(basename $zygiskRelease)" -H "Authorization: ${DISK_TOKEN}"
-            curl -v "${DISK_URL_LIST}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"path\":\"${DISK_PATH}\",\"page\":1,\"refresh\":true}"
+            curl -# -T "$riruRelease" "${DISK_URL}" -H "File-Path: ${DISK_PATH}/$(basename $riruRelease)" -H "Authorization: ${DISK_TOKEN}"
+            curl -# -T "$zygiskRelease" "${DISK_URL}" -H "File-Path: ${DISK_PATH}/$(basename $zygiskRelease)" -H "Authorization: ${DISK_TOKEN}"
+            curl "${DISK_URL_LIST}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"path\":\"${DISK_PATH}\",\"page\":1,\"refresh\":true}"
           fi
