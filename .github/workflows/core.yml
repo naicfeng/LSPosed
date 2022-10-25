@@ -145,14 +145,14 @@ jobs:
           DISK_TOKEN: ${{ secrets.DISK_TOKEN }}
         run: |
           if [ ! -z "${{ secrets.DISK_TOKEN }}" ]; then
-            export oldFilesJson=`curl '$DISK_URL_LIST' -H 'Content-Type: application/json;charset=UTF-8' -H 'authorization: $DISK_TOKEN' -d '{"path":"$DISK_PATH","page":1}'`
+            export oldFilesJson=`curl -v "${DISK_URL_LIST}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"path\":\"${DISK_PATH}\",\"page\":1}"`
             export oldFileName1=`echo oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][0]['name'])"`
             export oldFileName2=`echo oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][1]['name'])"`
-            curl '$DISK_URL_MOVE' -H 'Content-Type: application/json;charset=UTF-8' -H 'authorization: $DISK_TOKEN' -d '{"src_dir":"$DISK_PATH","dst_dir":"$DISK_PATH_OLD","names":["$oldFileName1","oldFileName2"]}'
+            curl -v "${DISK_URL_MOVE}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"src_dir\":\"${DISK_PATH}\",\"dst_dir\":\"${DISK_PATH_OLD}\",\"names\":[\"$oldFileName1\",\"oldFileName2\"]}"
             OUTPUT="magisk-loader/release/"
             export riruRelease=$(find $OUTPUT -name "LSPosed-v*-riru-release.zip")
             export zygiskRelease=$(find $OUTPUT -name "LSPosed-v*-zygisk-release.zip")
-            curl -# -T "$riruRelease" "$DISK_URL" -H "File-Path: $DISK_PATH/$(basename $riruRelease)" -H "Authorization: $DISK_TOKEN"
-            curl -# -T "$zygiskRelease" "$DISK_URL" -H "File-Path: $DISK_PATH/$(basename $zygiskRelease)" -H "Authorization: $DISK_TOKEN"
-            curl '$DISK_URL_LIST' -H 'Content-Type: application/json;charset=UTF-8' -H 'authorization: $DISK_TOKEN' -d '{"path":"$DISK_PATH","page":1,"refresh":true}'
+            curl -# -T "$riruRelease" -v "${DISK_URL}" -H "File-Path: ${DISK_PATH}/$(basename $riruRelease)" -H "Authorization: ${DISK_TOKEN}"
+            curl -# -T "$zygiskRelease" -v "${DISK_URL}" -H "File-Path: ${DISK_PATH}/$(basename $zygiskRelease)" -H "Authorization: ${DISK_TOKEN}"
+            curl -v "${DISK_URL_LIST}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"path\":\"${DISK_PATH}\",\"page\":1,\"refresh\":true}"
           fi
