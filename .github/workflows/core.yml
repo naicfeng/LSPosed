@@ -144,9 +144,9 @@ jobs:
         run: |
           if [ ! -z "${{ secrets.DISK_TOKEN }}" ]; then
             export oldFilesJson=`curl "${DISK_URL_LIST}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"path\":\"${DISK_PATH}\",\"page\":1}"`
+            export oldFileName1=`echo $oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][0]['name'])"`
+            export oldFileName2=`echo $oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][1]['name'])"`
             if [ ! -z $(echo $oldFileName1 | grep 'LSPosed') ] && [ ! -z $(echo $oldFileName2 | grep 'LSPosed') ]; then
-              export oldFileName1=`echo $oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][0]['name'])"`
-              export oldFileName2=`echo $oldFilesJson | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['content'][1]['name'])"`
               curl "${DISK_URL_MOVE}" -H "Content-Type: application/json;charset=UTF-8" -H "authorization: ${DISK_TOKEN}" -d "{\"src_dir\":\"${DISK_PATH}\",\"dst_dir\":\"${DISK_PATH_OLD}\",\"names\":[\"$oldFileName1\",\"$oldFileName2\"]}"
             fi
             OUTPUT="magisk-loader/release/"
