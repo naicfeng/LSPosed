@@ -1,0 +1,27 @@
+name: AutoPull
+
+on:
+  schedule:
+    - cron: "0 */8 * * *"
+  workflow_dispatch:
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
+
+      - name: Sync upstream updates
+        run: |
+          git config pull.rebase false
+          git config --global user.name 'AutoPull'
+          git config --global user.email 'autopull@cuojue.org'
+          export oldver=$(git rev-parse --short HEAD)
+          git pull https://github.com/LSPosed/LSPosed
+          if [ $(git rev-parse --short HEAD) != $oldver ]; then
+            git commit --amend --no-edit -m "Merge $(git rev-parse --short HEAD^)"
+            git push origin LSPosed
+          fi
