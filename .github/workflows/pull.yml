@@ -14,6 +14,9 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.PAT }}
 
+      - name: timezone
+        run: sudo timedatectl set-timezone 'Asia/Shanghai'
+
       - name: Sync upstream updates
         run: |
           git config pull.rebase false
@@ -22,6 +25,6 @@ jobs:
           export oldver=$(git rev-parse --short HEAD)
           git pull https://github.com/LSPosed/LSPosed
           if [ $(git rev-parse --short HEAD) != $oldver ]; then
-            git commit --amend --no-edit -m "Merge $(git rev-parse --short HEAD)"
+            git commit --amend --no-edit -m "Auto Merge $(date '+%Y-%m-%d %H:%M:%S')"
             git push origin LSPosed
           fi
