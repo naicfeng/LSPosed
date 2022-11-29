@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [LSPosed]
+    tags: [v*]
   pull_request:
 
 jobs:
@@ -21,7 +22,7 @@ jobs:
           submodules: "recursive"
           fetch-depth: 0
       - name: Write key
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed'
+        if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed' ) || github.ref_type == 'tag' }}
         run: |
           if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
             echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
@@ -109,7 +110,7 @@ jobs:
             daemon/build/symbols
             dex2oat/build/symbols
       - name: Post to channel
-        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
+        if: ${{ success() && ( ( github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed' ) || github.ref_type == 'tag' ) }}
         env:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -124,7 +125,7 @@ jobs:
             curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FriruRelease%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FzygiskRelease%22%2C%22caption%22%3A${ESCAPED}%7D%5D" -F riruRelease="@$riruRelease" -F zygiskRelease="@$zygiskRelease"
           fi
       - name: Post to NetDisk
-        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/LSPosed' }}
+        if: ${{ success() && ( ( github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed' ) || github.ref_type == 'tag' ) }}
         env:
           DISK_URL_FORM: ${{ secrets.DISK_URL_FORM }}
           DISK_URL_LIST: ${{ secrets.DISK_URL_LIST }}
