@@ -1,14 +1,17 @@
 # 这是一个复刻(fork)版本
 
-原版本 [LSPosed](https://github.com/LSPosed/LSPosed) 
+原版本 [LSPosed](https://github.com/LSPosed/LSPosed)
 
 ## 修改内容
 
 1. 修改了管理器图标
 2. 禁用了全部日志
 
+## Telegram 自动发布频道
 
-## Introduction 
+[@lsposed_disable_log](https://t.me/lsposed_disable_log)
+
+## Introduction
 
 A Riru / Zygisk module trying to provide an ART hooking framework which delivers consistent APIs with the OG Xposed, leveraging LSPlant hooking framework.
 
@@ -25,11 +28,11 @@ Android 8.1 ~ 13
 3. [Download](#download) and install LSPosed in Magisk app
 4. Reboot
 5. Follow the prompt to add LSPosed shortcut to launcher
-    - Some launchers won't show a prompt but silently add the shortcut
-    - If the shortcut cannot be added, you can install the manager located at `/data/adb/lspd/manager.apk` manually
-    - If you accidentally deleted the shortcut, reboot your device or install the manager manually to add the shortcut again
-    - If you don't need a shortcut, install the manager manually and you can disable future shortcut being added in the settings
-    - In any case, you can dial `*#*#5776733#*#*` (aka LSPosed) to launch the manager if you have a dialer
+   - Some launchers won't show a prompt but silently add the shortcut
+   - If the shortcut cannot be added, you can install the manager located at `/data/adb/lspd/manager.apk` manually
+   - If you accidentally deleted the shortcut, reboot your device or install the manager manually to add the shortcut again
+   - If you don't need a shortcut, install the manager manually and you can disable future shortcut being added in the settings
+   - In any case, you can dial `*#*#5776733#*#*` (aka LSPosed) to launch the manager if you have a dialer
 6. Have fun :)
 
 ## Download
@@ -41,7 +44,7 @@ Note: debug builds are only available in Github Actions.
 ## Get Help
 
 - GitHub issues: [Issues](https://github.com/LSPosed/LSPosed/issues/)
-- (For Chinese speakers) 本项目只接受英语**标题**的issue。如果您不懂英语，请使用[翻译工具](https://www.deepl.com/zh/translator)
+- (For Chinese speakers) 本项目只接受英语**标题**的 issue。如果您不懂英语，请使用[翻译工具](https://www.deepl.com/zh/translator)
 
 ## For Developers
 
@@ -63,7 +66,7 @@ Notice: These community groups don't accept any bug report, please use [Get help
 
 You can contribute translation [here](https://lsposed.crowdin.com/lsposed).
 
-## Credits 
+## Credits
 
 - [Magisk](https://github.com/topjohnwu/Magisk/): makes all these possible
 - [Riru](https://github.com/RikkaApps/Riru): provides a way to inject code into zygote process
