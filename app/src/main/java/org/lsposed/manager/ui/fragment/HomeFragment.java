@@ -101,7 +101,7 @@ public class HomeFragment extends BaseFragment {
                     if (UpdateUtil.canInstall()) {
                         new FlashDialogBuilder(activity, null).show();
                     } else {
-                        NavUtil.startURL(activity, getString(R.string.about_source));
+                        NavUtil.startURL(activity, getString(R.string.latest_url));
                     }
                 });
                 binding.updateCard.setVisibility(View.VISIBLE);
@@ -256,7 +256,7 @@ public class HomeFragment extends BaseFragment {
                     R.string.about_view_source_code,
                     "<b><a href=\"https://github.com/naicfeng/LSPosed\">GitHub</a></b>",
                     "<b><a href=\"https://t.me/LSPosed\">Telegram</a></b>",
-                    "<b><a href=\"https://cuojue.org\">CuoJue.org</a></b>"), HtmlCompat.FROM_HTML_MODE_LEGACY));
+                    "<b><a href=\"https://cuojue.org/read/lsposed.html\">CuoJue.org</a></b>"), HtmlCompat.FROM_HTML_MODE_LEGACY));
             binding.designAboutVersion.setText(String.format(LocaleDelegate.getDefaultLocale(), "%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
             return new BlurBehindDialogBuilder(requireContext())
                     .setView(binding.getRoot()).create();

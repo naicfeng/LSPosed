@@ -110,7 +110,7 @@ jobs:
             daemon/build/symbols
             dex2oat/build/symbols
       - name: Post to channel
-        if: ${{ success() && ( ( github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed' ) || github.ref_type == 'tag' ) }}
+        if: ${{ success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed' && github.ref_type != 'tag' }}
         env:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -125,7 +125,7 @@ jobs:
             curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FriruRelease%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FzygiskRelease%22%2C%22caption%22%3A${ESCAPED}%7D%5D" -F riruRelease="@$riruRelease" -F zygiskRelease="@$zygiskRelease"
           fi
       - name: Post to NetDisk
-        if: ${{ success() && ( ( github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed' ) || github.ref_type == 'tag' ) }}
+        if: ${{ success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/LSPosed' && github.ref_type != 'tag' }}
         env:
           DISK_URL_FORM: ${{ secrets.DISK_URL_FORM }}
           DISK_URL_LIST: ${{ secrets.DISK_URL_LIST }}
