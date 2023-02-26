@@ -16,6 +16,7 @@ jobs:
       CCACHE_NOHASHDIR: "true"
       CCACHE_MAXSIZE: "1G"
       CCACHE_HARDLINK: "true"
+      CCACHE_BASEDIR: "${{ github.workspace }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -52,6 +53,25 @@ jobs:
         with:
           key: ${{ runner.os }}
           restore-keys: ${{ runner.os }}
+      - name: Build dependencies
+        run: |
+          mkdir -p libxposed
+          cd libxposed
+          git clone https://github.com/libxposed/api.git
+          cd api
+          echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
+          ./gradlew :api
+#          ./gradlew :api:publishApiPublicationToMavenLocal
+          cd ..
+          git clone https://github.com/libxposed/service.git
+          cd service
+          echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
+          ./gradlew :interface
+#          ./gradlew :interface:publishInterfacePublicationToMavenLocal
+          cd ../..
+#        env:
+#          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.maven_pgp_signingKey }}
+#          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.maven_pgp_signingPassword }}
       - name: Build with Gradle
         run: |
           [ $(du -s ~/.gradle/wrapper | awk '{ print $1 }') -gt 250000 ] && rm -rf ~/.gradle/wrapper/* || true
