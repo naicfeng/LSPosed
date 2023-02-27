@@ -62,8 +62,8 @@ public class LogcatService implements Runnable {
             SystemProperties.set("persist.sys.log_reject_level", "0");
         }
 
-        getprop();
-        dmesg();
+//        getprop();
+//        dmesg();
     }
 
     private static void getprop() {

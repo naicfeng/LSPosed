@@ -158,7 +158,7 @@ public class HomeFragment extends BaseFragment {
 
         if (ConfigManager.isBinderAlive()) {
             binding.apiVersion.setText(String.valueOf(ConfigManager.getXposedApiVersion()));
-            binding.api.setText(ConfigManager.isDexObfuscateEnabled() ? R.string.enabled : R.string.not_enabled);
+//            binding.api.setText(ConfigManager.isDexObfuscateEnabled() ? R.string.enabled : R.string.not_enabled);
             binding.frameworkVersion.setText(String.format(LocaleDelegate.getDefaultLocale(), "%1$s (%2$d)", ConfigManager.getXposedVersionName(), ConfigManager.getXposedVersionCode()));
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 binding.dex2oatWrapper.setText(String.format(LocaleDelegate.getDefaultLocale(), "%s (%s)", getString(R.string.unsupported), getString(R.string.android_version_unsatisfied)));
@@ -181,7 +181,7 @@ public class HomeFragment extends BaseFragment {
             }
         } else {
             binding.apiVersion.setText(R.string.not_installed);
-            binding.api.setText(R.string.not_installed);
+//            binding.api.setText(R.string.not_installed);
             binding.frameworkVersion.setText(R.string.not_installed);
         }
         binding.managerVersion.setText(String.format(LocaleDelegate.getDefaultLocale(), "%1$s (%2$d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
@@ -198,10 +198,10 @@ public class HomeFragment extends BaseFragment {
                 "\n" +
                 binding.apiVersion.getText() +
                 "\n\n" +
-                activity.getString(R.string.settings_xposed_api_call_protection) +
-                "\n" +
-                binding.api.getText() +
-                "\n\n" +
+//                activity.getString(R.string.settings_xposed_api_call_protection) +
+//                "\n" +
+//                binding.api.getText() +
+//                "\n\n" +
                 activity.getString(R.string.info_dex2oat_wrapper) +
                 "\n" +
                 binding.dex2oatWrapper.getText() +
@@ -227,7 +227,7 @@ public class HomeFragment extends BaseFragment {
                 binding.systemAbi.getText();
         var map = new HashMap<String, String>();
         map.put("apiVersion", binding.apiVersion.getText().toString());
-        map.put("api", binding.api.getText().toString());
+//        map.put("api", binding.api.getText().toString());
         map.put("frameworkVersion", binding.frameworkVersion.getText().toString());
         map.put("systemAbi", Arrays.toString(Build.SUPPORTED_ABIS));
 //        Telemetry.trackEvent("HomeFragment", map);
