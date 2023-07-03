@@ -357,7 +357,7 @@ public final class ModuleUtil {
             try {
                 int scopeListResourceId = app.metaData.getInt("xposedscope");
                 if (scopeListResourceId != 0) {
-                    scopeList = Arrays.asList(pm.getResourcesForApplication(app).getStringArray(scopeListResourceId));
+                    list = Arrays.asList(pm.getResourcesForApplication(app).getStringArray(scopeListResourceId));
                 } else {
                     String scopeListString = app.metaData.getString("xposedscope");
                     if (scopeListString != null)
@@ -372,14 +372,13 @@ public final class ModuleUtil {
                 }
             }
             if (list != null) {
+                //For historical reasons, legacy modules use the opposite name.
+                //https://github.com/rovo89/XposedBridge/commit/6b49688c929a7768f3113b4c65b429c7a7032afa
                 list.replaceAll(s ->
                     switch (s) {
-                        case "android":
-                            yield "system";
-                        case "system":
-                            yield "android";
-                        default:
-                            yield s;
+                        case "android" -> "system";
+                        case "system" -> "android";
+                        default -> s;
                     }
                 );
                 scopeList = list;
