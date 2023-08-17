@@ -83,9 +83,9 @@ public class BridgeService {
             Log.e(TAG, "service link to death: ", e);
         }
         try {
-            IApplicationThread at = ActivityThread.currentActivityThread().getApplicationThread();
+            IApplicationThread applicationThread = ActivityThread.currentActivityThread().getApplicationThread();
             Context ctx = ActivityThread.currentActivityThread().getSystemContext();
-            service.dispatchSystemServerContext(at.asBinder(), Context_getActivityToken(ctx), BuildConfig.FLAVOR);
+            service.dispatchSystemServerContext(applicationThread.asBinder(), Context_getActivityToken(ctx), BuildConfig.FLAVOR);
         } catch (Throwable e) {
             Log.e(TAG, "dispatch context: ", e);
         }
