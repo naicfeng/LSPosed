@@ -64,7 +64,7 @@ public class LSPosedService extends ILSPosedService.Stub {
     private static final String EXTRA_USER_HANDLE = "android.intent.extra.user_handle";
     private static final String EXTRA_REMOVED_FOR_ALL_USERS = "android.intent.extra.REMOVED_FOR_ALL_USERS";
     private static boolean bootCompleted = false;
-    IBinder applicationThread;
+    private IBinder appThread = null;
 
     private static boolean isModernModules(ApplicationInfo info) {
         String[] apks;
@@ -323,7 +323,7 @@ public class LSPosedService extends ILSPosedService.Stub {
                 if (!ordered && !Objects.equals(intent.getAction(), Intent.ACTION_LOCKED_BOOT_COMPLETED))
                     return;
                 try {
-                    ActivityManagerService.finishReceiver(this, resultCode, data, extras, false, intent.getFlags());
+                    ActivityManagerService.finishReceiver(this, appThread, resultCode, data, extras, false, intent.getFlags());
                 } catch (RemoteException e) {
                     Log.e(TAG, "finish receiver", e);
                 }
@@ -447,11 +447,11 @@ public class LSPosedService extends ILSPosedService.Stub {
     }
 
     @Override
-    public void dispatchSystemServerContext(IBinder applicationThread, IBinder activityToken, String api) {
+    public void dispatchSystemServerContext(IBinder appThread, IBinder activityToken, String api) {
         Log.d(TAG, "received system context");
-        this.applicationThread = applicationThread;
+        this.appThread = appThread;
         ConfigManager.getInstance().setApi(api);
-        ActivityManagerService.onSystemServerContext(IApplicationThread.Stub.asInterface(applicationThread), activityToken);
+        ActivityManagerService.onSystemServerContext(IApplicationThread.Stub.asInterface(appThread), activityToken);
         registerBootCompleteReceiver();
         registerPackageReceiver();
         registerConfigurationReceiver();

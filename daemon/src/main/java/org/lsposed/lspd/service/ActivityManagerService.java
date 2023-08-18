@@ -42,9 +42,9 @@ import android.os.ServiceManager;
 import android.util.Log;
 
 public class ActivityManagerService {
-    private static IActivityManager activityManager = null;
+    private static IActivityManager am = null;
     private static IBinder binder = null;
-    private static IApplicationThread applicationThread = null;
+    private static IApplicationThread appThread = null;
     private static IBinder token = null;
 
     private static final IBinder.DeathRecipient deathRecipient = new IBinder.DeathRecipient() {
@@ -53,26 +53,26 @@ public class ActivityManagerService {
             Log.w(TAG, "am is dead");
             binder.unlinkToDeath(this, 0);
             binder = null;
-            activityManager = null;
-            applicationThread = null;
+            am = null;
+            appThread = null;
             token = null;
         }
     };
 
     public static IActivityManager getActivityManager() {
-        if (binder == null || activityManager == null) {
+        if (binder == null || am == null) {
             binder = ServiceManager.getService(Context.ACTIVITY_SERVICE);
             if (binder == null) return null;
             try {
                 binder.linkToDeath(deathRecipient, 0);
-                activityManager = IActivityManager.Stub.asInterface(binder);
+                am = IActivityManager.Stub.asInterface(binder);
                 // For oddo Android 9 we cannot set activity controller here...
                 // am.setActivityController(null, false);
             } catch (RemoteException e) {
                 Log.e(TAG, Log.getStackTraceString(e));
             }
         }
-        return activityManager;
+        return am;
     }
 
     public static int broadcastIntentWithFeature(String callingFeatureId,
@@ -80,21 +80,21 @@ public class ActivityManagerService {
                                                  String resultData, Bundle map, String[] requiredPermissions,
                                                  int appOp, Bundle options, boolean serialized, boolean sticky, int userId) throws RemoteException {
         IActivityManager am = getActivityManager();
-        if (am == null || applicationThread == null) return -1;
+        if (am == null || appThread == null) return -1;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
-                return am.broadcastIntentWithFeature(applicationThread, callingFeatureId, intent, resolvedType, resultTo,
+                return am.broadcastIntentWithFeature(appThread, callingFeatureId, intent, resolvedType, resultTo,
                         resultCode, resultData, null, requiredPermissions, null, null, appOp, null,
                         serialized, sticky, userId);
             } catch (NoSuchMethodError ignored) {
-                return am.broadcastIntentWithFeature(applicationThread, callingFeatureId, intent, resolvedType, resultTo,
+                return am.broadcastIntentWithFeature(appThread, callingFeatureId, intent, resolvedType, resultTo,
                         resultCode, resultData, null, requiredPermissions, null, appOp, null,
                         serialized, sticky, userId);
             }
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            return am.broadcastIntentWithFeature(applicationThread, callingFeatureId, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
+            return am.broadcastIntentWithFeature(appThread, callingFeatureId, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
         } else {
-            return am.broadcastIntent(applicationThread, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
+            return am.broadcastIntent(appThread, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
         }
     }
 
@@ -114,25 +114,26 @@ public class ActivityManagerService {
                                           String callingFeatureId, IIntentReceiver receiver, IntentFilter filter,
                                           String requiredPermission, int userId, int flags) throws RemoteException {
         IActivityManager am = getActivityManager();
-        if (am == null || applicationThread == null) return null;
+        if (am == null || appThread == null) return null;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            return am.registerReceiverWithFeature(applicationThread, callerPackage, callingFeatureId, "null", receiver, filter, requiredPermission, userId, flags);
+            return am.registerReceiverWithFeature(appThread, callerPackage, callingFeatureId, "null", receiver, filter, requiredPermission, userId, flags);
         else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            return am.registerReceiverWithFeature(applicationThread, callerPackage, callingFeatureId, receiver, filter, requiredPermission, userId, flags);
+            return am.registerReceiverWithFeature(appThread, callerPackage, callingFeatureId, receiver, filter, requiredPermission, userId, flags);
         } else {
-            return am.registerReceiver(applicationThread, callerPackage, receiver, filter, requiredPermission, userId, flags);
+            return am.registerReceiver(appThread, callerPackage, receiver, filter, requiredPermission, userId, flags);
         }
     }
 
-    public static void finishReceiver(IBinder who, int resultCode, String resultData,
-                                      Bundle resultExtras, boolean resultAbort, int flags) throws RemoteException {
+    public static void finishReceiver(IBinder intentReceiver, IBinder applicationThread, int resultCode,
+                                      String resultData, Bundle resultExtras, boolean resultAbort,
+                                      int flags) throws RemoteException {
         IActivityManager am = getActivityManager();
-        if (am == null || applicationThread == null) return;
+        if (am == null || appThread == null) return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            am.finishReceiver(applicationThread.asBinder(), resultCode, resultData, resultExtras, resultAbort, flags);
+            am.finishReceiver(applicationThread, resultCode, resultData, resultExtras, resultAbort, flags);
         } else {
-            am.finishReceiver(who, resultCode, resultData, resultExtras, resultAbort, flags);
+            am.finishReceiver(intentReceiver, resultCode, resultData, resultExtras, resultAbort, flags);
         }
     }
 
@@ -141,8 +142,8 @@ public class ActivityManagerService {
                                   String callingPackage, int userId) throws RemoteException {
 
         IActivityManager am = getActivityManager();
-        if (am == null || applicationThread == null) return -1;
-        return am.bindService(applicationThread, token, service, resolvedType, connection, flags, callingPackage, userId);
+        if (am == null || appThread == null) return -1;
+        return am.bindService(appThread, token, service, resolvedType, connection, flags, callingPackage, userId);
     }
 
     public static boolean unbindService(IServiceConnection connection) throws RemoteException {
@@ -156,17 +157,17 @@ public class ActivityManagerService {
                                                      IBinder resultTo, String resultWho, int requestCode, int flags,
                                                      ProfilerInfo profilerInfo, Bundle options, int userId) throws RemoteException {
         IActivityManager am = getActivityManager();
-        if (am == null || applicationThread == null) return -1;
+        if (am == null || appThread == null) return -1;
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return am.startActivityAsUserWithFeature(applicationThread, callingPackage, callingFeatureId, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
+            return am.startActivityAsUserWithFeature(appThread, callingPackage, callingFeatureId, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
         } else {
-            return am.startActivityAsUser(applicationThread, callingPackage, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
+            return am.startActivityAsUser(appThread, callingPackage, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
         }
     }
 
     public static void onSystemServerContext(IApplicationThread thread, IBinder token) {
-        ActivityManagerService.applicationThread = thread;
+        ActivityManagerService.appThread = thread;
         ActivityManagerService.token = token;
     }
 
